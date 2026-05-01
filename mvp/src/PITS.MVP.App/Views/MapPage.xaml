@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:maps="clr-namespace:Microsoft.Maui.Controls.Maps;assembly=Microsoft.Maui.Controls.Maps"
+             x:Class="PITS.MVP.App.Views.MapPage"
+             Title="轨迹地图">
+    <Grid>
+        <maps:Map x:Name="TripMap" IsShowingUser="True" MapType="Street"/>
+
+        <Frame VerticalOptions="Start" HorizontalOptions="End"
+               Margin="10" Padding="10" BackgroundColor="White" Opacity="0.95">
+            <VerticalStackLayout Spacing="5">
+                <Label Text="时间范围" FontAttributes="Bold" FontSize="12"/>
+                <Picker ItemsSource="{Binding TimeOptions}"
+                        SelectedItem="{Binding SelectedTimeRange}"/>
+            </VerticalStackLayout>
+        </Frame>
+
+        <Frame VerticalOptions="End" Margin="10" Padding="10"
+               BackgroundColor="White" Opacity="0.95">
+            <Label Text="点击地图查看行程详情" FontSize="12" TextColor="Gray"/>
+        </Frame>
+    </Grid>
+</ContentPage>

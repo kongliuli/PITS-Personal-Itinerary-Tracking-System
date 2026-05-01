@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="PITS.MVP.App.Views.PlacePage"
+             Title="地点管理">
+    <Grid RowDefinitions="Auto,*">
+        
+        <Frame Grid.Row="0" Margin="10" Padding="15">
+            <VerticalStackLayout Spacing="10">
+                <Label Text="添加新地点" FontAttributes="Bold"/>
+                <Entry Placeholder="地点名称" Text="{Binding NewPlaceName}"/>
+                <Picker Title="选择类别" ItemsSource="{Binding Categories}"
+                        SelectedItem="{Binding SelectedCategory}"/>
+                <Button Text="添加当前位置" Command="{Binding AddPlaceCommand}"/>
+            </VerticalStackLayout>
+        </Frame>
+
+        <CollectionView Grid.Row="1" ItemsSource="{Binding Places}" Margin="10">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Frame Margin="0,0,0,10" Padding="15">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <VerticalStackLayout>
+                                <Label Text="{Binding Name}" FontAttributes="Bold"/>
+                                <Label Text="{Binding Category}" FontSize="12" TextColor="Gray"/>
+                                <Label Text="{Binding VisitCount, StringFormat='访问 {0} 次'}" 
+                                       FontSize="11" TextColor="LightGray"/>
+                            </VerticalStackLayout>
+                            <Button Text="删除" Command="{Binding Source={RelativeSource AncestorType={x:Type ViewModels.PlaceViewModel}}, Path=DeletePlaceCommand}"
+                                    CommandParameter="{Binding .}"
+                                    BackgroundColor="Red" Grid.Column="1"/>
+                        </Grid>
+                    </Frame>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+        
+    </Grid>
+</ContentPage>

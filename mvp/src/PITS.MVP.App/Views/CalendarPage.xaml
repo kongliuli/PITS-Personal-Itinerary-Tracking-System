@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="PITS.MVP.App.Views.CalendarPage"
+             Title="日历">
+    <Grid RowDefinitions="Auto,*,Auto">
+        
+        <Grid ColumnDefinitions="Auto,*,Auto" Padding="15" Grid.Row="0">
+            <Button Text="◀" Command="{Binding PrevMonthCommand}" WidthRequest="50"/>
+            <Label Text="{Binding CurrentMonthLabel}" 
+                   HorizontalOptions="Center" FontAttributes="Bold" FontSize="18"
+                   Grid.Column="1" VerticalOptions="Center"/>
+            <Button Text="▶" Command="{Binding NextMonthCommand}" Grid.Column="2" WidthRequest="50"/>
+        </Grid>
+
+        <CollectionView Grid.Row="1" ItemsSource="{Binding CalendarDays}">
+            <CollectionView.ItemsLayout>
+                <GridItemsLayout Orientation="Vertical" Span="7"/>
+            </CollectionView.ItemsLayout>
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Frame Padding="5" BorderColor="{Binding BorderColor}" HeightRequest="60">
+                        <VerticalStackLayout HorizontalOptions="Fill">
+                            <Label Text="{Binding DayNumber}" 
+                                   HorizontalOptions="End" FontSize="14"/>
+                            <HorizontalStackLayout Spacing="2" HorizontalOptions="Center">
+                                <BindableLayout.ItemsSource>
+                                    <Binding Path="Indicators"/>
+                                </BindableLayout.ItemsSource>
+                                <BindableLayout.ItemTemplate>
+                                    <DataTemplate>
+                                        <BoxView Color="{Binding Color}" 
+                                                 WidthRequest="6" HeightRequest="6"
+                                                 CornerRadius="3"/>
+                                    </DataTemplate>
+                                </BindableLayout.ItemTemplate>
+                            </HorizontalStackLayout>
+                        </VerticalStackLayout>
+                        <Frame.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type ViewModels.CalendarViewModel}}, Path=SelectDayCommand}"
+                                                  CommandParameter="{Binding .}"/>
+                        </Frame.GestureRecognizers>
+                    </Frame>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <Frame Grid.Row="2" VerticalOptions="End" Margin="10" Padding="10"
+               IsVisible="{Binding HasSelectedDay}" HeightRequest="200">
+            <CollectionView ItemsSource="{Binding SelectedDayTrips}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Grid ColumnDefinitions="Auto,*,Auto" Padding="10">
+                            <Label Text="{Binding StartedAt, StringFormat='{0:HH:mm}'}" FontSize="12"/>
+                            <Label Text="{Binding Description}" Grid.Column="1" Margin="10,0,0,0"/>
+                            <Frame Grid.Column="2" Padding="5,2" CornerRadius="10"
+                                   BackgroundColor="#2196F3">
+                                <Label Text="{Binding ActivityType}" 
+                                       TextColor="White" FontSize="10"/>
+                            </Frame>
+                        </Grid>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </Frame>
+        
+    </Grid>
+</ContentPage>

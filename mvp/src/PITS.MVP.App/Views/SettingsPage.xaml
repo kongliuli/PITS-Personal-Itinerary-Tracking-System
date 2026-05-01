@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="PITS.MVP.App.Views.SettingsPage"
+             Title="设置">
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="20">
+
+            <Frame>
+                <VerticalStackLayout Spacing="15">
+                    <Label Text="默认设置" FontAttributes="Bold" FontSize="16"/>
+                    
+                    <Label Text="默认可见性级别"/>
+                    <Picker ItemsSource="{Binding VisibilityLevels}"
+                            SelectedItem="{Binding DefaultVisibility}"/>
+                    
+                    <Label Text="后台定位"/>
+                    <Switch IsToggled="{Binding EnableBackgroundLocation}"/>
+                    
+                    <Label Text="地理围栏半径 (米)"/>
+                    <Entry Text="{Binding GeofenceRadius}" Keyboard="Numeric"/>
+                </VerticalStackLayout>
+            </Frame>
+
+            <Frame>
+                <VerticalStackLayout Spacing="15">
+                    <Label Text="数据导出" FontAttributes="Bold" FontSize="16"/>
+                    
+                    <Button Text="导出 GeoJSON" Command="{Binding ExportGeoJsonCommand}"/>
+                    <Button Text="导出 CSV" Command="{Binding ExportCsvAsyncCommand}"/>
+                </VerticalStackLayout>
+            </Frame>
+
+            <Frame>
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="关于" FontAttributes="Bold" FontSize="16"/>
+                    <Label Text="PITS MVP v1.0.0" TextColor="Gray"/>
+                    <Label Text="个人行程追踪系统" TextColor="Gray" FontSize="12"/>
+                </VerticalStackLayout>
+            </Frame>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

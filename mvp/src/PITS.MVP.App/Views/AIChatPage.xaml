@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="PITS.MVP.App.Views.AIChatPage"
+             Title="AI 助手">
+    <Grid RowDefinitions="*,Auto">
+        
+        <CollectionView Grid.Row="0" ItemsSource="{Binding Messages}" Margin="10">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Frame Margin="5" Padding="12" CornerRadius="15"
+                           BackgroundColor="{Binding IsUser, Converter={StaticResource BoolToColorConverter}}"
+                           HorizontalOptions="{Binding IsUser, Converter={StaticResource BoolToLayoutConverter}}">
+                        <Label Text="{Binding Content}" TextColor="{Binding IsUser, Converter={StaticResource BoolToTextColorConverter}}"/>
+                    </Frame>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <Grid Grid.Row="1" ColumnDefinitions="*,Auto" Padding="10" BackgroundColor="White">
+            <Entry Placeholder="输入指令，如'记录刚才的会议'..."
+                   Text="{Binding InputText}" Grid.Column="0"
+                   ReturnCommand="{Binding SendCommand}"/>
+            <Button Text="发送" Command="{Binding SendCommand}" 
+                    Grid.Column="1" Margin="10,0,0,0"/>
+        </Grid>
+        
+    </Grid>
+</ContentPage>
