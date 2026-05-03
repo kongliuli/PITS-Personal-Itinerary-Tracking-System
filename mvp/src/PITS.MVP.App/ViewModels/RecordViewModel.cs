@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using PITS.MVP.Core.Entities;
 using PITS.MVP.Core.Services;
 using PITS.MVP.Core.ValueObjects;
+using System.Collections.ObjectModel;
 
 namespace PITS.MVP.App.ViewModels;
 

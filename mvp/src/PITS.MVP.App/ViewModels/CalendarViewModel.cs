@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using PITS.MVP.Core.Entities;
 using PITS.MVP.Core.Services;
+using System.Collections.ObjectModel;
 
 namespace PITS.MVP.App.ViewModels;
 

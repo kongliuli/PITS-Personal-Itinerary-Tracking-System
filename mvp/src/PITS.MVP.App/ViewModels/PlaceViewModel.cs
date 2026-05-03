@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using NetTopologySuite.Geometries;
 using PITS.MVP.Core.Entities;
 using PITS.MVP.Core.Services;
+using System.Collections.ObjectModel;
 
 namespace PITS.MVP.App.ViewModels;
 
@@ -54,7 +55,7 @@ public partial class PlaceViewModel : BaseViewModel
             {
                 Name = NewPlaceName,
                 Category = SelectedCategory,
-                Location = new Point(location.Longitude, location.Latitude) { SRID = 4326 },
+                Location = new NetTopologySuite.Geometries.Point(location.Longitude, location.Latitude) { SRID = 4326 },
                 Radius = 200
             };
 

@@ -64,9 +64,10 @@ public partial class SettingsViewModel : BaseViewModel
     private static string GenerateGeoJson(IEnumerable<Trip> trips)
     {
         var features = trips.Where(t => t.Location != null).Select(t => 
-            $$"""{"type":"Feature","geometry":{"type":"Point","coordinates":[{{t.Location!.X}},{{t.Location.Y}}]},"properties":{"id":"{{t.Id}}","activity":"{{t.ActivityType}}","description":"{{t.Description}}","startedAt":"{{t.StartedAt:O}}"}}""");
+            string.Format("{{\"type\":\"Feature\",\"geometry\":{{\"type\":\"Point\",\"coordinates\":[{0},{1}]}},\"properties\":{{\"id\":\"{2}\",\"activity\":\"{3}\",\"description\":\"{4}\",\"startedAt\":\"{5}\"}}}}",
+                t.Location!.X, t.Location.Y, t.Id, t.ActivityType, t.Description, t.StartedAt.ToString("O")));
         
-        return $$"""{"type":"FeatureCollection","features":[{{string.Join(",", features)}}]}""";
+        return string.Format("{{\"type\":\"FeatureCollection\",\"features\":[{0}]}}", string.Join(",", features));
     }
 
     private static string GenerateCsv(IEnumerable<Trip> trips)

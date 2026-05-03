@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:PITS.MVP.App.ViewModels"
              x:Class="PITS.MVP.App.Views.PlacePage"
              Title="地点管理">
     <Grid RowDefinitions="Auto,*">
@@ -26,7 +27,7 @@
                                 <Label Text="{Binding VisitCount, StringFormat='访问 {0} 次'}" 
                                        FontSize="11" TextColor="LightGray"/>
                             </VerticalStackLayout>
-                            <Button Text="删除" Command="{Binding Source={RelativeSource AncestorType={x:Type ViewModels.PlaceViewModel}}, Path=DeletePlaceCommand}"
+                            <Button Text="删除" Command="{Binding Source={RelativeSource AncestorType={x:Type vm:PlaceViewModel}}, Path=DeletePlaceCommand}"
                                     CommandParameter="{Binding .}"
                                     BackgroundColor="Red" Grid.Column="1"/>
                         </Grid>
