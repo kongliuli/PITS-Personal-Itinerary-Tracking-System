@@ -27,7 +27,7 @@
                     <Label Text="数据导出" FontAttributes="Bold" FontSize="16"/>
                     
                     <Button Text="导出 GeoJSON" Command="{Binding ExportGeoJsonCommand}"/>
-                    <Button Text="导出 CSV" Command="{Binding ExportCsvAsyncCommand}"/>
+                    <Button Text="导出 CSV" Command="{Binding ExportCsvCommand}"/>
                 </VerticalStackLayout>
             </Frame>
 
