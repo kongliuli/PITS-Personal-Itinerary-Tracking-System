@@ -48,6 +48,10 @@
                     <Label Text="速度着色" FontSize="12" VerticalOptions="Center"/>
                     <Switch IsToggled="{Binding UseSpeedColors}" Margin="5,0,0,0"/>
                 </HorizontalStackLayout>
+                <HorizontalStackLayout Margin="0,5,0,0">
+                    <Label Text="热力图" FontSize="12" VerticalOptions="Center"/>
+                    <Switch IsToggled="{Binding ShowHeatmap}" Margin="5,0,0,0"/>
+                </HorizontalStackLayout>
             </VerticalStackLayout>
         </Frame>
 

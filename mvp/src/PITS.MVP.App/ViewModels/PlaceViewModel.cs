@@ -10,6 +10,7 @@ namespace PITS.MVP.App.ViewModels;
 public partial class PlaceViewModel : BaseViewModel
 {
     private readonly IPlaceService _placeService;
+    private readonly IPlaceClusterService _placeClusterService;
 
     [ObservableProperty] private string _newPlaceName = "";
     [ObservableProperty] private PlaceCategory _selectedCategory = PlaceCategory.Other;
@@ -17,9 +18,10 @@ public partial class PlaceViewModel : BaseViewModel
     public ObservableCollection<Place> Places { get; } = new();
     public List<PlaceCategory> Categories { get; } = Enum.GetValues<PlaceCategory>().ToList();
 
-    public PlaceViewModel(IPlaceService placeService)
+    public PlaceViewModel(IPlaceService placeService, IPlaceClusterService placeClusterService)
     {
         _placeService = placeService;
+        _placeClusterService = placeClusterService;
         Title = "地点管理";
     }
 
@@ -70,5 +72,16 @@ public partial class PlaceViewModel : BaseViewModel
     {
         await _placeService.DeleteAsync(place.Id);
         await LoadPlacesAsync();
+    }
+
+    [RelayCommand]
+    private async Task AutoIdentifyPlacesAsync()
+    {
+        await ExecuteAsync(async () =>
+        {
+            var created = await _placeClusterService.AutoCreatePlacesAsync();
+            await LoadPlacesAsync();
+            await Shell.Current.DisplayAlert("完成", $"自动识别创建了 {created} 个新地点", "确定");
+        });
     }
 }

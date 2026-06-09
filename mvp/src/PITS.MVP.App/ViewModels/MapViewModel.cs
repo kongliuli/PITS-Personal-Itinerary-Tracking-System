@@ -14,6 +14,13 @@ public class SpeedColoredSegment
     public double SpeedKmh { get; set; }
 }
 
+public class HeatmapPoint
+{
+    public Location Location { get; set; } = null!;
+    public double Intensity { get; set; } // 0-1
+    public double Radius { get; set; } = 50; // 米
+}
+
 public partial class MapViewModel : BaseViewModel
 {
     private readonly ITripService _tripService;
@@ -21,12 +28,14 @@ public partial class MapViewModel : BaseViewModel
     [ObservableProperty] private string _selectedTimeRange = "本周";
     [ObservableProperty] private string _selectedLayer = "全部";
     [ObservableProperty] private bool _useSpeedColors = true;
+    [ObservableProperty] private bool _showHeatmap;
     [ObservableProperty] private Trip? _selectedTrip;
 
     public List<string> TimeOptions { get; } = new() { "今天", "本周", "本月", "全部" };
     public List<string> LayerOptions { get; } = new() { "全部", "公开", "工作", "私人" };
 
     public List<SpeedColoredSegment> SpeedColoredSegments { get; private set; } = new();
+    public ObservableCollection<HeatmapPoint> HeatmapPoints { get; } = new();
 
     public MapViewModel(ITripService tripService)
     {
@@ -73,6 +82,49 @@ public partial class MapViewModel : BaseViewModel
         if (value != null)
         {
             _ = LoadTrackPointsAsync(value.Id);
+        }
+    }
+
+    partial void OnShowHeatmapChanged(bool value)
+    {
+        if (value)
+        {
+            GenerateHeatmapPoints();
+        }
+    }
+
+    private void GenerateHeatmapPoints()
+    {
+        HeatmapPoints.Clear();
+        if (SelectedTrip?.TrackPoints == null || SelectedTrip.TrackPoints.Count == 0) return;
+
+        // 按 GeoHash 网格聚合
+        var grid = new Dictionary<string, List<TrackPoint>>();
+        foreach (var point in SelectedTrip.TrackPoints.Where(p => p.Location != null))
+        {
+            var hash = PITS.MVP.Core.ValueObjects.GeoHash.Encode(point.Location!.Y, point.Location!.X, 6);
+            if (!grid.ContainsKey(hash))
+                grid[hash] = new List<TrackPoint>();
+            grid[hash].Add(point);
+        }
+
+        if (grid.Count == 0) return;
+
+        var maxCount = grid.Values.Max(v => v.Count);
+
+        foreach (var kvp in grid)
+        {
+            var points = kvp.Value;
+            var avgLat = points.Average(p => p.Location!.Y);
+            var avgLon = points.Average(p => p.Location!.X);
+            var intensity = (double)points.Count / maxCount;
+
+            HeatmapPoints.Add(new HeatmapPoint
+            {
+                Location = new Location(avgLat, avgLon),
+                Intensity = intensity,
+                Radius = 30 + intensity * 70 // 密度越高圆越大
+            });
         }
     }
 

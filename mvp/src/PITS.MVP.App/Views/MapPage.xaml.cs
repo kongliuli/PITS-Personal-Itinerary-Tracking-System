@@ -22,6 +22,11 @@ public partial class MapPage : ContentPage
         {
             MainThread.BeginInvokeOnMainThread(RenderPolylines);
         }
+        else if (e.PropertyName == nameof(MapViewModel.ShowHeatmap) ||
+                 e.PropertyName == nameof(MapViewModel.HeatmapPoints))
+        {
+            MainThread.BeginInvokeOnMainThread(RenderHeatmap);
+        }
     }
 
     protected override async void OnAppearing()
@@ -128,5 +133,52 @@ public partial class MapPage : ContentPage
             if (polyline.Geopath.Count > 1)
                 TripMap.MapElements.Add(polyline);
         }
+    }
+
+    private void RenderHeatmap()
+    {
+        // 清除现有的热力图 Circle 标记
+        var circlesToRemove = TripMap.MapElements.OfType<Polygon>().ToList();
+        foreach (var circle in circlesToRemove)
+        {
+            TripMap.MapElements.Remove(circle);
+        }
+
+        if (!_viewModel.ShowHeatmap) return;
+
+        foreach (var hp in _viewModel.HeatmapPoints)
+        {
+            // 密度越高颜色越深（从黄到红）
+            var color = GetHeatmapColor(hp.Intensity);
+            var circle = new Polygon
+            {
+                StrokeColor = color,
+                FillColor = color,
+                StrokeWidth = 2
+            };
+
+            // 生成圆形近似点
+            var center = hp.Location;
+            var radiusDeg = hp.Radius / 111000.0; // 近似转换米到度
+            for (int i = 0; i <= 36; i++)
+            {
+                var angle = 2 * Math.PI * i / 36;
+                var lat = center.Latitude + radiusDeg * Math.Sin(angle);
+                var lon = center.Longitude + radiusDeg * Math.Cos(angle) / Math.Cos(center.Latitude * Math.PI / 180);
+                circle.Geopath.Add(new Location(lat, lon));
+            }
+
+            TripMap.MapElements.Add(circle);
+        }
+    }
+
+    private static Color GetHeatmapColor(double intensity)
+    {
+        // 从黄色(低密度)到红色(高密度)，带透明度
+        var r = 255;
+        var g = (int)(255 * (1 - intensity));
+        var b = 0;
+        var alpha = 0.3 + intensity * 0.5;
+        return Color.FromRgba(r, g, b, alpha);
     }
 }

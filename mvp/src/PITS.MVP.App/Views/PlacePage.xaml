@@ -13,6 +13,8 @@
                 <Picker Title="选择类别" ItemsSource="{Binding Categories}"
                         SelectedItem="{Binding SelectedCategory}"/>
                 <Button Text="添加当前位置" Command="{Binding AddPlaceCommand}"/>
+                <Button Text="自动识别" Command="{Binding AutoIdentifyPlacesCommand}"
+                        BackgroundColor="#2196F3" TextColor="White"/>
             </VerticalStackLayout>
         </Frame>
 

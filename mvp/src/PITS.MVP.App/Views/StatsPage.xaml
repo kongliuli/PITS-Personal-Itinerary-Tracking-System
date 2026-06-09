@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:PITS.MVP.App.ViewModels"
+             x:Class="PITS.MVP.App.Views.StatsPage"
+             x:DataType="vm:StatsViewModel"
+             Title="统计">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="15" Spacing="15">
+
+            <!-- 统计卡片 -->
+            <Grid ColumnDefinitions="*,*,*" RowDefinitions="Auto" ColumnSpacing="10">
+                <Frame Grid.Column="0" Padding="10" BackgroundColor="#2196F3">
+                    <VerticalStackLayout>
+                        <Label Text="总距离" TextColor="White" FontSize="12"/>
+                        <Label Text="{Binding TotalDistanceKm, StringFormat='{0} km'}" TextColor="White" FontSize="20" FontAttributes="Bold"/>
+                    </VerticalStackLayout>
+                </Frame>
+                <Frame Grid.Column="1" Padding="10" BackgroundColor="#4CAF50">
+                    <VerticalStackLayout>
+                        <Label Text="行程数" TextColor="White" FontSize="12"/>
+                        <Label Text="{Binding TripCount}" TextColor="White" FontSize="20" FontAttributes="Bold"/>
+                    </VerticalStackLayout>
+                </Frame>
+                <Frame Grid.Column="2" Padding="10" BackgroundColor="#FF9800">
+                    <VerticalStackLayout>
+                        <Label Text="总时长" TextColor="White" FontSize="12"/>
+                        <Label Text="{Binding TotalDuration}" TextColor="White" FontSize="16" FontAttributes="Bold"/>
+                    </VerticalStackLayout>
+                </Frame>
+            </Grid>
+
+            <!-- 数据缺口卡片 -->
+            <Frame Padding="10" BackgroundColor="#F44336">
+                <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto">
+                    <Label Grid.Row="0" Grid.Column="0" Text="数据缺口" TextColor="White" FontSize="14" FontAttributes="Bold"/>
+                    <Label Grid.Row="0" Grid.Column="1" Text="{Binding GapCount, StringFormat='{0} 处'}" TextColor="White" FontSize="20" FontAttributes="Bold"/>
+                    <Label Grid.Row="1" Grid.Column="0" Text="缺口总时长" TextColor="White" FontSize="12"/>
+                    <Label Grid.Row="1" Grid.Column="1" Text="{Binding TotalGapDuration}" TextColor="White" FontSize="14" FontAttributes="Bold"/>
+                </Grid>
+            </Frame>
+
+            <!-- 出行方式分布 -->
+            <Frame Padding="10">
+                <VerticalStackLayout Spacing="5">
+                    <Label Text="出行方式" FontSize="16" FontAttributes="Bold"/>
+                    <CollectionView ItemsSource="{Binding ActivityDistribution}" HeightRequest="150">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <HorizontalStackLayout Spacing="10" Margin="0,3">
+                                    <BoxView Color="{Binding Color}" WidthRequest="12" HeightRequest="12"/>
+                                    <Label Text="{Binding Activity}" WidthRequest="60"/>
+                                    <ProgressBar Progress="{Binding Count}" WidthRequest="150"/>
+                                    <Label Text="{Binding Count}"/>
+                                </HorizontalStackLayout>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- 常去地点 -->
+            <Frame Padding="10">
+                <VerticalStackLayout Spacing="5">
+                    <Label Text="常去地点" FontSize="16" FontAttributes="Bold"/>
+                    <CollectionView ItemsSource="{Binding TopPlaces}" HeightRequest="200">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <Grid ColumnDefinitions="40,*,Auto" Margin="0,3">
+                                    <Label Text="#" FontSize="14" HorizontalOptions="Center"/>
+                                    <Label Text="{Binding Name}" FontSize="14"/>
+                                    <Label Text="{Binding VisitCount, StringFormat='{0}次'}" FontSize="14"/>
+                                </Grid>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- 时间分布 -->
+            <Frame Padding="10">
+                <VerticalStackLayout Spacing="5">
+                    <Label Text="小时分布" FontSize="16" FontAttributes="Bold"/>
+                    <CollectionView ItemsSource="{Binding HourDistribution}" HeightRequest="120">
+                        <CollectionView.ItemsLayout>
+                            <GridItemsLayout Span="24" Orientation="Horizontal" HorizontalItemSpacing="2"/>
+                        </CollectionView.ItemsLayout>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <VerticalStackLayout HorizontalOptions="Fill">
+                                    <BoxView HeightRequest="{Binding Count}" MaximumHeightRequest="50"
+                                             Color="#2196F3" HorizontalOptions="Fill" WidthRequest="8"/>
+                                    <Label Text="{Binding Hour}" FontSize="6" HorizontalOptions="Center"/>
+                                </VerticalStackLayout>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+            </Frame>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>
