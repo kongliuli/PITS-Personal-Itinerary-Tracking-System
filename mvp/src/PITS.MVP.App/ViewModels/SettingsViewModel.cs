@@ -17,6 +17,16 @@ public partial class SettingsViewModel : BaseViewModel
     [ObservableProperty] private double _stayDurationMinutes = Preferences.Default.Get("stay_duration_minutes", 5.0);
     [ObservableProperty] private double _gapThresholdMinutes = Preferences.Default.Get("gap_threshold_minutes", 30.0);
 
+    [ObservableProperty] private string _mqttHost = Preferences.Default.Get("mqtt_host", "");
+
+    [ObservableProperty] private int _mqttPort = Preferences.Default.Get("mqtt_port", 1883);
+
+    [ObservableProperty] private string _mqttUsername = Preferences.Default.Get("mqtt_username", "");
+
+    [ObservableProperty] private string _mqttPassword = Preferences.Default.Get("mqtt_password", "");
+
+    [ObservableProperty] private bool _mqttEnabled = Preferences.Default.Get("mqtt_enabled", false);
+
     public List<VisibilityLevel> VisibilityLevels { get; } = Enum.GetValues<VisibilityLevel>().ToList();
 
     partial void OnDefaultVisibilityChanged(VisibilityLevel value)
@@ -37,6 +47,11 @@ public partial class SettingsViewModel : BaseViewModel
     partial void OnStayRadiusChanged(double value) => Preferences.Default.Set("stay_radius", value);
     partial void OnStayDurationMinutesChanged(double value) => Preferences.Default.Set("stay_duration_minutes", value);
     partial void OnGapThresholdMinutesChanged(double value) => Preferences.Default.Set("gap_threshold_minutes", value);
+    partial void OnMqttHostChanged(string value) => Preferences.Default.Set("mqtt_host", value);
+    partial void OnMqttPortChanged(int value) => Preferences.Default.Set("mqtt_port", value);
+    partial void OnMqttUsernameChanged(string value) => Preferences.Default.Set("mqtt_username", value);
+    partial void OnMqttPasswordChanged(string value) => Preferences.Default.Set("mqtt_password", value);
+    partial void OnMqttEnabledChanged(bool value) => Preferences.Default.Set("mqtt_enabled", value);
 
     public SettingsViewModel(ITripService tripService)
     {

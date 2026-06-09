@@ -42,6 +42,27 @@
 
             <Frame>
                 <VerticalStackLayout Spacing="15">
+                    <Label Text="Home Assistant MQTT 集成" FontAttributes="Bold" FontSize="16"/>
+
+                    <Label Text="启用 MQTT 位置发布"/>
+                    <Switch IsToggled="{Binding MqttEnabled}"/>
+
+                    <Label Text="MQTT 服务器地址"/>
+                    <Entry Text="{Binding MqttHost}" Placeholder="例: 192.168.1.100" IsEnabled="{Binding MqttEnabled}"/>
+
+                    <Label Text="MQTT 端口"/>
+                    <Entry Text="{Binding MqttPort}" Keyboard="Numeric" IsEnabled="{Binding MqttEnabled}"/>
+
+                    <Label Text="用户名"/>
+                    <Entry Text="{Binding MqttUsername}" Placeholder="可选" IsEnabled="{Binding MqttEnabled}"/>
+
+                    <Label Text="密码"/>
+                    <Entry Text="{Binding MqttPassword}" IsPassword="True" Placeholder="可选" IsEnabled="{Binding MqttEnabled}"/>
+                </VerticalStackLayout>
+            </Frame>
+
+            <Frame>
+                <VerticalStackLayout Spacing="15">
                     <Label Text="数据导出" FontAttributes="Bold" FontSize="16"/>
                     
                     <Button Text="导出 GeoJSON" Command="{Binding ExportGeoJsonCommand}"/>
