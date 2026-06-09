@@ -12,6 +12,7 @@ public class GeocodingService : IGeocodingService
     {
         _httpClient = httpClient ?? new HttpClient();
         _httpClient.DefaultRequestHeaders.Add("User-Agent", "PITS-MVP/1.0");
+        _httpClient.Timeout = TimeSpan.FromSeconds(10);
     }
 
     public async Task<string?> ReverseGeocodeAsync(double latitude, double longitude)
@@ -23,8 +24,19 @@ public class GeocodingService : IGeocodingService
             var result = JsonSerializer.Deserialize<NominatimReverseResponse>(response);
             return result?.DisplayName ?? result?.Address?.ToString();
         }
-        catch
+        catch (TaskCanceledException)
         {
+            System.Diagnostics.Debug.WriteLine($"Geocoding timeout for ({latitude}, {longitude})");
+            return null;
+        }
+        catch (HttpRequestException ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Geocoding request failed: {ex.Message}");
+            return null;
+        }
+        catch (JsonException ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Geocoding parse failed: {ex.Message}");
             return null;
         }
     }
@@ -36,15 +48,26 @@ public class GeocodingService : IGeocodingService
             var url = $"{NominatimBaseUrl}/search?format=json&q={Uri.EscapeDataString(address)}&limit=1";
             var response = await _httpClient.GetStringAsync(url);
             var results = JsonSerializer.Deserialize<NominatimSearchResponse[]>(response);
-            
+
             if (results != null && results.Length > 0)
             {
                 return (results[0].Lat, results[0].Lon);
             }
             return null;
         }
-        catch
+        catch (TaskCanceledException)
         {
+            System.Diagnostics.Debug.WriteLine($"Geocoding timeout for address: {address}");
+            return null;
+        }
+        catch (HttpRequestException ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Geocoding request failed: {ex.Message}");
+            return null;
+        }
+        catch (JsonException ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Geocoding parse failed: {ex.Message}");
             return null;
         }
     }

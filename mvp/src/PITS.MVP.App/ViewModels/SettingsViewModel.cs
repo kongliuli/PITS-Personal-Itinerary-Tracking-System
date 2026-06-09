@@ -1,3 +1,4 @@
+using System.Text.Json;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using PITS.MVP.Core.Entities;
@@ -83,11 +84,30 @@ public partial class SettingsViewModel : BaseViewModel
 
     private static string GenerateGeoJson(IEnumerable<Trip> trips)
     {
-        var features = trips.Where(t => t.Location != null).Select(t => 
-            string.Format("{{\"type\":\"Feature\",\"geometry\":{{\"type\":\"Point\",\"coordinates\":[{0},{1}]}},\"properties\":{{\"id\":\"{2}\",\"activity\":\"{3}\",\"description\":\"{4}\",\"startedAt\":\"{5}\"}}}}",
-                t.Location!.X, t.Location.Y, t.Id, t.ActivityType, t.Description, t.StartedAt.ToString("O")));
-        
-        return string.Format("{{\"type\":\"FeatureCollection\",\"features\":[{0}]}}", string.Join(",", features));
+        var features = trips.Where(t => t.Location != null).Select(t => new
+        {
+            type = "Feature",
+            geometry = new
+            {
+                type = "Point",
+                coordinates = new[] { t.Location!.X, t.Location.Y }
+            },
+            properties = new
+            {
+                id = t.Id,
+                activity = t.ActivityType.ToString(),
+                description = t.Description ?? "",
+                startedAt = t.StartedAt.ToString("O")
+            }
+        });
+
+        var geoJson = new
+        {
+            type = "FeatureCollection",
+            features
+        };
+
+        return JsonSerializer.Serialize(geoJson);
     }
 
     private static string GenerateCsv(IEnumerable<Trip> trips)
