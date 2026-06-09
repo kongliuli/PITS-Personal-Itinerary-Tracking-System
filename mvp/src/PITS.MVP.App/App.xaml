@@ -8,6 +8,8 @@
             <converters:BoolToColorConverter x:Key="BoolToColorConverter"/>
             <converters:BoolToLayoutConverter x:Key="BoolToLayoutConverter"/>
             <converters:BoolToTextColorConverter x:Key="BoolToTextColorConverter"/>
+            <converters:InvertedBoolConverter x:Key="InvertedBoolConverter"/>
+            <converters:NotNullOrEmptyStringConverter x:Key="NotNullOrEmptyStringConverter"/>
             <Color x:Key="PrimaryColor">#2196F3</Color>
             <Color x:Key="SecondaryColor">#FF9800</Color>
             <Color x:Key="BackgroundColor">#FAFAFA</Color>

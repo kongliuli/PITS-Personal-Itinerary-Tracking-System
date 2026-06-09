@@ -76,11 +76,31 @@ public partial class SettingsViewModel : BaseViewModel
         {
             var trips = await _tripService.GetByVisibilityAsync(VisibilityLevel.Private);
             var csv = GenerateCsv(trips);
-            
+
             var fileName = $"pits_export_{DateTime.Now:yyyyMMdd_HHmmss}.csv";
             var filePath = Path.Combine(FileSystem.CacheDirectory, fileName);
             await File.WriteAllTextAsync(filePath, csv);
-            
+
+            await Share.Default.RequestAsync(new ShareFileRequest
+            {
+                Title = "导出行程数据",
+                File = new ShareFile(filePath)
+            });
+        });
+    }
+
+    [RelayCommand]
+    private async Task ExportGpxAsync()
+    {
+        await ExecuteAsync(async () =>
+        {
+            var trips = await _tripService.GetByVisibilityAsync(VisibilityLevel.Private);
+            var gpx = GenerateGpx(trips);
+
+            var fileName = $"pits_export_{DateTime.Now:yyyyMMdd_HHmmss}.gpx";
+            var filePath = Path.Combine(FileSystem.CacheDirectory, fileName);
+            await File.WriteAllTextAsync(filePath, gpx);
+
             await Share.Default.RequestAsync(new ShareFileRequest
             {
                 Title = "导出行程数据",
@@ -125,6 +145,43 @@ public partial class SettingsViewModel : BaseViewModel
         {
             sb.AppendLine($"\"{t.Id}\",\"{t.StartedAt:O}\",\"{t.EndedAt?.ToString("O") ?? ""}\",\"{t.ActivityType}\",\"{t.Description ?? ""}\",\"{t.Address ?? ""}\",\"{t.Visibility}\"");
         }
+        return sb.ToString();
+    }
+
+    private static string GenerateGpx(IEnumerable<Trip> trips)
+    {
+        var sb = new System.Text.StringBuilder();
+        sb.AppendLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+        sb.AppendLine("<gpx version=\"1.1\" creator=\"PITS\">");
+
+        foreach (var trip in trips)
+        {
+            sb.AppendLine("  <trk>");
+            sb.AppendLine($"    <name>{trip.ActivityType} - {trip.StartedAt:yyyy-MM-dd}</name>");
+            sb.AppendLine("    <trkseg>");
+
+            if (trip.Location != null)
+            {
+                sb.AppendLine($"      <trkpt lat=\"{trip.Location.Y}\" lon=\"{trip.Location.X}\">");
+                sb.AppendLine($"        <time>{trip.StartedAt:O}</time>");
+                sb.AppendLine("      </trkpt>");
+            }
+
+            if (trip.TrackPoints != null)
+            {
+                foreach (var tp in trip.TrackPoints.Where(p => p.Location != null))
+                {
+                    sb.AppendLine($"      <trkpt lat=\"{tp.Location.Y}\" lon=\"{tp.Location.X}\">");
+                    sb.AppendLine($"        <time>{tp.Timestamp:O}</time>");
+                    sb.AppendLine("      </trkpt>");
+                }
+            }
+
+            sb.AppendLine("    </trkseg>");
+            sb.AppendLine("  </trk>");
+        }
+
+        sb.AppendLine("</gpx>");
         return sb.ToString();
     }
 }

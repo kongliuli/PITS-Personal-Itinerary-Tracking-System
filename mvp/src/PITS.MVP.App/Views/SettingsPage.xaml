@@ -46,6 +46,7 @@
                     
                     <Button Text="导出 GeoJSON" Command="{Binding ExportGeoJsonCommand}"/>
                     <Button Text="导出 CSV" Command="{Binding ExportCsvCommand}"/>
+                    <Button Text="导出 GPX" Command="{Binding ExportGpxCommand}"/>
                 </VerticalStackLayout>
             </Frame>
 

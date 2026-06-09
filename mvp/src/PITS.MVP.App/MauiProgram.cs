@@ -31,6 +31,8 @@ public static class MauiProgram
         builder.Services.AddSingleton<ITransportModeDetector, TransportModeDetector>();
         builder.Services.AddSingleton<ITripSegmentAnalyzer, TripSegmentAnalyzer>();
         builder.Services.AddSingleton<IStatsService, StatsService>();
+        builder.Services.AddSingleton<IPlaceClusterService, PlaceClusterService>();
+        builder.Services.AddSingleton<IImportService, ImportService>();
 
         builder.Services.AddTransient<RecordPage>();
         builder.Services.AddTransient<RecordViewModel>();
@@ -46,6 +48,8 @@ public static class MauiProgram
         builder.Services.AddTransient<StatsViewModel>();
         builder.Services.AddTransient<SettingsPage>();
         builder.Services.AddTransient<SettingsViewModel>();
+        builder.Services.AddTransient<ImportPage>();
+        builder.Services.AddTransient<ImportViewModel>();
 
 #if DEBUG
         builder.Logging.AddDebug();

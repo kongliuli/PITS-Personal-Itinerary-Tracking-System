@@ -21,8 +21,14 @@
         <Tab Title="AI" Icon="🤖">
             <ShellContent ContentTemplate="{DataTemplate views:AIChatPage}"/>
         </Tab>
+        <Tab Title="统计" Icon="📊">
+            <ShellContent ContentTemplate="{DataTemplate views:StatsPage}"/>
+        </Tab>
         <Tab Title="设置" Icon="⚙️">
             <ShellContent ContentTemplate="{DataTemplate views:SettingsPage}"/>
+        </Tab>
+        <Tab Title="导入" Icon="📥">
+            <ShellContent ContentTemplate="{DataTemplate views:ImportPage}"/>
         </Tab>
     </TabBar>
     
