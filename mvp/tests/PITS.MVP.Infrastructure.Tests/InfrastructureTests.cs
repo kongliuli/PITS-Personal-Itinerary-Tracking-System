@@ -14,7 +14,7 @@ public class TripContextTests : IDisposable
     public TripContextTests()
     {
         var options = new DbContextOptionsBuilder<TripContext>()
-            .UseSqlite($"DataSource=:memory:")
+            .UseSqlite($"DataSource=:memory:", sqliteOptions => sqliteOptions.UseNetTopologySuite())
             .EnableSensitiveDataLogging()
             .Options;
 
