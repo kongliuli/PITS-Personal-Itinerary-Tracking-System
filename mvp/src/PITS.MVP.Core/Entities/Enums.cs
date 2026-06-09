@@ -9,6 +9,11 @@ public enum ActivityType
     Travel,
     Study,
     Entertainment,
+    Walking,
+    Cycling,
+    Driving,
+    Transit,
+    Flying,
     Other
 }
 
