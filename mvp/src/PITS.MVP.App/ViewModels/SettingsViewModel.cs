@@ -15,10 +15,30 @@ public partial class SettingsViewModel : BaseViewModel
 
     public List<VisibilityLevel> VisibilityLevels { get; } = Enum.GetValues<VisibilityLevel>().ToList();
 
+    partial void OnDefaultVisibilityChanged(VisibilityLevel value)
+    {
+        Preferences.Default.Set("default_visibility", (int)value);
+    }
+
+    partial void OnEnableBackgroundLocationChanged(bool value)
+    {
+        Preferences.Default.Set("enable_background_location", value);
+    }
+
+    partial void OnGeofenceRadiusChanged(double value)
+    {
+        Preferences.Default.Set("geofence_radius", value);
+    }
+
     public SettingsViewModel(ITripService tripService)
     {
         _tripService = tripService;
         Title = "设置";
+        
+        // 从 Preferences 恢复设置
+        _defaultVisibility = (VisibilityLevel)Preferences.Default.Get("default_visibility", (int)VisibilityLevel.Private);
+        _enableBackgroundLocation = Preferences.Default.Get("enable_background_location", true);
+        _geofenceRadius = Preferences.Default.Get("geofence_radius", 200.0);
     }
 
     [RelayCommand]

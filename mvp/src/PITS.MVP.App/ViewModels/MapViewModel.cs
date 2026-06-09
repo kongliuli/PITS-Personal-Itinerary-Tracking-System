@@ -26,10 +26,12 @@ public partial class MapViewModel : BaseViewModel
     public async Task<IEnumerable<Trip>> GetFilteredTripsAsync()
     {
         var now = DateTime.Now;
+        var dayOfWeek = (int)now.DayOfWeek;
+        var mondayOffset = dayOfWeek == 0 ? 6 : dayOfWeek - 1;
         var (start, end) = SelectedTimeRange switch
         {
             "今天" => (DateTime.Today, DateTime.Today.AddDays(1)),
-            "本周" => (now.AddDays(-(int)now.DayOfWeek), now.AddDays(7 - (int)now.DayOfWeek)),
+            "本周" => (now.AddDays(-mondayOffset), now.AddDays(7 - mondayOffset)),
             "本月" => (new DateTime(now.Year, now.Month, 1), now),
             _ => (DateTime.MinValue, DateTime.MaxValue)
         };

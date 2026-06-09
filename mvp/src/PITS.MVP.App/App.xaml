@@ -1,9 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <Application xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:converters="clr-namespace:PITS.MVP.App.Converters"
              x:Class="PITS.MVP.App.App">
     <Application.Resources>
         <ResourceDictionary>
+            <converters:BoolToColorConverter x:Key="BoolToColorConverter"/>
+            <converters:BoolToLayoutConverter x:Key="BoolToLayoutConverter"/>
+            <converters:BoolToTextColorConverter x:Key="BoolToTextColorConverter"/>
             <Color x:Key="PrimaryColor">#2196F3</Color>
             <Color x:Key="SecondaryColor">#FF9800</Color>
             <Color x:Key="BackgroundColor">#FAFAFA</Color>
