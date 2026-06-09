@@ -1,8 +1,12 @@
 using Microsoft.EntityFrameworkCore;
+using Moq;
 using NetTopologySuite;
 using NetTopologySuite.Geometries;
 using PITS.MVP.Core.Entities;
+using PITS.MVP.Core.Services;
+using PITS.MVP.Core.ValueObjects;
 using PITS.MVP.Infrastructure.Data;
+using PITS.MVP.Infrastructure.Services;
 using Xunit;
 
 namespace PITS.MVP.Infrastructure.Tests;
@@ -209,5 +213,190 @@ public class TripContextTests : IDisposable
 
         var count = await _context.Trips.CountAsync();
         Assert.Equal(100, count);
+    }
+}
+
+public class TripSegmentAnalyzerTests
+{
+    private readonly Mock<ITransportModeDetector> _modeDetectorMock;
+    private readonly TripSegmentAnalyzer _analyzer;
+
+    public TripSegmentAnalyzerTests()
+    {
+        _modeDetectorMock = new Mock<ITransportModeDetector>();
+        _modeDetectorMock
+            .Setup(d => d.DetectMode(It.IsAny<IReadOnlyList<TrackPoint>>()))
+            .Returns(new TransportModeResult { Mode = ActivityType.Commute, Confidence = 0.8 });
+
+        _analyzer = new TripSegmentAnalyzer(_modeDetectorMock.Object);
+    }
+
+    [Fact]
+    public void Analyze_EmptyPoints_ReturnsEmptyList()
+    {
+        var result = _analyzer.Analyze(new List<TrackPoint>());
+        Assert.Empty(result);
+    }
+
+    [Fact]
+    public void Analyze_NullPoints_ReturnsEmptyList()
+    {
+        var result = _analyzer.Analyze(null!);
+        Assert.Empty(result);
+    }
+
+    [Fact]
+    public void Analyze_StayPoints_ReturnsStaySegment()
+    {
+        // 创建一组在 50 米半径内停留超过 5 分钟的点
+        var baseTime = DateTime.UtcNow;
+        var basePoint = new Point(121.4737, 31.2304) { SRID = 4326 };
+
+        var points = new List<TrackPoint>();
+        for (int i = 0; i <= 10; i++)
+        {
+            points.Add(new TrackPoint
+            {
+                Timestamp = baseTime.AddMinutes(i),
+                Location = new Point(121.4737 + i * 0.00001, 31.2304) { SRID = 4326 } // 约 1 米偏移
+            });
+        }
+
+        var result = _analyzer.Analyze(points);
+
+        Assert.NotEmpty(result);
+        Assert.Contains(result, s => s.Type == SegmentType.Stay);
+    }
+
+    [Fact]
+    public void Analyze_MovingPoints_ReturnsTripSegment()
+    {
+        // 创建一组快速移动的点（模拟驾车）
+        var baseTime = DateTime.UtcNow;
+
+        var points = new List<TrackPoint>
+        {
+            new TrackPoint { Timestamp = baseTime, Location = new Point(121.4737, 31.2304) { SRID = 4326 } },
+            new TrackPoint { Timestamp = baseTime.AddMinutes(1), Location = new Point(121.4837, 31.2404) { SRID = 4326 } }, // ~1.5km
+            new TrackPoint { Timestamp = baseTime.AddMinutes(2), Location = new Point(121.4937, 31.2504) { SRID = 4326 } }, // ~1.5km
+        };
+
+        var result = _analyzer.Analyze(points);
+
+        Assert.NotEmpty(result);
+        Assert.Contains(result, s => s.Type == SegmentType.Trip);
+    }
+
+    [Fact]
+    public void Analyze_GapBetweenPoints_ReturnsGapSegment()
+    {
+        // 创建两组时间间隔超过 30 分钟的点
+        var baseTime = DateTime.UtcNow;
+
+        var points = new List<TrackPoint>
+        {
+            new TrackPoint { Timestamp = baseTime, Location = new Point(121.4737, 31.2304) { SRID = 4326 } },
+            new TrackPoint { Timestamp = baseTime.AddMinutes(1), Location = new Point(121.4837, 31.2404) { SRID = 4326 } },
+            new TrackPoint { Timestamp = baseTime.AddMinutes(60), Location = new Point(121.4937, 31.2504) { SRID = 4326 } },
+            new TrackPoint { Timestamp = baseTime.AddMinutes(61), Location = new Point(121.5037, 31.2604) { SRID = 4326 } },
+        };
+
+        var result = _analyzer.Analyze(points);
+
+        Assert.NotEmpty(result);
+        Assert.Contains(result, s => s.Type == SegmentType.Gap);
+    }
+
+    [Fact]
+    public void Analyze_StayThenTrip_ReturnsBothSegments()
+    {
+        // 先停留，然后出行
+        var baseTime = DateTime.UtcNow;
+
+        var points = new List<TrackPoint>();
+
+        // 停留 10 分钟（小范围移动）
+        for (int i = 0; i <= 10; i++)
+        {
+            points.Add(new TrackPoint
+            {
+                Timestamp = baseTime.AddMinutes(i),
+                Location = new Point(121.4737 + i * 0.00001, 31.2304) { SRID = 4326 }
+            });
+        }
+
+        // 出行（大范围移动）
+        for (int i = 1; i <= 3; i++)
+        {
+            points.Add(new TrackPoint
+            {
+                Timestamp = baseTime.AddMinutes(10 + i),
+                Location = new Point(121.4737 + i * 0.01, 31.2304) { SRID = 4326 } // 每分钟约 1km
+            });
+        }
+
+        var result = _analyzer.Analyze(points);
+
+        Assert.NotEmpty(result);
+        Assert.Contains(result, s => s.Type == SegmentType.Stay);
+        Assert.Contains(result, s => s.Type == SegmentType.Trip);
+    }
+
+    [Fact]
+    public void Analyze_TripSegment_CallsModeDetector()
+    {
+        var baseTime = DateTime.UtcNow;
+
+        var points = new List<TrackPoint>
+        {
+            new TrackPoint { Timestamp = baseTime, Location = new Point(121.4737, 31.2304) { SRID = 4326 } },
+            new TrackPoint { Timestamp = baseTime.AddMinutes(1), Location = new Point(121.4837, 31.2404) { SRID = 4326 } },
+            new TrackPoint { Timestamp = baseTime.AddMinutes(2), Location = new Point(121.4937, 31.2504) { SRID = 4326 } },
+        };
+
+        var result = _analyzer.Analyze(points);
+
+        _modeDetectorMock.Verify(d => d.DetectMode(It.IsAny<IReadOnlyList<TrackPoint>>()), Times.AtLeastOnce);
+    }
+
+    [Fact]
+    public void Analyze_TripSegment_HasDistance()
+    {
+        var baseTime = DateTime.UtcNow;
+
+        var points = new List<TrackPoint>
+        {
+            new TrackPoint { Timestamp = baseTime, Location = new Point(121.4737, 31.2304) { SRID = 4326 } },
+            new TrackPoint { Timestamp = baseTime.AddMinutes(1), Location = new Point(121.4837, 31.2404) { SRID = 4326 } },
+            new TrackPoint { Timestamp = baseTime.AddMinutes(2), Location = new Point(121.4937, 31.2504) { SRID = 4326 } },
+        };
+
+        var result = _analyzer.Analyze(points);
+        var tripSegment = result.FirstOrDefault(s => s.Type == SegmentType.Trip);
+
+        Assert.NotNull(tripSegment);
+        Assert.True(tripSegment.DistanceMeters > 0);
+    }
+
+    [Fact]
+    public void Analyze_StaySegment_HasCenterLocation()
+    {
+        var baseTime = DateTime.UtcNow;
+
+        var points = new List<TrackPoint>();
+        for (int i = 0; i <= 10; i++)
+        {
+            points.Add(new TrackPoint
+            {
+                Timestamp = baseTime.AddMinutes(i),
+                Location = new Point(121.4737 + i * 0.00001, 31.2304) { SRID = 4326 }
+            });
+        }
+
+        var result = _analyzer.Analyze(points);
+        var staySegment = result.FirstOrDefault(s => s.Type == SegmentType.Stay);
+
+        Assert.NotNull(staySegment);
+        Assert.NotNull(staySegment.CenterLocation);
     }
 }

@@ -28,6 +28,9 @@ public static class MauiProgram
         builder.Services.AddScoped<ITripService, TripService>();
         builder.Services.AddScoped<IPlaceService, PlaceService>();
         builder.Services.AddSingleton<IGeocodingService, GeocodingService>();
+        builder.Services.AddSingleton<ITransportModeDetector, TransportModeDetector>();
+        builder.Services.AddSingleton<ITripSegmentAnalyzer, TripSegmentAnalyzer>();
+        builder.Services.AddSingleton<IStatsService, StatsService>();
 
         builder.Services.AddTransient<RecordPage>();
         builder.Services.AddTransient<RecordViewModel>();
@@ -39,6 +42,8 @@ public static class MauiProgram
         builder.Services.AddTransient<PlaceViewModel>();
         builder.Services.AddTransient<AIChatPage>();
         builder.Services.AddTransient<AIChatViewModel>();
+        builder.Services.AddTransient<StatsPage>();
+        builder.Services.AddTransient<StatsViewModel>();
         builder.Services.AddTransient<SettingsPage>();
         builder.Services.AddTransient<SettingsViewModel>();
 

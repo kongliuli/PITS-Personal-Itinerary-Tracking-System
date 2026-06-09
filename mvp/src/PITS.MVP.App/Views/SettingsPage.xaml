@@ -24,6 +24,24 @@
 
             <Frame>
                 <VerticalStackLayout Spacing="15">
+                    <Label Text="轨迹分类设置" FontAttributes="Bold" FontSize="16"/>
+
+                    <Label Text="停留半径 (米)"/>
+                    <Slider Minimum="10" Maximum="200" Value="{Binding StayRadius}"/>
+                    <Label Text="{Binding StayRadius, StringFormat='{0:F0} 米'}" HorizontalOptions="End" TextColor="Gray"/>
+
+                    <Label Text="最短停留时长 (分钟)"/>
+                    <Slider Minimum="1" Maximum="30" Value="{Binding StayDurationMinutes}"/>
+                    <Label Text="{Binding StayDurationMinutes, StringFormat='{0:F0} 分钟'}" HorizontalOptions="End" TextColor="Gray"/>
+
+                    <Label Text="数据缺口阈值 (分钟)"/>
+                    <Slider Minimum="5" Maximum="120" Value="{Binding GapThresholdMinutes}"/>
+                    <Label Text="{Binding GapThresholdMinutes, StringFormat='{0:F0} 分钟'}" HorizontalOptions="End" TextColor="Gray"/>
+                </VerticalStackLayout>
+            </Frame>
+
+            <Frame>
+                <VerticalStackLayout Spacing="15">
                     <Label Text="数据导出" FontAttributes="Bold" FontSize="16"/>
                     
                     <Button Text="导出 GeoJSON" Command="{Binding ExportGeoJsonCommand}"/>

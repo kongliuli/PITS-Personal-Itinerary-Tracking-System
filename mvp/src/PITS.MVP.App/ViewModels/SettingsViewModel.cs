@@ -13,6 +13,9 @@ public partial class SettingsViewModel : BaseViewModel
     [ObservableProperty] private VisibilityLevel _defaultVisibility = VisibilityLevel.Private;
     [ObservableProperty] private bool _enableBackgroundLocation = true;
     [ObservableProperty] private double _geofenceRadius = 200;
+    [ObservableProperty] private double _stayRadius = Preferences.Default.Get("stay_radius", 50.0);
+    [ObservableProperty] private double _stayDurationMinutes = Preferences.Default.Get("stay_duration_minutes", 5.0);
+    [ObservableProperty] private double _gapThresholdMinutes = Preferences.Default.Get("gap_threshold_minutes", 30.0);
 
     public List<VisibilityLevel> VisibilityLevels { get; } = Enum.GetValues<VisibilityLevel>().ToList();
 
@@ -30,6 +33,10 @@ public partial class SettingsViewModel : BaseViewModel
     {
         Preferences.Default.Set("geofence_radius", value);
     }
+
+    partial void OnStayRadiusChanged(double value) => Preferences.Default.Set("stay_radius", value);
+    partial void OnStayDurationMinutesChanged(double value) => Preferences.Default.Set("stay_duration_minutes", value);
+    partial void OnGapThresholdMinutesChanged(double value) => Preferences.Default.Set("gap_threshold_minutes", value);
 
     public SettingsViewModel(ITripService tripService)
     {
