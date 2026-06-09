@@ -33,6 +33,10 @@ public static class MauiProgram
         builder.Services.AddSingleton<IStatsService, StatsService>();
         builder.Services.AddSingleton<IPlaceClusterService, PlaceClusterService>();
         builder.Services.AddSingleton<IImportService, ImportService>();
+        builder.Services.AddSingleton<IReminderService, ReminderService>();
+        builder.Services.AddSingleton<IMqttLocationPublisher, MqttLocationPublisher>();
+        builder.Services.AddSingleton<ITrackingProfileService, TrackingProfileService>();
+        builder.Services.AddSingleton<IPhotoService, PhotoService>();
 
         builder.Services.AddTransient<RecordPage>();
         builder.Services.AddTransient<RecordViewModel>();

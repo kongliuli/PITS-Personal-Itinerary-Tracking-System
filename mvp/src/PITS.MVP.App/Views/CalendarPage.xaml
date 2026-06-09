@@ -4,9 +4,19 @@
              xmlns:vm="clr-namespace:PITS.MVP.App.ViewModels"
              x:Class="PITS.MVP.App.Views.CalendarPage"
              Title="日历">
-    <Grid RowDefinitions="Auto,*,Auto">
-        
-        <Grid ColumnDefinitions="Auto,*,Auto" Padding="15" Grid.Row="0">
+    <Grid RowDefinitions="Auto,Auto,*,Auto">
+
+        <Frame Grid.Row="0" Margin="15,10" Padding="12" BackgroundColor="#FFF3E0"
+               BorderColor="#FFB74D" IsVisible="{Binding OnThisDaySummary, Converter={StaticResource NotNullOrEmptyStringConverter}}"
+               CornerRadius="10">
+            <VerticalStackLayout>
+                <Label Text="🕰️ 去年今日" FontAttributes="Bold" FontSize="15" TextColor="#E65100"/>
+                <Label Text="{Binding OnThisDaySummary}" FontSize="13" TextColor="#5D4037"
+                       Margin="0,4,0,0" LineBreakMode="WordWrap"/>
+            </VerticalStackLayout>
+        </Frame>
+
+        <Grid ColumnDefinitions="Auto,*,Auto" Padding="15" Grid.Row="1">
             <Button Text="◀" Command="{Binding PrevMonthCommand}" WidthRequest="50"/>
             <Label Text="{Binding CurrentMonthLabel}" 
                    HorizontalOptions="Center" FontAttributes="Bold" FontSize="18"
@@ -14,7 +24,7 @@
             <Button Text="▶" Command="{Binding NextMonthCommand}" Grid.Column="2" WidthRequest="50"/>
         </Grid>
 
-        <CollectionView Grid.Row="1" ItemsSource="{Binding CalendarDays}">
+        <CollectionView Grid.Row="2" ItemsSource="{Binding CalendarDays}">
             <CollectionView.ItemsLayout>
                 <GridItemsLayout Orientation="Vertical" Span="7"/>
             </CollectionView.ItemsLayout>
@@ -46,7 +56,7 @@
             </CollectionView.ItemTemplate>
         </CollectionView>
 
-        <Frame Grid.Row="2" VerticalOptions="End" Margin="10" Padding="10"
+        <Frame Grid.Row="3" VerticalOptions="End" Margin="10" Padding="10"
                IsVisible="{Binding HasSelectedDay}" HeightRequest="200">
             <CollectionView ItemsSource="{Binding SelectedDayTrips}">
                 <CollectionView.ItemTemplate>
