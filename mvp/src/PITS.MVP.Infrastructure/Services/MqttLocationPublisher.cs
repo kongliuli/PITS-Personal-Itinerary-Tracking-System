@@ -1,5 +1,6 @@
 using System.Text.Json;
 using MQTTnet;
+using MQTTnet.Client;
 using PITS.MVP.Core.Services;
 
 namespace PITS.MVP.Infrastructure.Services;
