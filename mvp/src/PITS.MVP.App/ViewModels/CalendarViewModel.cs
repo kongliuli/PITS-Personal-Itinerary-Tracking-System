@@ -9,10 +9,12 @@ namespace PITS.MVP.App.ViewModels;
 public partial class CalendarViewModel : BaseViewModel
 {
     private readonly ITripService _tripService;
+    private readonly IReminderService _reminderService;
 
     [ObservableProperty] private DateTime _currentMonth = DateTime.Today;
     [ObservableProperty] private CalendarDayModel? _selectedDay;
-    
+    [ObservableProperty] private string _onThisDaySummary = "";
+
     public ObservableCollection<CalendarDayModel> CalendarDays { get; } = new();
     public ObservableCollection<Trip> SelectedDayTrips { get; } = new();
 
@@ -20,15 +22,17 @@ public partial class CalendarViewModel : BaseViewModel
 
     public bool HasSelectedDay => SelectedDay != null;
 
-    public CalendarViewModel(ITripService tripService)
+    public CalendarViewModel(ITripService tripService, IReminderService reminderService)
     {
         _tripService = tripService;
+        _reminderService = reminderService;
         Title = "日历";
     }
 
     public async Task InitializeAsync()
     {
         await LoadMonthDataAsync();
+        await LoadOnThisDayAsync();
     }
 
     [RelayCommand]
@@ -54,10 +58,12 @@ public partial class CalendarViewModel : BaseViewModel
             var firstDay = new DateTime(CurrentMonth.Year, CurrentMonth.Month, 1);
             var lastDay = firstDay.AddMonths(1).AddDays(-1);
             var startPadding = (int)firstDay.DayOfWeek;
+            if (startPadding == 0) startPadding = 7; // 周日排到最后
+            startPadding -= 1; // 调整为周一=0
 
             var trips = await _tripService.GetByDateRangeAsync(
                 firstDay.AddDays(-startPadding), 
-                lastDay.AddDays(7 - (int)lastDay.DayOfWeek));
+                lastDay.AddDays(7 - ((int)lastDay.DayOfWeek == 0 ? 7 : (int)lastDay.DayOfWeek)));
 
             var tripsByDate = trips.GroupBy(t => t.StartedAt.Date).ToDictionary(g => g.Key, g => g.ToList());
 
@@ -94,6 +100,20 @@ public partial class CalendarViewModel : BaseViewModel
             SelectedDayTrips.Add(trip);
         }
         OnPropertyChanged(nameof(HasSelectedDay));
+    }
+
+    [RelayCommand]
+    private async Task LoadOnThisDayAsync()
+    {
+        var results = await _reminderService.GetAllOnThisDayAsync();
+        if (results.Any())
+        {
+            OnThisDaySummary = string.Join("\n", results.Select(r => r.Summary));
+        }
+        else
+        {
+            OnThisDaySummary = "往年今日没有行程记录";
+        }
     }
 }
 

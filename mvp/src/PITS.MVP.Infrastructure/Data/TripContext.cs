@@ -27,6 +27,7 @@ public class TripContext : DbContext
             entity.Property(e => e.ActivityType).HasConversion<string>();
             entity.Property(e => e.Visibility).HasConversion<string>();
             entity.Property(e => e.Source).HasConversion<string>();
+            entity.Property(e => e.Location).HasSrid(4326);
         });
 
         model.Entity<Place>(entity =>
@@ -35,6 +36,7 @@ public class TripContext : DbContext
             entity.HasIndex(e => e.GeoHash);
             entity.HasIndex(e => e.Name);
             entity.Property(e => e.Category).HasConversion<string>();
+            entity.Property(e => e.Location).HasSrid(4326);
         });
 
         model.Entity<TrackPoint>(entity =>
@@ -42,6 +44,7 @@ public class TripContext : DbContext
             entity.HasKey(e => e.Id);
             entity.HasIndex(e => e.Timestamp);
             entity.HasIndex(e => e.TripId);
+            entity.Property(e => e.Location).HasSrid(4326);
         });
     }
 }

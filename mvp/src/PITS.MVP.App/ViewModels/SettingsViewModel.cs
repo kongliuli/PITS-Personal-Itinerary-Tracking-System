@@ -1,3 +1,4 @@
+using System.Text.Json;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using PITS.MVP.Core.Entities;
@@ -12,13 +13,55 @@ public partial class SettingsViewModel : BaseViewModel
     [ObservableProperty] private VisibilityLevel _defaultVisibility = VisibilityLevel.Private;
     [ObservableProperty] private bool _enableBackgroundLocation = true;
     [ObservableProperty] private double _geofenceRadius = 200;
+    [ObservableProperty] private double _stayRadius = Preferences.Default.Get("stay_radius", 50.0);
+    [ObservableProperty] private double _stayDurationMinutes = Preferences.Default.Get("stay_duration_minutes", 5.0);
+    [ObservableProperty] private double _gapThresholdMinutes = Preferences.Default.Get("gap_threshold_minutes", 30.0);
+
+    [ObservableProperty] private string _mqttHost = Preferences.Default.Get("mqtt_host", "");
+
+    [ObservableProperty] private int _mqttPort = Preferences.Default.Get("mqtt_port", 1883);
+
+    [ObservableProperty] private string _mqttUsername = Preferences.Default.Get("mqtt_username", "");
+
+    [ObservableProperty] private string _mqttPassword = Preferences.Default.Get("mqtt_password", "");
+
+    [ObservableProperty] private bool _mqttEnabled = Preferences.Default.Get("mqtt_enabled", false);
 
     public List<VisibilityLevel> VisibilityLevels { get; } = Enum.GetValues<VisibilityLevel>().ToList();
+
+    partial void OnDefaultVisibilityChanged(VisibilityLevel value)
+    {
+        Preferences.Default.Set("default_visibility", (int)value);
+    }
+
+    partial void OnEnableBackgroundLocationChanged(bool value)
+    {
+        Preferences.Default.Set("enable_background_location", value);
+    }
+
+    partial void OnGeofenceRadiusChanged(double value)
+    {
+        Preferences.Default.Set("geofence_radius", value);
+    }
+
+    partial void OnStayRadiusChanged(double value) => Preferences.Default.Set("stay_radius", value);
+    partial void OnStayDurationMinutesChanged(double value) => Preferences.Default.Set("stay_duration_minutes", value);
+    partial void OnGapThresholdMinutesChanged(double value) => Preferences.Default.Set("gap_threshold_minutes", value);
+    partial void OnMqttHostChanged(string value) => Preferences.Default.Set("mqtt_host", value);
+    partial void OnMqttPortChanged(int value) => Preferences.Default.Set("mqtt_port", value);
+    partial void OnMqttUsernameChanged(string value) => Preferences.Default.Set("mqtt_username", value);
+    partial void OnMqttPasswordChanged(string value) => Preferences.Default.Set("mqtt_password", value);
+    partial void OnMqttEnabledChanged(bool value) => Preferences.Default.Set("mqtt_enabled", value);
 
     public SettingsViewModel(ITripService tripService)
     {
         _tripService = tripService;
         Title = "设置";
+        
+        // 从 Preferences 恢复设置
+        _defaultVisibility = (VisibilityLevel)Preferences.Default.Get("default_visibility", (int)VisibilityLevel.Private);
+        _enableBackgroundLocation = Preferences.Default.Get("enable_background_location", true);
+        _geofenceRadius = Preferences.Default.Get("geofence_radius", 200.0);
     }
 
     [RelayCommand]
@@ -48,11 +91,31 @@ public partial class SettingsViewModel : BaseViewModel
         {
             var trips = await _tripService.GetByVisibilityAsync(VisibilityLevel.Private);
             var csv = GenerateCsv(trips);
-            
+
             var fileName = $"pits_export_{DateTime.Now:yyyyMMdd_HHmmss}.csv";
             var filePath = Path.Combine(FileSystem.CacheDirectory, fileName);
             await File.WriteAllTextAsync(filePath, csv);
-            
+
+            await Share.Default.RequestAsync(new ShareFileRequest
+            {
+                Title = "导出行程数据",
+                File = new ShareFile(filePath)
+            });
+        });
+    }
+
+    [RelayCommand]
+    private async Task ExportGpxAsync()
+    {
+        await ExecuteAsync(async () =>
+        {
+            var trips = await _tripService.GetByVisibilityAsync(VisibilityLevel.Private);
+            var gpx = GenerateGpx(trips);
+
+            var fileName = $"pits_export_{DateTime.Now:yyyyMMdd_HHmmss}.gpx";
+            var filePath = Path.Combine(FileSystem.CacheDirectory, fileName);
+            await File.WriteAllTextAsync(filePath, gpx);
+
             await Share.Default.RequestAsync(new ShareFileRequest
             {
                 Title = "导出行程数据",
@@ -63,11 +126,30 @@ public partial class SettingsViewModel : BaseViewModel
 
     private static string GenerateGeoJson(IEnumerable<Trip> trips)
     {
-        var features = trips.Where(t => t.Location != null).Select(t => 
-            string.Format("{{\"type\":\"Feature\",\"geometry\":{{\"type\":\"Point\",\"coordinates\":[{0},{1}]}},\"properties\":{{\"id\":\"{2}\",\"activity\":\"{3}\",\"description\":\"{4}\",\"startedAt\":\"{5}\"}}}}",
-                t.Location!.X, t.Location.Y, t.Id, t.ActivityType, t.Description, t.StartedAt.ToString("O")));
-        
-        return string.Format("{{\"type\":\"FeatureCollection\",\"features\":[{0}]}}", string.Join(",", features));
+        var features = trips.Where(t => t.Location != null).Select(t => new
+        {
+            type = "Feature",
+            geometry = new
+            {
+                type = "Point",
+                coordinates = new[] { t.Location!.X, t.Location.Y }
+            },
+            properties = new
+            {
+                id = t.Id,
+                activity = t.ActivityType.ToString(),
+                description = t.Description ?? "",
+                startedAt = t.StartedAt.ToString("O")
+            }
+        });
+
+        var geoJson = new
+        {
+            type = "FeatureCollection",
+            features
+        };
+
+        return JsonSerializer.Serialize(geoJson);
     }
 
     private static string GenerateCsv(IEnumerable<Trip> trips)
@@ -78,6 +160,43 @@ public partial class SettingsViewModel : BaseViewModel
         {
             sb.AppendLine($"\"{t.Id}\",\"{t.StartedAt:O}\",\"{t.EndedAt?.ToString("O") ?? ""}\",\"{t.ActivityType}\",\"{t.Description ?? ""}\",\"{t.Address ?? ""}\",\"{t.Visibility}\"");
         }
+        return sb.ToString();
+    }
+
+    private static string GenerateGpx(IEnumerable<Trip> trips)
+    {
+        var sb = new System.Text.StringBuilder();
+        sb.AppendLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+        sb.AppendLine("<gpx version=\"1.1\" creator=\"PITS\">");
+
+        foreach (var trip in trips)
+        {
+            sb.AppendLine("  <trk>");
+            sb.AppendLine($"    <name>{trip.ActivityType} - {trip.StartedAt:yyyy-MM-dd}</name>");
+            sb.AppendLine("    <trkseg>");
+
+            if (trip.Location != null)
+            {
+                sb.AppendLine($"      <trkpt lat=\"{trip.Location.Y}\" lon=\"{trip.Location.X}\">");
+                sb.AppendLine($"        <time>{trip.StartedAt:O}</time>");
+                sb.AppendLine("      </trkpt>");
+            }
+
+            if (trip.TrackPoints != null)
+            {
+                foreach (var tp in trip.TrackPoints.Where(p => p.Location != null))
+                {
+                    sb.AppendLine($"      <trkpt lat=\"{tp.Location.Y}\" lon=\"{tp.Location.X}\">");
+                    sb.AppendLine($"        <time>{tp.Timestamp:O}</time>");
+                    sb.AppendLine("      </trkpt>");
+                }
+            }
+
+            sb.AppendLine("    </trkseg>");
+            sb.AppendLine("  </trk>");
+        }
+
+        sb.AppendLine("</gpx>");
         return sb.ToString();
     }
 }

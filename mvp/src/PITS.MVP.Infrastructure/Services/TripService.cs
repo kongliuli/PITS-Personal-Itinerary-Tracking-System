@@ -9,10 +9,12 @@ namespace PITS.MVP.Infrastructure.Services;
 public class TripService : ITripService
 {
     private readonly Data.TripContext _context;
+    private readonly ITransportModeDetector _transportModeDetector;
 
-    public TripService(Data.TripContext context)
+    public TripService(Data.TripContext context, ITransportModeDetector transportModeDetector)
     {
         _context = context;
+        _transportModeDetector = transportModeDetector;
     }
 
     public async Task<Trip?> GetByIdAsync(string id)
@@ -65,6 +67,29 @@ public class TripService : ITripService
         await _context.SaveChangesAsync();
     }
 
+    public async Task<Trip> CreateTripAsync(Trip trip, IReadOnlyList<TrackPoint>? trackPoints = null)
+    {
+        // 如果传入了轨迹点，自动检测出行方式
+        if (trackPoints != null && trackPoints.Count >= 2)
+        {
+            var modeResult = _transportModeDetector.DetectMode(trackPoints);
+            trip.ActivityType = modeResult.Mode ?? ActivityType.Other;
+
+            // 保存轨迹点
+            foreach (var tp in trackPoints)
+            {
+                tp.TripId = trip.Id;
+                _context.TrackPoints.Add(tp);
+            }
+        }
+
+        trip.CreatedAt = DateTime.UtcNow;
+        trip.UpdatedAt = DateTime.UtcNow;
+        _context.Trips.Add(trip);
+        await _context.SaveChangesAsync();
+        return trip;
+    }
+
     public async Task UpdateAsync(Trip trip)
     {
         trip.UpdatedAt = DateTime.UtcNow;
@@ -90,6 +115,14 @@ public class TripService : ITripService
             .Where(t => t.Description != null && t.Description.Contains(query))
             .OrderByDescending(t => t.StartedAt)
             .Take(50)
+            .ToListAsync();
+    }
+
+    public async Task<IEnumerable<TrackPoint>> GetTrackPointsAsync(string tripId)
+    {
+        return await _context.TrackPoints
+            .Where(tp => tp.TripId == tripId)
+            .OrderBy(tp => tp.Timestamp)
             .ToListAsync();
     }
 }

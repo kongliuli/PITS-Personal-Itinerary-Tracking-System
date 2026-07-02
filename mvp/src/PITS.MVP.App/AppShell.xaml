@@ -6,23 +6,29 @@
        Title="PITS">
     
     <TabBar>
-        <Tab Title="记录" Icon="record.png">
+        <Tab Title="记录" Icon="➕">
             <ShellContent ContentTemplate="{DataTemplate views:RecordPage}"/>
         </Tab>
-        <Tab Title="日历" Icon="calendar.png">
+        <Tab Title="日历" Icon="📅">
             <ShellContent ContentTemplate="{DataTemplate views:CalendarPage}"/>
         </Tab>
-        <Tab Title="地图" Icon="map.png">
+        <Tab Title="地图" Icon="🗺️">
             <ShellContent ContentTemplate="{DataTemplate views:MapPage}"/>
         </Tab>
-        <Tab Title="地点" Icon="place.png">
+        <Tab Title="地点" Icon="📍">
             <ShellContent ContentTemplate="{DataTemplate views:PlacePage}"/>
         </Tab>
-        <Tab Title="AI" Icon="ai.png">
+        <Tab Title="AI" Icon="🤖">
             <ShellContent ContentTemplate="{DataTemplate views:AIChatPage}"/>
         </Tab>
-        <Tab Title="设置" Icon="settings.png">
+        <Tab Title="统计" Icon="📊">
+            <ShellContent ContentTemplate="{DataTemplate views:StatsPage}"/>
+        </Tab>
+        <Tab Title="设置" Icon="⚙️">
             <ShellContent ContentTemplate="{DataTemplate views:SettingsPage}"/>
+        </Tab>
+        <Tab Title="导入" Icon="📥">
+            <ShellContent ContentTemplate="{DataTemplate views:ImportPage}"/>
         </Tab>
     </TabBar>
     

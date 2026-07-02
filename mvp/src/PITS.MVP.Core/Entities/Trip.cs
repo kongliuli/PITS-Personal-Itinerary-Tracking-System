@@ -27,4 +27,5 @@ public class Trip
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
     public Place? Place { get; set; }
+    public List<TrackPoint> TrackPoints { get; set; } = new();
 }

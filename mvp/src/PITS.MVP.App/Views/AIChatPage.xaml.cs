@@ -6,9 +6,5 @@ public partial class AIChatPage : ContentPage
     {
         InitializeComponent();
         BindingContext = viewModel;
-        
-        Resources.Add("BoolToColorConverter", new Converters.BoolToColorConverter());
-        Resources.Add("BoolToLayoutConverter", new Converters.BoolToLayoutConverter());
-        Resources.Add("BoolToTextColorConverter", new Converters.BoolToTextColorConverter());
     }
 }

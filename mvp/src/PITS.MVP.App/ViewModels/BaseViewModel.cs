@@ -20,6 +20,10 @@ public partial class BaseViewModel : ObservableObject
             IsBusy = true;
             await action();
         }
+        catch (Exception)
+        {
+            throw;
+        }
         finally
         {
             IsBusy = false;
