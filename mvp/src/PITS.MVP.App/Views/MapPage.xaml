@@ -101,6 +101,15 @@
                    VerticalOptions="Center"
                    TextColor="{StaticResource TextSecondary}"
                    FontSize="15"/>
+
+            <Label Text="{Binding ErrorMessage}"
+                   IsVisible="{Binding HasError}"
+                   Margin="28"
+                   HorizontalOptions="Center"
+                   VerticalOptions="Center"
+                   HorizontalTextAlignment="Center"
+                   TextColor="{StaticResource AccentDanger}"
+                   FontSize="13"/>
         </Grid>
     </Grid>
 </ContentPage>
