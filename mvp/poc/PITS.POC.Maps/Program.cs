@@ -1,4 +1,6 @@
 using Microsoft.Maui.Controls.Maps;
+using Microsoft.Maui.Devices.Sensors;
+using Microsoft.Maui.Graphics;
 using Microsoft.Maui.Maps;
 
 namespace PITS.POC.Maps;

@@ -47,9 +47,9 @@ public class Program
         Console.WriteLine("--- Test 3: Round-trip Encoding/Decoding ---");
         var originalLat = 31.2304;
         var originalLon = 121.4737;
-        var precision = 8;
+        var roundTripPrecision = 8;
 
-        var encoded = GeoHash.Encode(originalLat, originalLon, precision);
+        var encoded = GeoHash.Encode(originalLat, originalLon, roundTripPrecision);
         var (decodedLat, decodedLon) = GeoHash.Decode(encoded);
 
         Console.WriteLine($"  Original: ({originalLat}, {originalLon})");

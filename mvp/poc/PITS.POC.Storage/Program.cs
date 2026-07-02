@@ -16,8 +16,7 @@ public class Program
         if (File.Exists(dbPath)) File.Delete(dbPath);
 
         var optionsBuilder = new DbContextOptionsBuilder<TripContext>();
-        optionsBuilder.UseSqlite($"DataSource={dbPath}");
-        optionsBuilder.UseNetTopologySuite();
+        optionsBuilder.UseSqlite($"DataSource={dbPath}", sqlite => sqlite.UseNetTopologySuite());
 
         await using var context = new TripContext(optionsBuilder.Options);
         await context.Database.EnsureCreatedAsync();

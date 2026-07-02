@@ -82,7 +82,7 @@ public partial class StatsViewModel : BaseViewModel
             var allGaps = new List<Core.ValueObjects.TripSegment>();
             foreach (var trip in trips)
             {
-                var trackPoints = await _tripService.GetTrackPointsAsync(trip.Id);
+                var trackPoints = (await _tripService.GetTrackPointsAsync(trip.Id)).ToList();
                 if (trackPoints.Count > 0)
                 {
                     var segments = _segmentAnalyzer.Analyze(trackPoints);

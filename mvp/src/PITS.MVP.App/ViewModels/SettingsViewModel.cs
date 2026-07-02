@@ -57,7 +57,7 @@ public partial class SettingsViewModel : BaseViewModel
     {
         _tripService = tripService;
         Title = "设置";
-        
+
         // 从 Preferences 恢复设置
         _defaultVisibility = (VisibilityLevel)Preferences.Default.Get("default_visibility", (int)VisibilityLevel.Private);
         _enableBackgroundLocation = Preferences.Default.Get("enable_background_location", true);
@@ -71,11 +71,11 @@ public partial class SettingsViewModel : BaseViewModel
         {
             var trips = await _tripService.GetByVisibilityAsync(VisibilityLevel.Private);
             var geoJson = GenerateGeoJson(trips);
-            
+
             var fileName = $"pits_export_{DateTime.Now:yyyyMMdd_HHmmss}.geojson";
             var filePath = Path.Combine(FileSystem.CacheDirectory, fileName);
             await File.WriteAllTextAsync(filePath, geoJson);
-            
+
             await Share.Default.RequestAsync(new ShareFileRequest
             {
                 Title = "导出行程数据",

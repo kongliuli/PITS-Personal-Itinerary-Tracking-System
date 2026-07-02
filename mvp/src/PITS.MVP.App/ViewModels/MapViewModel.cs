@@ -4,6 +4,7 @@ using Microsoft.Maui.Controls.Maps;
 using Microsoft.Maui.Maps;
 using PITS.MVP.Core.Entities;
 using PITS.MVP.Core.Services;
+using System.Collections.ObjectModel;
 
 namespace PITS.MVP.App.ViewModels;
 

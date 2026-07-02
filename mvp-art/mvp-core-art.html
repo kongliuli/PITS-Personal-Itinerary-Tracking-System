@@ -327,7 +327,7 @@
 
             <div class="control-section">
                 <h3>参数</h3>
-                
+
                 <div class="control-group">
                     <label>核心粒子数</label>
                     <div class="slider-container">
@@ -363,7 +363,7 @@
 
             <div class="control-section">
                 <h3>色彩</h3>
-                
+
                 <div class="color-group">
                     <label>核心色</label>
                     <div class="color-picker-container">
@@ -652,7 +652,7 @@
             params[paramName] = parseFloat(value);
             document.getElementById(paramName + '-value').textContent = value;
 
-            if (paramName === 'coreParticles' || paramName === 'coreRadius' || 
+            if (paramName === 'coreParticles' || paramName === 'coreRadius' ||
                 paramName === 'spiralDensity') {
                 initializeSystem();
             }

@@ -23,7 +23,7 @@ public static class MauiProgram
             });
 
         builder.Services.AddDbContext<TripContext>(options =>
-            options.UseSqlite($"DataSource=pits_mvp.db").UseNetTopologySuite());
+            options.UseSqlite("DataSource=pits_mvp.db", sqlite => sqlite.UseNetTopologySuite()));
 
         builder.Services.AddScoped<ITripService, TripService>();
         builder.Services.AddScoped<IPlaceService, PlaceService>();
