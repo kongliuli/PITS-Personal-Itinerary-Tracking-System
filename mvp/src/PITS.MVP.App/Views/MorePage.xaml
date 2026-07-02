@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="PITS.MVP.App.Views.MorePage"
+             BackgroundColor="{StaticResource BgPrimary}">
+
+    <ScrollView>
+        <VerticalStackLayout Style="{StaticResource PageStack}">
+            <Label Text="更多"
+                   Style="{StaticResource PageTitle}" />
+            <Label Text="低频功能集中放在这里，底部导航只保留每天会用的入口"
+                   Style="{StaticResource PageSubtitle}" />
+
+            <Border BackgroundColor="{StaticResource BgCard}"
+                    Stroke="{StaticResource BorderSubtle}"
+                    StrokeShape="RoundRectangle 20"
+                    Padding="18">
+                <VerticalStackLayout Spacing="12">
+                    <Button Text="地点管理"
+                            Clicked="OpenPlaces"
+                            Style="{StaticResource GhostButton}"
+                            HorizontalOptions="Fill" />
+                    <Button Text="统计回顾"
+                            Clicked="OpenStats"
+                            Style="{StaticResource GhostButton}"
+                            HorizontalOptions="Fill" />
+                    <Button Text="导入数据"
+                            Clicked="OpenImport"
+                            Style="{StaticResource GhostButton}"
+                            HorizontalOptions="Fill" />
+                    <Button Text="设置"
+                            Clicked="OpenSettings"
+                            Style="{StaticResource GhostButton}"
+                            HorizontalOptions="Fill" />
+                </VerticalStackLayout>
+            </Border>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

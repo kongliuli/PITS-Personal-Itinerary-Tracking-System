@@ -4,13 +4,20 @@
              xmlns:vm="clr-namespace:PITS.MVP.App.ViewModels"
              x:Class="PITS.MVP.App.Views.CalendarPage"
              BackgroundColor="{StaticResource BgPrimary}">
-    <Grid RowDefinitions="Auto,Auto,*,Auto">
+    <Grid RowDefinitions="Auto,Auto,Auto,Auto,*,Auto">
+
+        <Label Grid.Row="0"
+               Text="日历"
+               Style="{StaticResource PageTitle}"
+               Margin="20,28,20,6"/>
 
         <!-- 去年今日提示卡片 - 暗色风格 + AccentWarning 边框发光 -->
-        <Frame Grid.Row="0" Margin="16,12" Padding="14"
+        <Frame Grid.Row="1" Margin="16,0,16,12" Padding="14"
                BackgroundColor="{StaticResource BgCard}"
                BorderColor="#FFB800"
                HasShadow="False"
+               MaximumWidthRequest="720"
+               HorizontalOptions="Fill"
                IsVisible="{Binding OnThisDaySummary, Converter={StaticResource NotNullOrEmptyStringConverter}}"
                CornerRadius="16">
             <VerticalStackLayout Spacing="6">
@@ -22,28 +29,68 @@
             </VerticalStackLayout>
         </Frame>
 
+        <!-- 黄历信息预留入口：后续接入真实黄历源后，从这里进入完整详情 -->
+        <Border Grid.Row="2"
+                Margin="16,0,16,12"
+                Padding="14"
+                BackgroundColor="{StaticResource BgCard}"
+                Stroke="{StaticResource BorderSubtle}"
+                StrokeShape="RoundRectangle 16"
+                MaximumWidthRequest="720"
+                HorizontalOptions="Fill">
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="黄历信息"
+                           FontAttributes="Bold"
+                           FontSize="15"
+                           TextColor="{StaticResource TextPrimary}"/>
+                    <Label Text="选择日期后可查看宜忌、节气、冲煞等完整信息"
+                           FontSize="13"
+                           TextColor="{StaticResource TextSecondary}"
+                           LineBreakMode="WordWrap"/>
+                </VerticalStackLayout>
+                <Label Grid.Column="1"
+                       Text="详情"
+                       FontSize="13"
+                       TextColor="{StaticResource AccentPrimary}"
+                       VerticalOptions="Center"/>
+            </Grid>
+        </Border>
+
         <!-- 月份导航 -->
-        <Grid ColumnDefinitions="Auto,*,Auto" Padding="16,8" Grid.Row="1">
-            <Button Text="&#x25C0;" Command="{Binding PrevMonthCommand}"
+        <Grid ColumnDefinitions="Auto,*,Auto" Padding="16,6,16,12" Grid.Row="3"
+              MaximumWidthRequest="720"
+              HorizontalOptions="Fill">
+            <Button Text="←" Command="{Binding PrevMonthCommand}"
                     Style="{StaticResource GhostButton}" WidthRequest="50" HeightRequest="42"
-                    CornerRadius="12"/>
+                    Padding="0"
+                    CornerRadius="12"
+                    FontSize="22"
+                    FontAttributes="Bold"/>
             <Label Text="{Binding CurrentMonthLabel}"
                    HorizontalOptions="Center" FontAttributes="Bold" FontSize="18"
                    TextColor="{StaticResource AccentPrimary}"
                    Grid.Column="1" VerticalOptions="Center"/>
-            <Button Text="&#x25B6;" Command="{Binding NextMonthCommand}"
+            <Button Text="→" Command="{Binding NextMonthCommand}"
                     Style="{StaticResource GhostButton}" WidthRequest="50" HeightRequest="42"
-                    CornerRadius="12" Grid.Column="2"/>
+                    Padding="0"
+                    CornerRadius="12"
+                    FontSize="22"
+                    FontAttributes="Bold"
+                    Grid.Column="2"/>
         </Grid>
 
         <!-- 日历网格 -->
-        <CollectionView Grid.Row="2" ItemsSource="{Binding CalendarDays}">
+        <CollectionView Grid.Row="4" ItemsSource="{Binding CalendarDays}"
+                        Margin="12,0,12,0"
+                        MaximumWidthRequest="720"
+                        HorizontalOptions="Fill">
             <CollectionView.ItemsLayout>
                 <GridItemsLayout Orientation="Vertical" Span="7"/>
             </CollectionView.ItemsLayout>
             <CollectionView.ItemTemplate>
                 <DataTemplate>
-                    <Frame Padding="4" Margin="3"
+                    <Frame Padding="4" Margin="4"
                            BackgroundColor="{StaticResource BgCard}"
                            BorderColor="{Binding BorderColor}"
                            HasShadow="False"
@@ -76,7 +123,7 @@
         </CollectionView>
 
         <!-- 底部选中日详情面板 -->
-        <Frame Grid.Row="3" VerticalOptions="End" Margin="10,0" Padding="16,14"
+        <Frame Grid.Row="5" VerticalOptions="End" Margin="12,0" Padding="16,14"
                BackgroundColor="{StaticResource BgSurface}"
                HasShadow="False"
                IsVisible="{Binding HasSelectedDay}" HeightRequest="220"

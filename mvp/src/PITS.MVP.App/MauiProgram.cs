@@ -52,6 +52,7 @@ public static class MauiProgram
         builder.Services.AddTransient<PlaceViewModel>();
         builder.Services.AddTransient<AIChatPage>();
         builder.Services.AddTransient<AIChatViewModel>();
+        builder.Services.AddTransient<MorePage>();
         builder.Services.AddTransient<StatsPage>();
         builder.Services.AddTransient<StatsViewModel>();
         builder.Services.AddTransient<SettingsPage>();

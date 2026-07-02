@@ -128,27 +128,24 @@
                    Padding="14,10"
                    CornerRadius="12"
                    HasShadow="False">
-                <Grid ColumnDefinitions="Auto,*,Auto,*,Auto">
-                    <Label Text="开始"
+                <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="*,Auto" RowSpacing="8" ColumnSpacing="14">
+                    <Label Text="开始时间"
                            FontSize="13"
                            TextColor="{StaticResource TextTertiary}"
-                           VerticalOptions="Center"/>
+                           Grid.ColumnSpan="2"/>
                     <DatePicker Date="{Binding StartDate}"
-                                Grid.Column="1"
+                                Grid.Row="1"
+                                Format="yyyy-MM-dd"
                                 TextColor="{StaticResource TextPrimary}"
-                                BackgroundColor="Transparent"/>
-                    <BoxView Grid.Column="2"
-                             WidthRequest="1"
-                             HeightRequest="24"
-                             BackgroundColor="{StaticResource BorderSubtle}"
-                             Margin="8,0"/>
+                                BackgroundColor="Transparent"
+                                HorizontalOptions="Fill"/>
                     <TimePicker Time="{Binding StartTime}"
-                                Grid.Column="3"
+                                Grid.Row="1"
+                                Grid.Column="1"
+                                Format="HH:mm"
                                 TextColor="{StaticResource TextPrimary}"
-                                BackgroundColor="Transparent"/>
-                    <Label Grid.Column="4"
-                           Text=""
-                           WidthRequest="0"/>
+                                BackgroundColor="Transparent"
+                                WidthRequest="96"/>
                 </Grid>
             </Frame>
 
@@ -158,27 +155,24 @@
                    Padding="14,10"
                    CornerRadius="12"
                    HasShadow="False">
-                <Grid ColumnDefinitions="Auto,*,Auto,*,Auto">
-                    <Label Text="结束"
+                <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="*,Auto" RowSpacing="8" ColumnSpacing="14">
+                    <Label Text="结束时间"
                            FontSize="13"
                            TextColor="{StaticResource TextTertiary}"
-                           VerticalOptions="Center"/>
+                           Grid.ColumnSpan="2"/>
                     <DatePicker Date="{Binding EndDate}"
-                                Grid.Column="1"
+                                Grid.Row="1"
+                                Format="yyyy-MM-dd"
                                 TextColor="{StaticResource TextPrimary}"
-                                BackgroundColor="Transparent"/>
-                    <BoxView Grid.Column="2"
-                             WidthRequest="1"
-                             HeightRequest="24"
-                             BackgroundColor="{StaticResource BorderSubtle}"
-                             Margin="8,0"/>
+                                BackgroundColor="Transparent"
+                                HorizontalOptions="Fill"/>
                     <TimePicker Time="{Binding EndTime}"
-                                Grid.Column="3"
+                                Grid.Row="1"
+                                Grid.Column="1"
+                                Format="HH:mm"
                                 TextColor="{StaticResource TextPrimary}"
-                                BackgroundColor="Transparent"/>
-                    <Label Grid.Column="4"
-                           Text=""
-                           WidthRequest="0"/>
+                                BackgroundColor="Transparent"
+                                WidthRequest="96"/>
                 </Grid>
             </Frame>
 

@@ -4,12 +4,25 @@
              x:Class="PITS.MVP.App.Views.AIChatPage"
              BackgroundColor="{StaticResource BgPrimary}">
 
-    <Grid RowDefinitions="*,Auto">
+    <Grid RowDefinitions="Auto,*,Auto">
+
+        <VerticalStackLayout Grid.Row="0" Padding="22,28,22,8" Spacing="6"
+                             MaximumWidthRequest="720"
+                             HorizontalOptions="Fill">
+            <Label Text="行程助手"
+                   Style="{StaticResource PageTitle}"
+                   Margin="0"/>
+            <Label Text="添加计划、查询历史、生成回顾"
+                   Style="{StaticResource PageSubtitle}"
+                   Margin="8,-4,8,0"/>
+        </VerticalStackLayout>
 
         <!-- 聊天消息列表 -->
-        <CollectionView Grid.Row="0"
+        <CollectionView Grid.Row="1"
                         ItemsSource="{Binding Messages}"
-                        Margin="16,12,16,8">
+                        Margin="16,8,16,8"
+                        MaximumWidthRequest="720"
+                        HorizontalOptions="Fill">
             <CollectionView.ItemTemplate>
                 <DataTemplate>
                     <Frame Margin="6,4"
@@ -57,7 +70,7 @@
         </CollectionView>
 
         <!-- 底部输入栏 -->
-        <Grid Grid.Row="1"
+        <Grid Grid.Row="2"
               ColumnDefinitions="*,Auto"
               Padding="12,10,12,14"
               BackgroundColor="{StaticResource BgSurface}">

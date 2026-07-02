@@ -28,29 +28,20 @@
     </Shell.FlyoutHeader>
 
     <TabBar>
-        <Tab Title="记录" Icon="dotnet_bot.svg">
-            <ShellContent ContentTemplate="{DataTemplate views:RecordPage}"/>
-        </Tab>
-        <Tab Title="日历" Icon="dotnet_bot.svg">
-            <ShellContent ContentTemplate="{DataTemplate views:CalendarPage}"/>
-        </Tab>
-        <Tab Title="轨迹" Icon="dotnet_bot.svg">
-            <ShellContent ContentTemplate="{DataTemplate views:MapPage}"/>
-        </Tab>
-        <Tab Title="地点" Icon="dotnet_bot.svg">
-            <ShellContent ContentTemplate="{DataTemplate views:PlacePage}"/>
-        </Tab>
-        <Tab Title="AI" Icon="dotnet_bot.svg">
-            <ShellContent ContentTemplate="{DataTemplate views:AIChatPage}"/>
-        </Tab>
-        <Tab Title="统计" Icon="dotnet_bot.svg">
-            <ShellContent ContentTemplate="{DataTemplate views:StatsPage}"/>
-        </Tab>
-        <Tab Title="设置" Icon="dotnet_bot.svg">
-            <ShellContent ContentTemplate="{DataTemplate views:SettingsPage}"/>
-        </Tab>
-        <Tab Title="导入" Icon="dotnet_bot.svg">
-            <ShellContent ContentTemplate="{DataTemplate views:ImportPage}"/>
-        </Tab>
+        <ShellContent Title="记录"
+                      Route="record"
+                      ContentTemplate="{DataTemplate views:RecordPage}"/>
+        <ShellContent Title="日历"
+                      Route="calendar"
+                      ContentTemplate="{DataTemplate views:CalendarPage}"/>
+        <ShellContent Title="轨迹"
+                      Route="map"
+                      ContentTemplate="{DataTemplate views:MapPage}"/>
+        <ShellContent Title="助手"
+                      Route="assistant"
+                      ContentTemplate="{DataTemplate views:AIChatPage}"/>
+        <ShellContent Title="更多"
+                      Route="more"
+                      ContentTemplate="{DataTemplate views:MorePage}"/>
     </TabBar>
 </Shell>
