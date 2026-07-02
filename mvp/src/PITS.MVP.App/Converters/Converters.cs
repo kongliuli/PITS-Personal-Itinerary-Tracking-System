@@ -2,11 +2,15 @@ using System.Globalization;
 
 namespace PITS.MVP.App.Converters;
 
+/// <summary>
+/// True  = user bubble  -> AccentPrimary (#00D4FF)
+/// False = AI bubble    -> BgCard      (#1A1A26)
+/// </summary>
 public class BoolToColorConverter : IValueConverter
 {
     public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
-        return value is bool b && b ? Color.FromArgb("#2196F3") : Color.FromArgb("#F5F5F5");
+        return value is bool b && b ? Color.FromArgb("#00D4FF") : Color.FromArgb("#1A1A26");
     }
 
     public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
@@ -28,11 +32,15 @@ public class BoolToLayoutConverter : IValueConverter
     }
 }
 
+/// <summary>
+/// True  = user bubble  -> White (on AccentPrimary bg)
+/// False = AI bubble    -> TextPrimary (#F0F0F5)
+/// </summary>
 public class BoolToTextColorConverter : IValueConverter
 {
     public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
-        return value is bool b && b ? Colors.White : Colors.Black;
+        return value is bool b && b ? Colors.White : Color.FromArgb("#F0F0F5");
     }
 
     public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
