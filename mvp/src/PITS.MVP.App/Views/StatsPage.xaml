@@ -4,112 +4,297 @@
              xmlns:vm="clr-namespace:PITS.MVP.App.ViewModels"
              x:Class="PITS.MVP.App.Views.StatsPage"
              x:DataType="vm:StatsViewModel"
-             Title="统计">
+             BackgroundColor="{StaticResource BgPrimary}">
 
     <ScrollView>
-        <VerticalStackLayout Padding="15" Spacing="15">
+        <VerticalStackLayout Padding="20" Spacing="16">
 
-            <!-- 统计卡片 -->
-            <Grid ColumnDefinitions="*,*,*" RowDefinitions="Auto" ColumnSpacing="10">
-                <Frame Grid.Column="0" Padding="10" BackgroundColor="#2196F3">
-                    <VerticalStackLayout>
-                        <Label Text="总距离" TextColor="White" FontSize="12"/>
-                        <Label Text="{Binding TotalDistanceKm, StringFormat='{0} km'}" TextColor="White" FontSize="20" FontAttributes="Bold"/>
+            <!-- 页面标题 -->
+            <Label Text="统计"
+                   TextColor="{StaticResource AccentPrimary}"
+                   FontSize="28"
+                   FontAttributes="Bold"
+                   Margin="0,0,0,4"/>
+
+            <!-- 统计卡片行（三列） -->
+            <Grid ColumnDefinitions="*,*,*" ColumnSpacing="10">
+                <!-- 总距离 -->
+                <Border Grid.Column="0"
+                        BackgroundColor="#E600D4FF"
+                        StrokeThickness="0"
+                        StrokeShape="RoundRectangle 16">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="16"/>
+                    </Border.StrokeShape>
+                    <VerticalStackLayout Padding="14,12" Spacing="4">
+                        <Label Text="总距离"
+                               TextColor="#AAFFFFFF"
+                               FontSize="11"
+                               HorizontalOptions="Center"/>
+                        <Label Text="{Binding TotalDistanceKm, StringFormat='{0} km'}"
+                               TextColor="White"
+                               FontSize="24"
+                               FontAttributes="Bold"
+                               HorizontalOptions="Center"/>
                     </VerticalStackLayout>
-                </Frame>
-                <Frame Grid.Column="1" Padding="10" BackgroundColor="#4CAF50">
-                    <VerticalStackLayout>
-                        <Label Text="行程数" TextColor="White" FontSize="12"/>
-                        <Label Text="{Binding TripCount}" TextColor="White" FontSize="20" FontAttributes="Bold"/>
+                </Border>
+                <!-- 行程数 -->
+                <Border Grid.Column="1"
+                        BackgroundColor="#E67C3AED"
+                        StrokeThickness="0"
+                        StrokeShape="RoundRectangle 16">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="16"/>
+                    </Border.StrokeShape>
+                    <VerticalStackLayout Padding="14,12" Spacing="4">
+                        <Label Text="行程数"
+                               TextColor="#AAFFFFFF"
+                               FontSize="11"
+                               HorizontalOptions="Center"/>
+                        <Label Text="{Binding TripCount}"
+                               TextColor="White"
+                               FontSize="24"
+                               FontAttributes="Bold"
+                               HorizontalOptions="Center"/>
                     </VerticalStackLayout>
-                </Frame>
-                <Frame Grid.Column="2" Padding="10" BackgroundColor="#FF9800">
-                    <VerticalStackLayout>
-                        <Label Text="总时长" TextColor="White" FontSize="12"/>
-                        <Label Text="{Binding TotalDuration}" TextColor="White" FontSize="16" FontAttributes="Bold"/>
+                </Border>
+                <!-- 总时长 -->
+                <Border Grid.Column="2"
+                        BackgroundColor="#E6F72585"
+                        StrokeThickness="0"
+                        StrokeShape="RoundRectangle 16">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="16"/>
+                    </Border.StrokeShape>
+                    <VerticalStackLayout Padding="14,12" Spacing="4">
+                        <Label Text="总时长"
+                               TextColor="#AAFFFFFF"
+                               FontSize="11"
+                               HorizontalOptions="Center"/>
+                        <Label Text="{Binding TotalDuration}"
+                               TextColor="White"
+                               FontSize="24"
+                               FontAttributes="Bold"
+                               HorizontalOptions="Center"/>
                     </VerticalStackLayout>
-                </Frame>
+                </Border>
             </Grid>
 
-            <Frame Padding="10" BackgroundColor="#607D8B">
-                <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" ColumnSpacing="10" RowSpacing="10">
+            <!-- 计划完成率区域（2x2 grid） -->
+            <Border BackgroundColor="{StaticResource BgCard}"
+                    Stroke="{StaticResource BorderSubtle}"
+                    StrokeThickness="1"
+                    StrokeShape="RoundRectangle 16">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="16"/>
+                </Border.StrokeShape>
+                <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto"
+                      ColumnSpacing="10" RowSpacing="14"
+                      Padding="16">
                     <VerticalStackLayout Grid.Row="0" Grid.Column="0">
-                        <Label Text="计划完成率" TextColor="White" FontSize="12"/>
-                        <Label Text="{Binding PlanCompletionRate}" TextColor="White" FontSize="20" FontAttributes="Bold"/>
+                        <Label Text="计划完成率"
+                               TextColor="{StaticResource TextSecondary}"
+                               FontSize="11"/>
+                        <Label Text="{Binding PlanCompletionRate}"
+                               TextColor="{StaticResource TextPrimary}"
+                               FontSize="22"
+                               FontAttributes="Bold"
+                               Margin="0,2,0,0"/>
                     </VerticalStackLayout>
                     <VerticalStackLayout Grid.Row="0" Grid.Column="1">
-                        <Label Text="完成/计划" TextColor="White" FontSize="12"/>
-                        <Label Text="{Binding PlanProgress}" TextColor="White" FontSize="20" FontAttributes="Bold"/>
+                        <Label Text="完成/计划"
+                               TextColor="{StaticResource TextSecondary}"
+                               FontSize="11"/>
+                        <Label Text="{Binding PlanProgress}"
+                               TextColor="{StaticResource TextPrimary}"
+                               FontSize="22"
+                               FontAttributes="Bold"
+                               Margin="0,2,0,0"/>
                     </VerticalStackLayout>
                     <VerticalStackLayout Grid.Row="1" Grid.Column="0">
-                        <Label Text="延误计划" TextColor="White" FontSize="12"/>
-                        <Label Text="{Binding DelayedPlanCount}" TextColor="White" FontSize="20" FontAttributes="Bold"/>
+                        <Label Text="延误计划"
+                               TextColor="{StaticResource TextSecondary}"
+                               FontSize="11"/>
+                        <Label Text="{Binding DelayedPlanCount}"
+                               TextColor="{StaticResource TextPrimary}"
+                               FontSize="22"
+                               FontAttributes="Bold"
+                               Margin="0,2,0,0"/>
                     </VerticalStackLayout>
                     <VerticalStackLayout Grid.Row="1" Grid.Column="1">
-                        <Label Text="平均延误" TextColor="White" FontSize="12"/>
-                        <Label Text="{Binding AveragePlanDelay}" TextColor="White" FontSize="20" FontAttributes="Bold"/>
+                        <Label Text="平均延误"
+                               TextColor="{StaticResource TextSecondary}"
+                               FontSize="11"/>
+                        <Label Text="{Binding AveragePlanDelay}"
+                               TextColor="{StaticResource TextPrimary}"
+                               FontSize="22"
+                               FontAttributes="Bold"
+                               Margin="0,2,0,0"/>
                     </VerticalStackLayout>
                 </Grid>
-            </Frame>
+            </Border>
 
-            <Frame Padding="10" BackgroundColor="#455A64">
-                <Grid ColumnDefinitions="*,Auto">
-                    <Label Text="通勤时长" TextColor="White" FontSize="14" FontAttributes="Bold"/>
-                    <Label Grid.Column="1" Text="{Binding CommuteDuration}" TextColor="White" FontSize="16" FontAttributes="Bold"/>
+            <!-- 通勤时长卡片 -->
+            <Border BackgroundColor="{StaticResource BgElevated}"
+                    StrokeThickness="0"
+                    StrokeShape="RoundRectangle 16">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="16"/>
+                </Border.StrokeShape>
+                <Grid ColumnDefinitions="*,Auto" Padding="16">
+                    <Label Text="通勤时长"
+                           TextColor="{StaticResource TextPrimary}"
+                           FontSize="14"
+                           FontAttributes="Bold"
+                           VerticalOptions="Center"/>
+                    <Label Grid.Column="1"
+                           Text="{Binding CommuteDuration}"
+                           TextColor="{StaticResource AccentPrimary}"
+                           FontSize="18"
+                           FontAttributes="Bold"
+                           VerticalOptions="Center"/>
                 </Grid>
-            </Frame>
+            </Border>
 
             <!-- 数据缺口卡片 -->
-            <Frame Padding="10" BackgroundColor="#F44336">
-                <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto">
-                    <Label Grid.Row="0" Grid.Column="0" Text="数据缺口" TextColor="White" FontSize="14" FontAttributes="Bold"/>
-                    <Label Grid.Row="0" Grid.Column="1" Text="{Binding GapCount, StringFormat='{0} 处'}" TextColor="White" FontSize="20" FontAttributes="Bold"/>
-                    <Label Grid.Row="1" Grid.Column="0" Text="缺口总时长" TextColor="White" FontSize="12"/>
-                    <Label Grid.Row="1" Grid.Column="1" Text="{Binding TotalGapDuration}" TextColor="White" FontSize="14" FontAttributes="Bold"/>
+            <Border BackgroundColor="{StaticResource BgCard}"
+                    Stroke="{StaticResource BorderSubtle}"
+                    StrokeThickness="1"
+                    StrokeShape="RoundRectangle 16">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="16"/>
+                </Border.StrokeShape>
+                <Grid ColumnDefinitions="4,Auto,*,Auto" RowDefinitions="Auto,Auto"
+                      Padding="0,14,16,14">
+                    <!-- 左侧 AccentDanger 粗条 -->
+                    <BoxView Grid.Row="0" Grid.Column="0" Grid.RowSpan="2"
+                             Color="{StaticResource AccentDanger}"
+                             WidthRequest="4"
+                             HorizontalOptions="Fill"/>
+                    <Label Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2"
+                           Text="数据缺口"
+                           TextColor="{StaticResource TextPrimary}"
+                           FontSize="14"
+                           FontAttributes="Bold"/>
+                    <Label Grid.Row="0" Grid.Column="3"
+                           Text="{Binding GapCount, StringFormat='{0} 处'}"
+                           TextColor="{StaticResource AccentDanger}"
+                           FontSize="22"
+                           FontAttributes="Bold"/>
+                    <Label Grid.Row="1" Grid.Column="1"
+                           Text="缺口总时长"
+                           TextColor="{StaticResource TextSecondary}"
+                           FontSize="11"
+                           Margin="0,4,0,0"/>
+                    <Label Grid.Row="1" Grid.Column="3"
+                           Text="{Binding TotalGapDuration}"
+                           TextColor="{StaticResource TextTertiary}"
+                           FontSize="13"
+                           FontAttributes="Bold"
+                           Margin="0,4,0,0"/>
                 </Grid>
-            </Frame>
+            </Border>
 
             <!-- 出行方式分布 -->
-            <Frame Padding="10">
-                <VerticalStackLayout Spacing="5">
-                    <Label Text="出行方式" FontSize="16" FontAttributes="Bold"/>
+            <Border BackgroundColor="{StaticResource BgCard}"
+                    Stroke="{StaticResource BorderSubtle}"
+                    StrokeThickness="1"
+                    StrokeShape="RoundRectangle 16">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="16"/>
+                </Border.StrokeShape>
+                <VerticalStackLayout Padding="16" Spacing="10">
+                    <Label Text="出行方式分布"
+                           TextColor="{StaticResource TextPrimary}"
+                           FontSize="16"
+                           FontAttributes="Bold"/>
                     <CollectionView ItemsSource="{Binding ActivityDistribution}" HeightRequest="150">
                         <CollectionView.ItemTemplate>
                             <DataTemplate>
-                                <HorizontalStackLayout Spacing="10" Margin="0,3">
-                                    <BoxView Color="{Binding Color}" WidthRequest="12" HeightRequest="12"/>
-                                    <Label Text="{Binding Activity}" WidthRequest="60"/>
-                                    <ProgressBar Progress="{Binding Count}" WidthRequest="150"/>
-                                    <Label Text="{Binding Count}"/>
-                                </HorizontalStackLayout>
-                            </DataTemplate>
-                        </CollectionView.ItemTemplate>
-                    </CollectionView>
-                </VerticalStackLayout>
-            </Frame>
-
-            <!-- 常去地点 -->
-            <Frame Padding="10">
-                <VerticalStackLayout Spacing="5">
-                    <Label Text="常去地点" FontSize="16" FontAttributes="Bold"/>
-                    <CollectionView ItemsSource="{Binding TopPlaces}" HeightRequest="200">
-                        <CollectionView.ItemTemplate>
-                            <DataTemplate>
-                                <Grid ColumnDefinitions="40,*,Auto" Margin="0,3">
-                                    <Label Text="#" FontSize="14" HorizontalOptions="Center"/>
-                                    <Label Text="{Binding Name}" FontSize="14"/>
-                                    <Label Text="{Binding VisitCount, StringFormat='{0}次'}" FontSize="14"/>
+                                <Grid ColumnDefinitions="12,Auto,*,Auto" ColumnSpacing="10" Margin="0,4">
+                                    <BoxView Grid.Column="0"
+                                             Color="{Binding Color}"
+                                             WidthRequest="12"
+                                             HeightRequest="12"
+                                             VerticalOptions="Center"
+                                             HorizontalOptions="Center"/>
+                                    <Label Grid.Column="1"
+                                           Text="{Binding Activity}"
+                                           TextColor="{StaticResource TextSecondary}"
+                                           FontSize="13"
+                                           WidthRequest="60"
+                                           VerticalOptions="Center"/>
+                                    <ProgressBar Grid.Column="2"
+                                                 Progress="{Binding Count}"
+                                                 ProgressColor="{StaticResource AccentPrimary}"
+                                                 BackgroundColor="{StaticResource BgElevated}"
+                                                 VerticalOptions="Center"/>
+                                    <Label Grid.Column="3"
+                                           Text="{Binding Count}"
+                                           TextColor="{StaticResource TextPrimary}"
+                                           FontSize="13"
+                                           VerticalOptions="Center"/>
                                 </Grid>
                             </DataTemplate>
                         </CollectionView.ItemTemplate>
                     </CollectionView>
                 </VerticalStackLayout>
-            </Frame>
+            </Border>
 
-            <!-- 时间分布 -->
-            <Frame Padding="10">
-                <VerticalStackLayout Spacing="5">
-                    <Label Text="小时分布" FontSize="16" FontAttributes="Bold"/>
+            <!-- 常去地点 -->
+            <Border BackgroundColor="{StaticResource BgCard}"
+                    Stroke="{StaticResource BorderSubtle}"
+                    StrokeThickness="1"
+                    StrokeShape="RoundRectangle 16">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="16"/>
+                </Border.StrokeShape>
+                <VerticalStackLayout Padding="16" Spacing="10">
+                    <Label Text="常去地点"
+                           TextColor="{StaticResource TextPrimary}"
+                           FontSize="16"
+                           FontAttributes="Bold"/>
+                    <CollectionView ItemsSource="{Binding TopPlaces}" HeightRequest="200">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <Grid ColumnDefinitions="40,*,Auto" Margin="0,5">
+                                    <Label Grid.Column="0"
+                                           Text="#"
+                                           TextColor="{StaticResource TextTertiary}"
+                                           FontSize="14"
+                                           HorizontalOptions="Center"
+                                           VerticalOptions="Center"/>
+                                    <Label Grid.Column="1"
+                                           Text="{Binding Name}"
+                                           TextColor="{StaticResource TextPrimary}"
+                                           FontSize="14"
+                                           VerticalOptions="Center"/>
+                                    <Label Grid.Column="2"
+                                           Text="{Binding VisitCount, StringFormat='{0}次'}"
+                                           TextColor="{StaticResource AccentSecondary}"
+                                           FontSize="14"
+                                           FontAttributes="Bold"
+                                           VerticalOptions="Center"/>
+                                </Grid>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- 小时分布 -->
+            <Border BackgroundColor="{StaticResource BgCard}"
+                    Stroke="{StaticResource BorderSubtle}"
+                    StrokeThickness="1"
+                    StrokeShape="RoundRectangle 16">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="16"/>
+                </Border.StrokeShape>
+                <VerticalStackLayout Padding="16" Spacing="10">
+                    <Label Text="小时分布"
+                           TextColor="{StaticResource TextPrimary}"
+                           FontSize="16"
+                           FontAttributes="Bold"/>
                     <CollectionView ItemsSource="{Binding HourDistribution}" HeightRequest="120">
                         <CollectionView.ItemsLayout>
                             <GridItemsLayout Span="24" Orientation="Horizontal" HorizontalItemSpacing="2"/>
@@ -117,15 +302,25 @@
                         <CollectionView.ItemTemplate>
                             <DataTemplate>
                                 <VerticalStackLayout HorizontalOptions="Fill">
-                                    <BoxView HeightRequest="{Binding Count}" MaximumHeightRequest="50"
-                                             Color="#2196F3" HorizontalOptions="Fill" WidthRequest="8"/>
-                                    <Label Text="{Binding Hour}" FontSize="6" HorizontalOptions="Center"/>
+                                    <BoxView HeightRequest="{Binding Count}"
+                                             MaximumHeightRequest="50"
+                                             Color="{StaticResource AccentPrimary}"
+                                             HorizontalOptions="Fill"
+                                             WidthRequest="8"
+                                             CornerRadius="4"/>
+                                    <Label Text="{Binding Hour}"
+                                           TextColor="{StaticResource TextTertiary}"
+                                           FontSize="6"
+                                           HorizontalOptions="Center"/>
                                 </VerticalStackLayout>
                             </DataTemplate>
                         </CollectionView.ItemTemplate>
                     </CollectionView>
                 </VerticalStackLayout>
-            </Frame>
+            </Border>
+
+            <!-- 底部间距 -->
+            <Label Text="" HeightRequest="10"/>
 
         </VerticalStackLayout>
     </ScrollView>

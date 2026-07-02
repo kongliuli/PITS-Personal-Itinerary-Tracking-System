@@ -2,23 +2,52 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="PITS.MVP.App.Views.AIChatPage"
-             Title="AI 助手">
+             BackgroundColor="{StaticResource BgPrimary}">
+
     <Grid RowDefinitions="*,Auto">
-        
-        <CollectionView Grid.Row="0" ItemsSource="{Binding Messages}" Margin="10">
+
+        <!-- 聊天消息列表 -->
+        <CollectionView Grid.Row="0"
+                        ItemsSource="{Binding Messages}"
+                        Margin="16,12,16,8">
             <CollectionView.ItemTemplate>
                 <DataTemplate>
-                    <Frame Margin="5" Padding="12" CornerRadius="15"
+                    <Frame Margin="6,4"
+                           Padding="16,12"
+                           CornerRadius="20"
+                           HasShadow="False"
                            BackgroundColor="{Binding IsUser, Converter={StaticResource BoolToColorConverter}}"
                            HorizontalOptions="{Binding IsUser, Converter={StaticResource BoolToLayoutConverter}}">
-                        <VerticalStackLayout Spacing="8">
-                            <Label Text="{Binding Content}" TextColor="{Binding IsUser, Converter={StaticResource BoolToTextColorConverter}}"/>
-                            <Frame Padding="8" IsVisible="{Binding HasTripCard}" BackgroundColor="White">
-                                <VerticalStackLayout Spacing="4">
-                                    <Label Text="{Binding TripCard.Title}" FontAttributes="Bold"/>
-                                    <Label Text="{Binding TripCard.Time}" FontSize="12"/>
-                                    <Label Text="{Binding TripCard.Location}" FontSize="12"/>
-                                    <Button Text="确认保存计划" Command="{Binding TripCard.ConfirmCommand}"/>
+                        <VerticalStackLayout Spacing="10">
+                            <!-- 消息文字 -->
+                            <Label Text="{Binding Content}"
+                                   TextColor="{Binding IsUser, Converter={StaticResource BoolToTextColorConverter}}"
+                                   LineBreakMode="WordWrap"
+                                   FontSize="15"/>
+
+                            <!-- 行程卡片（可选） -->
+                            <Frame Padding="14,10"
+                                   IsVisible="{Binding HasTripCard}"
+                                   BackgroundColor="{StaticResource BgElevated}"
+                                   CornerRadius="12"
+                                   HasShadow="False">
+                                <VerticalStackLayout Spacing="6">
+                                    <Label Text="{Binding TripCard.Title}"
+                                           FontAttributes="Bold"
+                                           FontSize="15"
+                                           TextColor="{StaticResource TextPrimary}"/>
+                                    <Label Text="{Binding TripCard.Time}"
+                                           FontSize="12"
+                                           TextColor="{StaticResource TextSecondary}"/>
+                                    <Label Text="{Binding TripCard.Location}"
+                                           FontSize="12"
+                                           TextColor="{StaticResource TextSecondary}"/>
+                                    <Button Text="确认保存计划"
+                                            Command="{Binding TripCard.ConfirmCommand}"
+                                            Style="{StaticResource AccentButton}"
+                                            CornerRadius="12"
+                                            HeightRequest="38"
+                                            Margin="0,4,0,0"/>
                                 </VerticalStackLayout>
                             </Frame>
                         </VerticalStackLayout>
@@ -27,13 +56,46 @@
             </CollectionView.ItemTemplate>
         </CollectionView>
 
-        <Grid Grid.Row="1" ColumnDefinitions="*,Auto" Padding="10" BackgroundColor="White">
-            <Entry Placeholder="输入指令，如'记录刚才的会议'..."
-                   Text="{Binding InputText}" Grid.Column="0"
-                   ReturnCommand="{Binding SendCommand}"/>
-            <Button Text="发送" Command="{Binding SendCommand}" 
-                    Grid.Column="1" Margin="10,0,0,0"/>
+        <!-- 底部输入栏 -->
+        <Grid Grid.Row="1"
+              ColumnDefinitions="*,Auto"
+              Padding="12,10,12,14"
+              BackgroundColor="{StaticResource BgSurface}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <!-- 上边框分隔线 -->
+            <BoxView Grid.ColumnSpan="2"
+                     HeightRequest="1"
+                     Color="{StaticResource DividerColor}"
+                     VerticalOptions="Start" />
+
+            <!-- 输入框（胶囊形） -->
+            <Entry Grid.Column="0"
+                   Placeholder="输入指令，如'记录刚才的会议'..."
+                   PlaceholderColor="{StaticResource TextTertiary}"
+                   Text="{Binding InputText}"
+                   TextColor="{StaticResource TextPrimary}"
+                   BackgroundColor="{StaticResource BgCard}"
+                   Margin="0,6,8,0"
+                   CornerRadius="20"
+                   HeightRequest="48"
+                   ReturnCommand="{Binding SendCommand}" />
+
+            <!-- 发送按钮（圆形） -->
+            <Button Grid.Column="1"
+                    Text="&#x27A4;"
+                    Command="{Binding SendCommand}"
+                    BackgroundColor="{StaticResource AccentPrimary}"
+                    TextColor="White"
+                    FontSize="18"
+                    WidthRequest="48"
+                    HeightRequest="48"
+                    CornerRadius="50"
+                    Margin="0,6,0,0" />
         </Grid>
-        
+
     </Grid>
 </ContentPage>

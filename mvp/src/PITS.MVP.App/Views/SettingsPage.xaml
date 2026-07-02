@@ -2,84 +2,335 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="PITS.MVP.App.Views.SettingsPage"
-             Title="设置">
+             BackgroundColor="{StaticResource BgPrimary}">
+
     <ScrollView>
         <VerticalStackLayout Padding="20" Spacing="20">
 
-            <Frame>
-                <VerticalStackLayout Spacing="15">
-                    <Label Text="默认设置" FontAttributes="Bold" FontSize="16"/>
-                    
-                    <Label Text="默认可见性级别"/>
+            <!-- Page Title -->
+            <Label Text="设置"
+                   FontSize="28"
+                   FontAttributes="Bold"
+                   TextColor="{StaticResource AccentPrimary}"
+                   Margin="0,0,0,4" />
+
+            <!-- ============================================ -->
+            <!-- Section 1 - Default Settings                 -->
+            <!-- ============================================ -->
+            <Border BackgroundColor="{StaticResource BgCard}"
+                    StrokeColor="{StaticResource BorderSubtle}"
+                    StrokeThickness="1"
+                    Padding="20"
+                    StrokeShape="RoundRectangle 20">
+                <VerticalStackLayout Spacing="16">
+
+                    <Label Text="默认设置"
+                           FontSize="16"
+                           FontAttributes="Bold"
+                           TextColor="{StaticResource TextPrimary}" />
+
+                    <BoxView HeightRequest="1" Color="{StaticResource BorderSubtle}" />
+
+                    <!-- Default Visibility Level -->
+                    <Label Text="默认可见性级别"
+                           FontSize="13"
+                           TextColor="{StaticResource TextSecondary}" />
                     <Picker ItemsSource="{Binding VisibilityLevels}"
-                            SelectedItem="{Binding DefaultVisibility}"/>
-                    
-                    <Label Text="后台定位"/>
-                    <Switch IsToggled="{Binding EnableBackgroundLocation}"/>
-                    
-                    <Label Text="地理围栏半径 (米)"/>
-                    <Entry Text="{Binding GeofenceRadius}" Keyboard="Numeric"/>
+                            SelectedItem="{Binding DefaultVisibility}"
+                            BackgroundColor="{StaticResource BgElevated}"
+                            TextColor="{StaticResource TextPrimary}"
+                            TitleColor="{StaticResource TextTertiary}"
+                            Margin="0,-8,0,0" />
+
+                    <!-- Background Location -->
+                    <Grid ColumnDefinitions="*, Auto" ColumnSpacing="12">
+                        <Label Text="后台定位"
+                               FontSize="13"
+                               TextColor="{StaticResource TextSecondary}"
+                               VerticalOptions="Center" />
+                        <Switch Grid.Column="1"
+                                IsToggled="{Binding EnableBackgroundLocation}"
+                                OnColor="{StaticResource AccentPrimary}"
+                                ThumbColor="{StaticResource TextOnAccent}" />
+                    </Grid>
+
+                    <!-- Geofence Radius -->
+                    <Label Text="地理围栏半径 (米)"
+                           FontSize="13"
+                           TextColor="{StaticResource TextSecondary}" />
+                    <Entry Text="{Binding GeofenceRadius}"
+                           Keyboard="Numeric"
+                           BackgroundColor="{StaticResource BgElevated}"
+                           TextColor="{StaticResource TextPrimary}"
+                           PlaceholderColor="{StaticResource TextTertiary}"
+                           Margin="0,-8,0,0">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="12" />
+                        </Border.StrokeShape>
+                    </Entry>
+
                 </VerticalStackLayout>
-            </Frame>
+            </Border>
 
-            <Frame>
-                <VerticalStackLayout Spacing="15">
-                    <Label Text="轨迹分类设置" FontAttributes="Bold" FontSize="16"/>
+            <!-- ============================================ -->
+            <!-- Section 2 - Trajectory Classification       -->
+            <!-- ============================================ -->
+            <Border BackgroundColor="{StaticResource BgCard}"
+                    StrokeColor="{StaticResource BorderSubtle}"
+                    StrokeThickness="1"
+                    Padding="20"
+                    StrokeShape="RoundRectangle 20">
+                <VerticalStackLayout Spacing="16">
 
-                    <Label Text="停留半径 (米)"/>
-                    <Slider Minimum="10" Maximum="200" Value="{Binding StayRadius}"/>
-                    <Label Text="{Binding StayRadius, StringFormat='{0:F0} 米'}" HorizontalOptions="End" TextColor="Gray"/>
+                    <Label Text="轨迹分类设置"
+                           FontSize="16"
+                           FontAttributes="Bold"
+                           TextColor="{StaticResource TextPrimary}" />
 
-                    <Label Text="最短停留时长 (分钟)"/>
-                    <Slider Minimum="1" Maximum="30" Value="{Binding StayDurationMinutes}"/>
-                    <Label Text="{Binding StayDurationMinutes, StringFormat='{0:F0} 分钟'}" HorizontalOptions="End" TextColor="Gray"/>
+                    <BoxView HeightRequest="1" Color="{StaticResource BorderSubtle}" />
 
-                    <Label Text="数据缺口阈值 (分钟)"/>
-                    <Slider Minimum="5" Maximum="120" Value="{Binding GapThresholdMinutes}"/>
-                    <Label Text="{Binding GapThresholdMinutes, StringFormat='{0:F0} 分钟'}" HorizontalOptions="End" TextColor="Gray"/>
+                    <!-- Stay Radius Slider -->
+                    <Label Text="停留半径 (米)"
+                           FontSize="13"
+                           TextColor="{StaticResource TextSecondary}" />
+                    <Grid ColumnDefinitions="*, Auto" ColumnSpacing="8">
+                        <Slider Grid.Column="0"
+                                Minimum="10"
+                                Maximum="200"
+                                Value="{Binding StayRadius}"
+                                MinimumTrackColor="{StaticResource AccentPrimary}"
+                                MaximumTrackColor="{StaticResource BorderSubtle}"
+                                ThumbColor="{StaticResource AccentPrimary}" />
+                        <Label Grid.Column="1"
+                               Text="{Binding StayRadius, StringFormat='{0:F0} m'}"
+                               FontSize="13"
+                               FontAttributes="Bold"
+                               TextColor="{StaticResource AccentPrimary}"
+                               VerticalOptions="Center"
+                               WidthRequest="52" />
+                    </Grid>
+
+                    <!-- Stay Duration Slider -->
+                    <Label Text="最短停留时长 (分钟)"
+                           FontSize="13"
+                           TextColor="{StaticResource TextSecondary}" />
+                    <Grid ColumnDefinitions="*, Auto" ColumnSpacing="8">
+                        <Slider Grid.Column="0"
+                                Minimum="1"
+                                Maximum="30"
+                                Value="{Binding StayDurationMinutes}"
+                                MinimumTrackColor="{StaticResource AccentPrimary}"
+                                MaximumTrackColor="{StaticResource BorderSubtle}"
+                                ThumbColor="{StaticResource AccentPrimary}" />
+                        <Label Grid.Column="1"
+                               Text="{Binding StayDurationMinutes, StringFormat='{0:F0} min'}"
+                               FontSize="13"
+                               FontAttributes="Bold"
+                               TextColor="{StaticResource AccentPrimary}"
+                               VerticalOptions="Center"
+                               WidthRequest="52" />
+                    </Grid>
+
+                    <!-- Gap Threshold Slider -->
+                    <Label Text="数据缺口阈值 (分钟)"
+                           FontSize="13"
+                           TextColor="{StaticResource TextSecondary}" />
+                    <Grid ColumnDefinitions="*, Auto" ColumnSpacing="8">
+                        <Slider Grid.Column="0"
+                                Minimum="5"
+                                Maximum="120"
+                                Value="{Binding GapThresholdMinutes}"
+                                MinimumTrackColor="{StaticResource AccentPrimary}"
+                                MaximumTrackColor="{StaticResource BorderSubtle}"
+                                ThumbColor="{StaticResource AccentPrimary}" />
+                        <Label Grid.Column="1"
+                               Text="{Binding GapThresholdMinutes, StringFormat='{0:F0} min'}"
+                               FontSize="13"
+                               FontAttributes="Bold"
+                               TextColor="{StaticResource AccentPrimary}"
+                               VerticalOptions="Center"
+                               WidthRequest="52" />
+                    </Grid>
+
                 </VerticalStackLayout>
-            </Frame>
+            </Border>
 
-            <Frame>
-                <VerticalStackLayout Spacing="15">
-                    <Label Text="Home Assistant MQTT 集成" FontAttributes="Bold" FontSize="16"/>
+            <!-- ============================================ -->
+            <!-- Section 3 - MQTT Integration                 -->
+            <!-- ============================================ -->
+            <Border BackgroundColor="{StaticResource BgCard}"
+                    StrokeColor="{StaticResource BorderSubtle}"
+                    StrokeThickness="1"
+                    Padding="20"
+                    StrokeShape="RoundRectangle 20">
+                <VerticalStackLayout Spacing="16">
 
-                    <Label Text="启用 MQTT 位置发布"/>
-                    <Switch IsToggled="{Binding MqttEnabled}"/>
+                    <Label Text="MQTT 集成"
+                           FontSize="16"
+                           FontAttributes="Bold"
+                           TextColor="{StaticResource TextPrimary}" />
 
-                    <Label Text="MQTT 服务器地址"/>
-                    <Entry Text="{Binding MqttHost}" Placeholder="例: 192.168.1.100" IsEnabled="{Binding MqttEnabled}"/>
+                    <BoxView HeightRequest="1" Color="{StaticResource BorderSubtle}" />
 
-                    <Label Text="MQTT 端口"/>
-                    <Entry Text="{Binding MqttPort}" Keyboard="Numeric" IsEnabled="{Binding MqttEnabled}"/>
+                    <!-- Enable MQTT -->
+                    <Grid ColumnDefinitions="*, Auto" ColumnSpacing="12">
+                        <Label Text="启用 MQTT 位置发布"
+                               FontSize="13"
+                               TextColor="{StaticResource TextSecondary}"
+                               VerticalOptions="Center" />
+                        <Switch Grid.Column="1"
+                                IsToggled="{Binding MqttEnabled}"
+                                OnColor="{StaticResource AccentPrimary}"
+                                ThumbColor="{StaticResource TextOnAccent}" />
+                    </Grid>
 
-                    <Label Text="用户名"/>
-                    <Entry Text="{Binding MqttUsername}" Placeholder="可选" IsEnabled="{Binding MqttEnabled}"/>
+                    <!-- MQTT Host -->
+                    <Label Text="MQTT 服务器地址"
+                           FontSize="13"
+                           TextColor="{StaticResource TextSecondary}" />
+                    <Entry Text="{Binding MqttHost}"
+                           Placeholder="例: 192.168.1.100"
+                           IsEnabled="{Binding MqttEnabled}"
+                           BackgroundColor="{StaticResource BgElevated}"
+                           TextColor="{StaticResource TextPrimary}"
+                           PlaceholderColor="{StaticResource TextTertiary}"
+                           Margin="0,-8,0,0">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="12" />
+                        </Border.StrokeShape>
+                    </Entry>
 
-                    <Label Text="密码"/>
-                    <Entry Text="{Binding MqttPassword}" IsPassword="True" Placeholder="可选" IsEnabled="{Binding MqttEnabled}"/>
+                    <!-- MQTT Port -->
+                    <Label Text="MQTT 端口"
+                           FontSize="13"
+                           TextColor="{StaticResource TextSecondary}" />
+                    <Entry Text="{Binding MqttPort}"
+                           Keyboard="Numeric"
+                           IsEnabled="{Binding MqttEnabled}"
+                           BackgroundColor="{StaticResource BgElevated}"
+                           TextColor="{StaticResource TextPrimary}"
+                           PlaceholderColor="{StaticResource TextTertiary}"
+                           Margin="0,-8,0,0">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="12" />
+                        </Border.StrokeShape>
+                    </Entry>
+
+                    <!-- MQTT Username -->
+                    <Label Text="用户名"
+                           FontSize="13"
+                           TextColor="{StaticResource TextSecondary}" />
+                    <Entry Text="{Binding MqttUsername}"
+                           Placeholder="可选"
+                           IsEnabled="{Binding MqttEnabled}"
+                           BackgroundColor="{StaticResource BgElevated}"
+                           TextColor="{StaticResource TextPrimary}"
+                           PlaceholderColor="{StaticResource TextTertiary}"
+                           Margin="0,-8,0,0">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="12" />
+                        </Border.StrokeShape>
+                    </Entry>
+
+                    <!-- MQTT Password -->
+                    <Label Text="密码"
+                           FontSize="13"
+                           TextColor="{StaticResource TextSecondary}" />
+                    <Entry Text="{Binding MqttPassword}"
+                           IsPassword="True"
+                           Placeholder="可选"
+                           IsEnabled="{Binding MqttEnabled}"
+                           BackgroundColor="{StaticResource BgElevated}"
+                           TextColor="{StaticResource TextPrimary}"
+                           PlaceholderColor="{StaticResource TextTertiary}"
+                           Margin="0,-8,0,0">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="12" />
+                        </Border.StrokeShape>
+                    </Entry>
+
                 </VerticalStackLayout>
-            </Frame>
+            </Border>
 
-            <Frame>
-                <VerticalStackLayout Spacing="15">
-                    <Label Text="数据导出" FontAttributes="Bold" FontSize="16"/>
-                    
-                    <Button Text="导出 GeoJSON" Command="{Binding ExportGeoJsonCommand}"/>
-                    <Button Text="导出 CSV" Command="{Binding ExportCsvCommand}"/>
-                    <Button Text="导出 GPX" Command="{Binding ExportGpxCommand}"/>
-                    <Button Text="备份本地数据库" Command="{Binding BackupDatabaseCommand}"/>
-                    <Button Text="恢复本地数据库" Command="{Binding RestoreDatabaseCommand}"/>
-                </VerticalStackLayout>
-            </Frame>
+            <!-- ============================================ -->
+            <!-- Section 4 - Data Export                      -->
+            <!-- ============================================ -->
+            <Border BackgroundColor="{StaticResource BgCard}"
+                    StrokeColor="{StaticResource BorderSubtle}"
+                    StrokeThickness="1"
+                    Padding="20"
+                    StrokeShape="RoundRectangle 20">
+                <VerticalStackLayout Spacing="12">
 
-            <Frame>
-                <VerticalStackLayout Spacing="10">
-                    <Label Text="关于" FontAttributes="Bold" FontSize="16"/>
-                    <Label Text="PITS MVP v1.0.0" TextColor="Gray"/>
-                    <Label Text="个人行程追踪系统" TextColor="Gray" FontSize="12"/>
+                    <Label Text="数据导出"
+                           FontSize="16"
+                           FontAttributes="Bold"
+                           TextColor="{StaticResource TextPrimary}" />
+
+                    <BoxView HeightRequest="1" Color="{StaticResource BorderSubtle}" />
+
+                    <!-- Export GeoJSON -->
+                    <Button Text="导出 GeoJSON"
+                            Command="{Binding ExportGeoJsonCommand}"
+                            Style="{StaticResource GhostButton}"
+                            HorizontalOptions="Fill" />
+
+                    <!-- Export CSV -->
+                    <Button Text="导出 CSV"
+                            Command="{Binding ExportCsvCommand}"
+                            Style="{StaticResource GhostButton}"
+                            HorizontalOptions="Fill" />
+
+                    <!-- Export GPX -->
+                    <Button Text="导出 GPX"
+                            Command="{Binding ExportGpxCommand}"
+                            Style="{StaticResource GhostButton}"
+                            HorizontalOptions="Fill" />
+
+                    <!-- Backup Database -->
+                    <Button Text="备份本地数据库"
+                            Command="{Binding BackupDatabaseCommand}"
+                            Style="{StaticResource GhostButton}"
+                            HorizontalOptions="Fill" />
+
+                    <!-- Restore Database (Danger) -->
+                    <Button Text="恢复本地数据库"
+                            Command="{Binding RestoreDatabaseCommand}"
+                            Style="{StaticResource DangerButton}"
+                            HorizontalOptions="Fill" />
+
                 </VerticalStackLayout>
-            </Frame>
+            </Border>
+
+            <!-- ============================================ -->
+            <!-- Section 5 - About                           -->
+            <!-- ============================================ -->
+            <Border BackgroundColor="{StaticResource BgCard}"
+                    StrokeColor="{StaticResource BorderSubtle}"
+                    StrokeThickness="1"
+                    Padding="20"
+                    StrokeShape="RoundRectangle 20">
+                <VerticalStackLayout Spacing="8">
+
+                    <Label Text="关于"
+                           FontSize="16"
+                           FontAttributes="Bold"
+                           TextColor="{StaticResource TextPrimary}" />
+
+                    <BoxView HeightRequest="1" Color="{StaticResource BorderSubtle}" />
+
+                    <Label Text="PITS MVP v1.0.0"
+                           FontSize="14"
+                           TextColor="{StaticResource TextSecondary}" />
+                    <Label Text="个人行程追踪系统"
+                           FontSize="12"
+                           TextColor="{StaticResource TextTertiary}" />
+
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Bottom spacing -->
+            <Label Text="" FontSize="8" />
 
         </VerticalStackLayout>
     </ScrollView>

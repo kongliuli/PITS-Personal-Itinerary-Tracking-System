@@ -20,8 +20,7 @@
                Margin="20,56,20,16"
                Padding="20"
                BackgroundColor="{StaticResource GlassBg}"
-               Stroke="{StaticResource BorderSubtle}"
-               StrokeThickness="1"
+               BorderColor="{StaticResource BorderSubtle}"
                CornerRadius="20"
                HasShadow="False"
                VerticalOptions="Start">
@@ -78,8 +77,7 @@
                     <Frame Margin="0,0,0,12"
                            Padding="16"
                            BackgroundColor="{StaticResource BgCard}"
-                           Stroke="{StaticResource BorderSubtle}"
-                           StrokeThickness="1"
+                           BorderColor="{StaticResource BorderSubtle}"
                            CornerRadius="16"
                            HasShadow="False">
                         <Grid ColumnDefinitions="*,Auto">

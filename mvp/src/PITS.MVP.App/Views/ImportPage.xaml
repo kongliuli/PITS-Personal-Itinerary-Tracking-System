@@ -4,69 +4,158 @@
              xmlns:vm="clr-namespace:PITS.MVP.App.ViewModels"
              x:Class="PITS.MVP.App.Views.ImportPage"
              x:DataType="vm:ImportViewModel"
-             Title="数据导入">
+             BackgroundColor="{StaticResource BgPrimary}">
 
-    <VerticalStackLayout Padding="20" Spacing="20">
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="16">
 
-        <Label Text="导入位置历史" FontSize="24" FontAttributes="Bold"/>
+            <!-- 页面标题区 -->
+            <Label Text="导入位置历史"
+                   FontSize="28"
+                   FontAttributes="Bold"
+                   TextColor="{StaticResource AccentPrimary}"/>
 
-        <Label Text="从 Google Takeout 或 GPX 文件导入您的位置历史数据" FontSize="14" TextColor="Gray"/>
+            <Label Text="从 Google Takeout、GPX、日历或邮件中导入您的位置历史数据"
+                   FontSize="14"
+                   TextColor="{StaticResource TextSecondary}"
+                   Margin="0,-8,0,4"/>
 
-        <!-- Google Takeout 导入 -->
-        <Frame Padding="15">
-            <VerticalStackLayout Spacing="10">
-                <Label Text="Google Takeout" FontSize="18" FontAttributes="Bold"/>
-                <Label Text="从 Google 位置历史导出的 JSON 文件" FontSize="12" TextColor="Gray"/>
-                <Button Text="选择 JSON 文件"
-                        Command="{Binding ImportGoogleTakeoutCommand}"
-                        IsEnabled="{Binding IsImporting, Converter={StaticResource InvertedBoolConverter}}"
-                        BackgroundColor="#2196F3" TextColor="White"/>
+            <!-- Google Takeout 导入卡片 -->
+            <Frame Padding="0"
+                   BackgroundColor="{StaticResource BgCard}"
+                   BorderColor="{StaticResource BorderSubtle}"
+                   StrokeShape="RoundRectangle 16"
+                   HasShadow="False">
+                <Grid ColumnDefinitions="4, Auto" ColumnSpacing="0">
+                    <!-- 左侧彩色竖条 -->
+                    <BoxView Color="{StaticResource AccentPrimary}" WidthRequest="4"/>
+
+                    <VerticalStackLayout Grid.Column="1" Padding="16" Spacing="12">
+                        <Label Text="Google Takeout"
+                               FontSize="16"
+                               FontAttributes="Bold"
+                               TextColor="{StaticResource TextPrimary}"/>
+                        <Label Text="从 Google 位置历史导出的 JSON 文件"
+                               FontSize="12"
+                               TextColor="{StaticResource TextSecondary}"/>
+                        <Button Text="选择 JSON 文件"
+                                Command="{Binding ImportGoogleTakeoutCommand}"
+                                IsEnabled="{Binding IsImporting, Converter={StaticResource InvertedBoolConverter}}"
+                                BackgroundColor="{StaticResource AccentPrimary}"
+                                TextColor="{StaticResource TextOnAccent}"
+                                CornerRadius="14"
+                                HeightRequest="46"/>
+                    </VerticalStackLayout>
+                </Grid>
+            </Frame>
+
+            <!-- GPX 导入卡片 -->
+            <Frame Padding="0"
+                   BackgroundColor="{StaticResource BgCard}"
+                   BorderColor="{StaticResource BorderSubtle}"
+                   CornerRadius="16"
+                   HasShadow="False">
+                <Grid ColumnDefinitions="4, Auto" ColumnSpacing="0">
+                    <BoxView Color="{StaticResource AccentSuccess}" WidthRequest="4"/>
+
+                    <VerticalStackLayout Grid.Column="1" Padding="16" Spacing="12">
+                        <Label Text="GPX 文件"
+                               FontSize="16"
+                               FontAttributes="Bold"
+                               TextColor="{StaticResource TextPrimary}"/>
+                        <Label Text="标准 GPS 交换格式文件"
+                               FontSize="12"
+                               TextColor="{StaticResource TextSecondary}"/>
+                        <Button Text="选择 GPX 文件"
+                                Command="{Binding ImportGpxCommand}"
+                                IsEnabled="{Binding IsImporting, Converter={StaticResource InvertedBoolConverter}}"
+                                BackgroundColor="{StaticResource AccentSuccess}"
+                                TextColor="#0A0A0F"
+                                CornerRadius="14"
+                                HeightRequest="46"/>
+                    </VerticalStackLayout>
+                </Grid>
+            </Frame>
+
+            <!-- ICS 日历导入卡片 -->
+            <Frame Padding="0"
+                   BackgroundColor="{StaticResource BgCard}"
+                   BorderColor="{StaticResource BorderSubtle}"
+                   CornerRadius="16"
+                   HasShadow="False">
+                <Grid ColumnDefinitions="4, Auto" ColumnSpacing="0">
+                    <BoxView Color="{StaticResource AccentSecondary}" WidthRequest="4"/>
+
+                    <VerticalStackLayout Grid.Column="1" Padding="16" Spacing="12">
+                        <Label Text="ICS 日历"
+                               FontSize="16"
+                               FontAttributes="Bold"
+                               TextColor="{StaticResource TextPrimary}"/>
+                        <Label Text="从日历文件导入待执行计划"
+                               FontSize="12"
+                               TextColor="{StaticResource TextSecondary}"/>
+                        <Button Text="选择 ICS 文件"
+                                Command="{Binding ImportIcsCommand}"
+                                IsEnabled="{Binding IsImporting, Converter={StaticResource InvertedBoolConverter}}"
+                                BackgroundColor="{StaticResource AccentSecondary}"
+                                TextColor="{StaticResource TextOnAccent}"
+                                CornerRadius="14"
+                                HeightRequest="46"/>
+                    </VerticalStackLayout>
+                </Grid>
+            </Frame>
+
+            <!-- 邮件确认单导入卡片 -->
+            <Frame Padding="0"
+                   BackgroundColor="{StaticResource BgCard}"
+                   BorderColor="{StaticResource BorderSubtle}"
+                   CornerRadius="16"
+                   HasShadow="False">
+                <Grid ColumnDefinitions="4, Auto" ColumnSpacing="0">
+                    <BoxView Color="{StaticResource AccentTertiary}" WidthRequest="4"/>
+
+                    <VerticalStackLayout Grid.Column="1" Padding="16" Spacing="12">
+                        <Label Text="邮件确认单"
+                               FontSize="16"
+                               FontAttributes="Bold"
+                               TextColor="{StaticResource TextPrimary}"/>
+                        <Label Text="从邮件文本或 EML 中提取行程计划"
+                               FontSize="12"
+                               TextColor="{StaticResource TextSecondary}"/>
+                        <Button Text="选择邮件文件"
+                                Command="{Binding ImportEmailCommand}"
+                                IsEnabled="{Binding IsImporting, Converter={StaticResource InvertedBoolConverter}}"
+                                BackgroundColor="{StaticResource AccentTertiary}"
+                                TextColor="{StaticResource TextOnAccent}"
+                                CornerRadius="14"
+                                HeightRequest="46"/>
+                    </VerticalStackLayout>
+                </Grid>
+            </Frame>
+
+            <!-- 进度区域 -->
+            <VerticalStackLayout IsVisible="{Binding IsImporting}" Spacing="8">
+                <ProgressBar Progress="{Binding ImportProgress}"
+                             ProgressColor="{StaticResource AccentPrimary}"
+                             BackgroundColor="{StaticResource BgElevated}"/>
+                <Label Text="{Binding ImportStatus}"
+                       FontSize="14"
+                       TextColor="{StaticResource TextSecondary}"
+                       HorizontalOptions="Center"/>
             </VerticalStackLayout>
-        </Frame>
 
-        <!-- GPX 导入 -->
-        <Frame Padding="15">
-            <VerticalStackLayout Spacing="10">
-                <Label Text="GPX 文件" FontSize="18" FontAttributes="Bold"/>
-                <Label Text="标准 GPS 交换格式文件" FontSize="12" TextColor="Gray"/>
-                <Button Text="选择 GPX 文件"
-                        Command="{Binding ImportGpxCommand}"
-                        IsEnabled="{Binding IsImporting, Converter={StaticResource InvertedBoolConverter}}"
-                        BackgroundColor="#4CAF50" TextColor="White"/>
-            </VerticalStackLayout>
-        </Frame>
+            <!-- 结果卡片 -->
+            <Frame IsVisible="{Binding ImportResult, Converter={StaticResource NotNullOrEmptyStringConverter}}"
+                   Padding="16"
+                   BackgroundColor="{StaticResource BgCard}"
+                   BorderColor="{StaticResource AccentSuccess}"
+                   CornerRadius="16"
+                   HasShadow="False">
+                <Label Text="{Binding ImportResult}"
+                       FontSize="14"
+                       TextColor="{StaticResource TextPrimary}"/>
+            </Frame>
 
-        <Frame Padding="15">
-            <VerticalStackLayout Spacing="10">
-                <Label Text="ICS 日历" FontSize="18" FontAttributes="Bold"/>
-                <Label Text="从日历文件导入待执行计划" FontSize="12" TextColor="Gray"/>
-                <Button Text="选择 ICS 文件"
-                        Command="{Binding ImportIcsCommand}"
-                        IsEnabled="{Binding IsImporting, Converter={StaticResource InvertedBoolConverter}}"
-                        BackgroundColor="#607D8B" TextColor="White"/>
-            </VerticalStackLayout>
-        </Frame>
-
-        <Frame Padding="15">
-            <VerticalStackLayout Spacing="10">
-                <Label Text="邮件确认单" FontSize="18" FontAttributes="Bold"/>
-                <Label Text="从邮件文本或 EML 中提取行程计划" FontSize="12" TextColor="Gray"/>
-                <Button Text="选择邮件文件"
-                        Command="{Binding ImportEmailCommand}"
-                        IsEnabled="{Binding IsImporting, Converter={StaticResource InvertedBoolConverter}}"
-                        BackgroundColor="#795548" TextColor="White"/>
-            </VerticalStackLayout>
-        </Frame>
-
-        <!-- 进度 -->
-        <ProgressBar Progress="{Binding ImportProgress}" IsVisible="{Binding IsImporting}"/>
-        <Label Text="{Binding ImportStatus}" IsVisible="{Binding IsImporting}" FontSize="14"/>
-
-        <!-- 结果 -->
-        <Frame IsVisible="{Binding ImportResult, Converter={StaticResource NotNullOrEmptyStringConverter}}"
-               Padding="15" BackgroundColor="#E8F5E9">
-            <Label Text="{Binding ImportResult}" FontSize="14"/>
-        </Frame>
-
-    </VerticalStackLayout>
+        </VerticalStackLayout>
+    </ScrollView>
 </ContentPage>
