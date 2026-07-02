@@ -4,32 +4,31 @@
        xmlns:views="clr-namespace:PITS.MVP.App.Views"
        x:Class="PITS.MVP.App.AppShell"
        Title="PITS">
-    
+
     <TabBar>
-        <Tab Title="记录" Icon="➕">
+        <Tab Title="记录">
             <ShellContent ContentTemplate="{DataTemplate views:RecordPage}"/>
         </Tab>
-        <Tab Title="日历" Icon="📅">
+        <Tab Title="日历">
             <ShellContent ContentTemplate="{DataTemplate views:CalendarPage}"/>
         </Tab>
-        <Tab Title="地图" Icon="🗺️">
+        <Tab Title="轨迹">
             <ShellContent ContentTemplate="{DataTemplate views:MapPage}"/>
         </Tab>
-        <Tab Title="地点" Icon="📍">
+        <Tab Title="地点">
             <ShellContent ContentTemplate="{DataTemplate views:PlacePage}"/>
         </Tab>
-        <Tab Title="AI" Icon="🤖">
+        <Tab Title="AI">
             <ShellContent ContentTemplate="{DataTemplate views:AIChatPage}"/>
         </Tab>
-        <Tab Title="统计" Icon="📊">
+        <Tab Title="统计">
             <ShellContent ContentTemplate="{DataTemplate views:StatsPage}"/>
         </Tab>
-        <Tab Title="设置" Icon="⚙️">
+        <Tab Title="设置">
             <ShellContent ContentTemplate="{DataTemplate views:SettingsPage}"/>
         </Tab>
-        <Tab Title="导入" Icon="📥">
+        <Tab Title="导入">
             <ShellContent ContentTemplate="{DataTemplate views:ImportPage}"/>
         </Tab>
     </TabBar>
-    
 </Shell>
