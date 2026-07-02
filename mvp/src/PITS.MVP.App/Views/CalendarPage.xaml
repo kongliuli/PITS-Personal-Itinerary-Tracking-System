@@ -5,7 +5,7 @@
              x:Class="PITS.MVP.App.Views.CalendarPage"
              Shell.NavBarIsVisible="False"
              BackgroundColor="{StaticResource BgPrimary}">
-    <Grid RowDefinitions="Auto,Auto,Auto,Auto,*,Auto">
+    <Grid RowDefinitions="Auto,Auto,*,Auto,Auto,Auto">
 
         <Label Grid.Row="0"
                Text="日历"
@@ -13,7 +13,7 @@
                Margin="20,28,20,6"/>
 
         <!-- 去年今日提示卡片 - 暗色风格 + AccentWarning 边框发光 -->
-        <Frame Grid.Row="1" Margin="16,0,16,12" Padding="14"
+        <Frame Grid.Row="4" Margin="16,0,16,12" Padding="14"
                BackgroundColor="{StaticResource BgCard}"
                BorderColor="#FFB800"
                HasShadow="False"
@@ -31,7 +31,7 @@
         </Frame>
 
         <!-- 黄历信息预留入口：后续接入真实黄历源后，从这里进入完整详情 -->
-        <Border Grid.Row="2"
+        <Border Grid.Row="5"
                 Margin="16,0,16,12"
                 Padding="14"
                 BackgroundColor="{StaticResource BgCard}"
@@ -59,7 +59,7 @@
         </Border>
 
         <!-- 月份导航 -->
-        <Grid ColumnDefinitions="Auto,*,Auto" Padding="16,6,16,12" Grid.Row="3"
+        <Grid ColumnDefinitions="Auto,*,Auto" Padding="16,6,16,12" Grid.Row="1"
               MaximumWidthRequest="720"
               HorizontalOptions="Fill">
             <Button Text="←" Command="{Binding PrevMonthCommand}"
@@ -82,7 +82,7 @@
         </Grid>
 
         <!-- 日历网格 -->
-        <CollectionView Grid.Row="4" ItemsSource="{Binding CalendarDays}"
+        <CollectionView Grid.Row="2" ItemsSource="{Binding CalendarDays}"
                         Margin="12,0,12,0"
                         MaximumWidthRequest="720"
                         HorizontalOptions="Fill">
@@ -125,29 +125,34 @@
             </CollectionView.ItemTemplate>
         </CollectionView>
 
-        <!-- 底部选中日详情面板 -->
-        <Frame Grid.Row="5" VerticalOptions="End" Margin="12,0" Padding="16,14"
-               BackgroundColor="{StaticResource BgSurface}"
+        <!-- 选中日详情：内联展示，不做弹窗 -->
+        <Frame Grid.Row="3" Margin="16,0,16,12" Padding="16,14"
+               BackgroundColor="{StaticResource BgCard}"
                HasShadow="False"
-               IsVisible="{Binding HasSelectedDay}" HeightRequest="220"
-               CornerRadius="20,20,0,0">
+               MaximumWidthRequest="720"
+               HorizontalOptions="Fill"
+               IsVisible="{Binding HasSelectedDay}"
+               HeightRequest="170"
+               CornerRadius="18">
             <Grid RowDefinitions="Auto,*">
                 <!-- 表头 -->
-                <Grid ColumnDefinitions="*,*,Auto,Auto" Padding="4,0,4,8">
+                <Grid ColumnDefinitions="*,*,64,64" Padding="4,0,4,8" ColumnSpacing="8">
                     <Label Text="计划" FontAttributes="Bold" FontSize="13"
                            TextColor="{StaticResource TextSecondary}"/>
                     <Label Text="实际" Grid.Column="1" FontAttributes="Bold" FontSize="13"
                            TextColor="{StaticResource TextSecondary}"/>
                     <Label Text="偏差" Grid.Column="2" FontAttributes="Bold" FontSize="13"
-                           TextColor="{StaticResource TextSecondary}"/>
+                           TextColor="{StaticResource TextSecondary}"
+                           HorizontalTextAlignment="Center"/>
                     <Label Text="状态" Grid.Column="3" FontAttributes="Bold" FontSize="13"
-                           TextColor="{StaticResource TextSecondary}"/>
+                           TextColor="{StaticResource TextSecondary}"
+                           HorizontalTextAlignment="Center"/>
                 </Grid>
                 <!-- 数据行 -->
                 <CollectionView Grid.Row="1" ItemsSource="{Binding SelectedDayComparisons}">
                     <CollectionView.ItemTemplate>
                         <DataTemplate>
-                            <Grid ColumnDefinitions="*,*,Auto,Auto" Padding="4,4" ColumnSpacing="8">
+                            <Grid ColumnDefinitions="*,*,64,64" Padding="4,4" ColumnSpacing="8">
                                 <VerticalStackLayout>
                                     <Label Text="{Binding PlannedTime}" FontSize="12"
                                            TextColor="{StaticResource TextTertiary}"/>
@@ -164,6 +169,7 @@
                                 </VerticalStackLayout>
                                 <Label Grid.Column="2" Text="{Binding Delta}" FontSize="12"
                                        TextColor="{StaticResource TextPrimary}"
+                                       HorizontalTextAlignment="Center"
                                        VerticalOptions="Center"/>
                                 <Frame Grid.Column="3" Padding="8,2" CornerRadius="50"
                                        BackgroundColor="{Binding StatusColor}"
