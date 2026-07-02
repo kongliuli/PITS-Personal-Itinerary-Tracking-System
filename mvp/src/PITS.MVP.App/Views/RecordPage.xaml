@@ -16,6 +16,21 @@
                 </VerticalStackLayout>
             </Frame>
 
+            <Label Text="待执行计划" FontAttributes="Bold" FontSize="14"/>
+            <CollectionView ItemsSource="{Binding UpcomingPlans}" HeightRequest="90">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Grid ColumnDefinitions="Auto,*,Auto" Padding="6">
+                            <Label Text="{Binding StartsAt, StringFormat='{0:MM-dd HH:mm}'}" FontSize="12"/>
+                            <Label Text="{Binding Title}" Grid.Column="1" Margin="8,0"/>
+                            <Button Grid.Column="2" Text="使用"
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.UsePlanCommand}"
+                                    CommandParameter="{Binding .}"/>
+                        </Grid>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
             <Label Text="活动类型" FontAttributes="Bold" FontSize="14"/>
             <CollectionView ItemsSource="{Binding ActivityTypes}"
                             SelectionMode="Single"

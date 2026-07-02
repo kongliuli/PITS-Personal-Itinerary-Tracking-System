@@ -1,9 +1,12 @@
+using System.Security.Cryptography;
+using System.Text;
 using System.Text.Json;
+using System.Xml;
+using Microsoft.EntityFrameworkCore;
+using NetTopologySuite.Geometries;
 using PITS.MVP.Core.Entities;
 using PITS.MVP.Core.Services;
 using PITS.MVP.Infrastructure.Data;
-using Microsoft.EntityFrameworkCore;
-using NetTopologySuite.Geometries;
 
 namespace PITS.MVP.Infrastructure.Services;
 
@@ -18,207 +21,293 @@ public class ImportService : IImportService
 
     public async Task<ImportResult> ImportFromGoogleTakeoutAsync(Stream jsonStream, IProgress<ImportProgress>? progress = null)
     {
-        var result = new ImportResult();
-
-        // Google Takeout JSON 格式: { "locations": [ { "latitudeE7": ..., "longitudeE7": ..., "timestamp": "..." }, ... ] }
-        var doc = await JsonDocument.ParseAsync(jsonStream);
-
-        if (!doc.RootElement.TryGetProperty("locations", out var locations))
-        {
-            result.Errors.Add("无效的 Google Takeout 格式：缺少 locations 数组");
-            return result;
-        }
-
-        var totalPoints = locations.GetArrayLength();
-        var processedPoints = 0;
-        var trackPoints = new List<TrackPoint>();
-
-        foreach (var loc in locations.EnumerateArray())
-        {
-            try
-            {
-                double latitude = 0, longitude = 0;
-                DateTime timestamp = DateTime.MinValue;
-
-                if (loc.TryGetProperty("latitudeE7", out var latE7))
-                    latitude = latE7.GetInt64() / 1e7;
-                else if (loc.TryGetProperty("latitude", out var lat))
-                    latitude = lat.GetDouble();
-
-                if (loc.TryGetProperty("longitudeE7", out var lonE7))
-                    longitude = lonE7.GetInt64() / 1e7;
-                else if (loc.TryGetProperty("longitude", out var lon))
-                    longitude = lon.GetDouble();
-
-                if (loc.TryGetProperty("timestamp", out var ts))
-                    timestamp = DateTime.Parse(ts.GetString()!);
-                else if (loc.TryGetProperty("timestampMs", out var tsMs))
-                    timestamp = DateTimeOffset.FromUnixTimeMilliseconds(tsMs.GetInt64()).DateTime;
-
-                if ((latitude == 0 && longitude == 0) || timestamp == DateTime.MinValue)
-                {
-                    result.PointsSkipped++;
-                    continue;
-                }
-
-                var point = new TrackPoint
-                {
-                    Location = new Point(longitude, latitude) { SRID = 4326 },
-                    Timestamp = timestamp,
-                    Accuracy = loc.TryGetProperty("accuracy", out var acc) ? acc.GetDouble() : null,
-                    TripId = null // 稍后关联
-                };
-
-                trackPoints.Add(point);
-                result.PointsImported++;
-            }
-            catch
-            {
-                result.PointsSkipped++;
-            }
-
-            processedPoints++;
-            progress?.Report(new ImportProgress
-            {
-                TotalPoints = totalPoints,
-                ProcessedPoints = processedPoints
-            });
-        }
-
-        // 按时间分组创建 Trip（间隔超过 30 分钟的视为不同行程）
-        if (trackPoints.Count > 0)
-        {
-            var sorted = trackPoints.OrderBy(p => p.Timestamp).ToList();
-            var currentTripPoints = new List<TrackPoint> { sorted[0] };
-
-            for (int i = 1; i < sorted.Count; i++)
-            {
-                var gap = sorted[i].Timestamp - sorted[i - 1].Timestamp;
-                if (gap > TimeSpan.FromMinutes(30))
-                {
-                    // 创建当前行程
-                    await CreateTripFromPointsAsync(currentTripPoints);
-                    result.TripsCreated++;
-                    currentTripPoints = new List<TrackPoint>();
-                }
-                currentTripPoints.Add(sorted[i]);
-            }
-
-            // 创建最后一个行程
-            if (currentTripPoints.Count > 0)
-            {
-                await CreateTripFromPointsAsync(currentTripPoints);
-                result.TripsCreated++;
-            }
-        }
-
-        await _context.SaveChangesAsync();
-        return result;
+        var items = await StageGoogleTakeoutItemsAsync(jsonStream, progress);
+        return await ConfirmAsTripsAsync(items);
     }
 
     public async Task<ImportResult> ImportFromGpxAsync(Stream gpxStream, IProgress<ImportProgress>? progress = null)
     {
-        var result = new ImportResult();
-        var trackPoints = new List<TrackPoint>();
-
-        // 简单 GPX 解析 (使用 XmlReader)
-        using var reader = System.Xml.XmlReader.Create(gpxStream);
-        double lat = 0, lon = 0;
-        DateTime time = DateTime.MinValue;
-        bool inTrkpt = false;
-
-        while (reader.Read())
-        {
-            if (reader.NodeType == System.Xml.XmlNodeType.Element)
-            {
-                if (reader.Name == "trkpt" || reader.Name == "wpt")
-                {
-                    inTrkpt = true;
-                    lat = double.Parse(reader.GetAttribute("lat") ?? "0");
-                    lon = double.Parse(reader.GetAttribute("lon") ?? "0");
-                    time = DateTime.MinValue;
-                }
-                else if (inTrkpt && reader.Name == "time")
-                {
-                    var timeStr = reader.ReadElementContentAsString();
-                    if (DateTime.TryParse(timeStr, out var t))
-                        time = t;
-                }
-            }
-            else if (reader.NodeType == System.Xml.XmlNodeType.EndElement)
-            {
-                if (reader.Name == "trkpt" || reader.Name == "wpt")
-                {
-                    inTrkpt = false;
-                    if (lat != 0 || lon != 0)
-                    {
-                        trackPoints.Add(new TrackPoint
-                        {
-                            Location = new Point(lon, lat) { SRID = 4326 },
-                            Timestamp = time == DateTime.MinValue ? DateTime.UtcNow : time,
-                            TripId = null
-                        });
-                        result.PointsImported++;
-                    }
-                    else
-                    {
-                        result.PointsSkipped++;
-                    }
-                }
-            }
-        }
-
-        // 按时间分组创建 Trip
-        if (trackPoints.Count > 0)
-        {
-            var sorted = trackPoints.OrderBy(p => p.Timestamp).ToList();
-            var currentTripPoints = new List<TrackPoint> { sorted[0] };
-
-            for (int i = 1; i < sorted.Count; i++)
-            {
-                var gap = sorted[i].Timestamp - sorted[i - 1].Timestamp;
-                if (gap > TimeSpan.FromMinutes(30))
-                {
-                    await CreateTripFromPointsAsync(currentTripPoints);
-                    result.TripsCreated++;
-                    currentTripPoints = new List<TrackPoint>();
-                }
-                currentTripPoints.Add(sorted[i]);
-            }
-
-            if (currentTripPoints.Count > 0)
-            {
-                await CreateTripFromPointsAsync(currentTripPoints);
-                result.TripsCreated++;
-            }
-        }
-
-        await _context.SaveChangesAsync();
-        return result;
+        var items = await StageGpxItemsAsync(gpxStream, progress);
+        return await ConfirmAsTripsAsync(items);
     }
 
-    private Task CreateTripFromPointsAsync(List<TrackPoint> points)
+    public async Task<ImportResult> StageGoogleTakeoutAsync(Stream jsonStream, IProgress<ImportProgress>? progress = null)
     {
-        if (points.Count == 0) return Task.CompletedTask;
+        var items = await StageGoogleTakeoutItemsAsync(jsonStream, progress);
+        return new ImportResult { ItemsStaged = items.Count, PointsImported = items.Count };
+    }
+
+    public async Task<ImportResult> StageGpxAsync(Stream gpxStream, IProgress<ImportProgress>? progress = null)
+    {
+        var items = await StageGpxItemsAsync(gpxStream, progress);
+        return new ImportResult { ItemsStaged = items.Count, PointsImported = items.Count };
+    }
+
+    public async Task<ImportResult> StageIcsAsync(Stream icsStream, IProgress<ImportProgress>? progress = null)
+    {
+        using var reader = new StreamReader(icsStream, Encoding.UTF8, leaveOpen: true);
+        var content = await reader.ReadToEndAsync();
+        var events = ParseIcsEvents(content).ToList();
+        var items = await AddStagingItemsAsync(events, progress);
+        return new ImportResult { ItemsStaged = items.Count, PointsImported = items.Count };
+    }
+
+    public async Task<IReadOnlyList<ImportStagingItem>> GetPendingStagingItemsAsync()
+    {
+        return await _context.ImportStagingItems
+            .Where(i => i.Status == ImportStagingStatus.Pending)
+            .OrderBy(i => i.StartsAt)
+            .ToListAsync();
+    }
+
+    public async Task<Trip?> ConfirmStagingItemAsTripAsync(string stagingItemId)
+    {
+        var item = await _context.ImportStagingItems.FindAsync(stagingItemId);
+        if (item == null || item.Status != ImportStagingStatus.Pending) return null;
 
         var trip = new Trip
         {
-            Id = Ulid.NewUlid().ToString(),
-            StartedAt = points.Min(p => p.Timestamp),
-            EndedAt = points.Max(p => p.Timestamp),
-            Location = points.FirstOrDefault(p => p.Location != null)?.Location,
+            StartedAt = item.StartsAt,
+            EndedAt = item.EndsAt,
+            Location = item.Location,
+            Address = item.LocationName,
             ActivityType = ActivityType.Other,
+            Description = item.Title,
             Visibility = VisibilityLevel.Private,
-            Source = DataSource.Import,
-            GeoHash = "" // 稍后计算
+            Source = item.Source
         };
 
-        foreach (var point in points)
-            point.TripId = trip.Id;
-
+        item.Status = ImportStagingStatus.Confirmed;
+        item.ConfirmedTripId = trip.Id;
         _context.Trips.Add(trip);
-        _context.TrackPoints.AddRange(points);
+        await _context.SaveChangesAsync();
+        return trip;
+    }
 
-        return Task.CompletedTask;
+    public async Task<TripPlan?> ConfirmStagingItemAsPlanAsync(string stagingItemId)
+    {
+        var item = await _context.ImportStagingItems.FindAsync(stagingItemId);
+        if (item == null || item.Status != ImportStagingStatus.Pending) return null;
+
+        var plan = new TripPlan
+        {
+            Title = item.Title,
+            StartsAt = item.StartsAt,
+            EndsAt = item.EndsAt,
+            LocationName = item.LocationName,
+            Location = item.Location,
+            ActivityType = ActivityType.Travel,
+            Visibility = VisibilityLevel.Private,
+            Source = item.Source,
+            Status = PlanStatus.Planned,
+            ExternalId = item.ExternalId
+        };
+
+        item.Status = ImportStagingStatus.Confirmed;
+        item.ConfirmedPlanId = plan.Id;
+        _context.TripPlans.Add(plan);
+        await _context.SaveChangesAsync();
+        return plan;
+    }
+
+    private async Task<ImportResult> ConfirmAsTripsAsync(IReadOnlyList<ImportStagingItem> items)
+    {
+        var result = new ImportResult { ItemsStaged = items.Count, PointsImported = items.Count };
+        foreach (var item in items)
+        {
+            var trip = await ConfirmStagingItemAsTripAsync(item.Id);
+            if (trip == null)
+                result.PointsSkipped++;
+            else
+                result.TripsCreated++;
+        }
+        result.ItemsConfirmed = result.TripsCreated;
+        return result;
+    }
+
+    private async Task<IReadOnlyList<ImportStagingItem>> StageGoogleTakeoutItemsAsync(
+        Stream jsonStream,
+        IProgress<ImportProgress>? progress)
+    {
+        var doc = await JsonDocument.ParseAsync(jsonStream);
+        if (!doc.RootElement.TryGetProperty("locations", out var locations))
+            return Array.Empty<ImportStagingItem>();
+
+        var total = locations.GetArrayLength();
+        var items = new List<ImportStagingItem>();
+        var processed = 0;
+        foreach (var loc in locations.EnumerateArray())
+        {
+            processed++;
+            if (!TryReadGooglePoint(loc, out var item))
+                continue;
+
+            items.Add(item);
+            progress?.Report(new ImportProgress { TotalPoints = total, ProcessedPoints = processed });
+        }
+
+        return await AddStagingItemsAsync(items, progress);
+    }
+
+    private async Task<IReadOnlyList<ImportStagingItem>> StageGpxItemsAsync(
+        Stream gpxStream,
+        IProgress<ImportProgress>? progress)
+    {
+        var items = new List<ImportStagingItem>();
+        using var reader = XmlReader.Create(gpxStream);
+        double lat = 0, lon = 0;
+        DateTime time = DateTime.MinValue;
+        var inPoint = false;
+
+        while (reader.Read())
+        {
+            if (reader.NodeType == XmlNodeType.Element && (reader.Name == "trkpt" || reader.Name == "wpt"))
+            {
+                inPoint = true;
+                lat = double.Parse(reader.GetAttribute("lat") ?? "0");
+                lon = double.Parse(reader.GetAttribute("lon") ?? "0");
+                time = DateTime.MinValue;
+            }
+            else if (inPoint && reader.NodeType == XmlNodeType.Element && reader.Name == "time")
+            {
+                DateTime.TryParse(reader.ReadElementContentAsString(), out time);
+            }
+            else if (reader.NodeType == XmlNodeType.EndElement && (reader.Name == "trkpt" || reader.Name == "wpt"))
+            {
+                inPoint = false;
+                if (lat == 0 && lon == 0) continue;
+                items.Add(CreatePointItem(
+                    DataSource.Import,
+                    time == DateTime.MinValue ? DateTime.UtcNow : time,
+                    lat,
+                    lon,
+                    "GPX track point",
+                    null));
+            }
+        }
+
+        return await AddStagingItemsAsync(items, progress);
+    }
+
+    private async Task<IReadOnlyList<ImportStagingItem>> AddStagingItemsAsync(
+        IEnumerable<ImportStagingItem> items,
+        IProgress<ImportProgress>? progress = null)
+    {
+        var staged = new List<ImportStagingItem>();
+        var itemList = items.ToList();
+        var processed = 0;
+        foreach (var item in itemList)
+        {
+            processed++;
+            item.Fingerprint = string.IsNullOrWhiteSpace(item.Fingerprint)
+                ? Fingerprint(item.Source, item.StartsAt, item.Title, item.LocationName)
+                : item.Fingerprint;
+
+            var exists = await _context.ImportStagingItems.AnyAsync(i => i.Fingerprint == item.Fingerprint);
+            if (exists) continue;
+
+            _context.ImportStagingItems.Add(item);
+            staged.Add(item);
+            progress?.Report(new ImportProgress { TotalPoints = itemList.Count, ProcessedPoints = processed });
+        }
+
+        await _context.SaveChangesAsync();
+        return staged;
+    }
+
+    private static bool TryReadGooglePoint(JsonElement loc, out ImportStagingItem item)
+    {
+        item = null!;
+        var latitude = ReadCoordinate(loc, "latitudeE7", "latitude");
+        var longitude = ReadCoordinate(loc, "longitudeE7", "longitude");
+        var timestamp = ReadTimestamp(loc);
+        if (latitude == null || longitude == null || timestamp == null)
+            return false;
+
+        item = CreatePointItem(DataSource.Import, timestamp.Value, latitude.Value, longitude.Value, "Google location", loc.GetRawText());
+        return true;
+    }
+
+    private static double? ReadCoordinate(JsonElement loc, string e7Name, string decimalName)
+    {
+        if (loc.TryGetProperty(e7Name, out var e7)) return e7.GetInt64() / 1e7;
+        if (loc.TryGetProperty(decimalName, out var dec)) return dec.GetDouble();
+        return null;
+    }
+
+    private static DateTime? ReadTimestamp(JsonElement loc)
+    {
+        if (loc.TryGetProperty("timestamp", out var ts) && DateTime.TryParse(ts.GetString(), out var timestamp))
+            return timestamp;
+        if (loc.TryGetProperty("timestampMs", out var tsMs))
+            return DateTimeOffset.FromUnixTimeMilliseconds(tsMs.GetInt64()).UtcDateTime;
+        return null;
+    }
+
+    private static IEnumerable<ImportStagingItem> ParseIcsEvents(string content)
+    {
+        foreach (var block in content.Replace("\r\n", "\n").Split("BEGIN:VEVENT").Skip(1))
+        {
+            var title = ReadIcsValue(block, "SUMMARY") ?? "Calendar event";
+            var location = ReadIcsValue(block, "LOCATION");
+            var start = ParseIcsDate(ReadIcsValue(block, "DTSTART"));
+            if (start == null) continue;
+
+            var end = ParseIcsDate(ReadIcsValue(block, "DTEND"));
+            var uid = ReadIcsValue(block, "UID");
+            yield return new ImportStagingItem
+            {
+                Source = DataSource.CalendarSync,
+                ExternalId = uid,
+                StartsAt = start.Value,
+                EndsAt = end,
+                Title = title,
+                LocationName = location,
+                Fingerprint = Fingerprint(DataSource.CalendarSync, start.Value, title, uid ?? location)
+            };
+        }
+    }
+
+    private static string? ReadIcsValue(string block, string name)
+    {
+        var line = block.Split('\n').FirstOrDefault(l => l.StartsWith(name, StringComparison.OrdinalIgnoreCase));
+        if (line == null) return null;
+        var colon = line.IndexOf(':');
+        return colon < 0 ? null : line[(colon + 1)..].Trim();
+    }
+
+    private static DateTime? ParseIcsDate(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value)) return null;
+        if (DateTime.TryParseExact(value.TrimEnd('Z'), "yyyyMMdd'T'HHmmss", null, System.Globalization.DateTimeStyles.AssumeLocal, out var parsed))
+            return parsed;
+        if (DateTime.TryParseExact(value, "yyyyMMdd", null, System.Globalization.DateTimeStyles.AssumeLocal, out parsed))
+            return parsed;
+        return DateTime.TryParse(value, out parsed) ? parsed : null;
+    }
+
+    private static ImportStagingItem CreatePointItem(
+        DataSource source,
+        DateTime timestamp,
+        double latitude,
+        double longitude,
+        string title,
+        string? rawPayload)
+    {
+        return new ImportStagingItem
+        {
+            Source = source,
+            StartsAt = timestamp,
+            Title = title,
+            Location = new Point(longitude, latitude) { SRID = 4326 },
+            RawPayload = rawPayload,
+            Fingerprint = Fingerprint(source, timestamp, title, $"{latitude:F6},{longitude:F6}")
+        };
+    }
+
+    private static string Fingerprint(DataSource source, DateTime startsAt, string title, string? location)
+    {
+        var input = $"{source}|{startsAt:O}|{title}|{location}";
+        return Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(input)));
     }
 }

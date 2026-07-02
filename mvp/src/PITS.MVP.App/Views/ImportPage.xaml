@@ -36,6 +36,17 @@
             </VerticalStackLayout>
         </Frame>
 
+        <Frame Padding="15">
+            <VerticalStackLayout Spacing="10">
+                <Label Text="ICS 日历" FontSize="18" FontAttributes="Bold"/>
+                <Label Text="从日历文件导入待执行计划" FontSize="12" TextColor="Gray"/>
+                <Button Text="选择 ICS 文件"
+                        Command="{Binding ImportIcsCommand}"
+                        IsEnabled="{Binding IsImporting, Converter={StaticResource InvertedBoolConverter}}"
+                        BackgroundColor="#607D8B" TextColor="White"/>
+            </VerticalStackLayout>
+        </Frame>
+
         <!-- 进度 -->
         <ProgressBar Progress="{Binding ImportProgress}" IsVisible="{Binding IsImporting}"/>
         <Label Text="{Binding ImportStatus}" IsVisible="{Binding IsImporting}" FontSize="14"/>

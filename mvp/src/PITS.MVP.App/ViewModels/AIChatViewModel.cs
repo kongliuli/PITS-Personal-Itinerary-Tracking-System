@@ -9,14 +9,16 @@ namespace PITS.MVP.App.ViewModels;
 public partial class AIChatViewModel : BaseViewModel
 {
     private readonly ITripService _tripService;
+    private readonly ITripPlanService _planService;
 
     [ObservableProperty] private string _inputText = "";
     
     public ObservableCollection<ChatMessage> Messages { get; } = new();
 
-    public AIChatViewModel(ITripService tripService)
+    public AIChatViewModel(ITripService tripService, ITripPlanService planService)
     {
         _tripService = tripService;
+        _planService = planService;
         Title = "AI 助手";
         Messages.Add(new ChatMessage 
         { 
@@ -40,7 +42,8 @@ public partial class AIChatViewModel : BaseViewModel
         await ExecuteAsync(async () =>
         {
             var response = await ProcessUserInputAsync(userMessage);
-            Messages.Add(new ChatMessage { Content = response, IsUser = false });
+            if (!string.IsNullOrWhiteSpace(response))
+                Messages.Add(new ChatMessage { Content = response, IsUser = false });
         });
     }
 
@@ -48,9 +51,27 @@ public partial class AIChatViewModel : BaseViewModel
     {
         var lowerInput = input.ToLower();
 
-        if (lowerInput.Contains("记录") || lowerInput.Contains("添加"))
+        if (lowerInput.Contains("计划") || lowerInput.Contains("安排") || lowerInput.Contains("添加"))
         {
-            return "我理解你想添加一条行程记录。请使用\"记录\"页面进行详细记录，或告诉我具体的时间、地点和活动类型。";
+            var plan = ParsePlan(input);
+            Messages.Add(new ChatMessage
+            {
+                Content = "我解析到一个计划，请确认后保存。",
+                IsUser = false,
+                HasTripCard = true,
+                TripCard = new TripCard
+                {
+                    Title = plan.Title,
+                    Time = $"{plan.StartsAt:g}",
+                    Location = plan.LocationName,
+                    ConfirmCommand = new Command(async () =>
+                    {
+                        await _planService.AddAsync(plan);
+                        Messages.Add(new ChatMessage { Content = $"已保存计划：{plan.Title}", IsUser = false });
+                    })
+                }
+            });
+            return "";
         }
 
         if (lowerInput.Contains("上周") || lowerInput.Contains("本周") || lowerInput.Contains("本月"))
@@ -90,6 +111,44 @@ public partial class AIChatViewModel : BaseViewModel
                "• 查询上周/本周/本月的行程统计\n" +
                "• 询问最近的行程记录\n" +
                "• 使用记录页面添加新行程";
+    }
+
+    private static TripPlan ParsePlan(string input)
+    {
+        var now = DateTime.Now;
+        var startsAt = input.Contains("明天") ? now.Date.AddDays(1).AddHours(9) : now.Date.AddHours(now.Hour + 1);
+        if (input.Contains("下午")) startsAt = startsAt.Date.AddHours(15);
+        if (input.Contains("晚上")) startsAt = startsAt.Date.AddHours(19);
+
+        var activity = input.Contains("通勤") ? ActivityType.Commute :
+            input.Contains("出差") || input.Contains("旅行") ? ActivityType.Travel :
+            input.Contains("学习") ? ActivityType.Study :
+            input.Contains("运动") || input.Contains("健身") ? ActivityType.Health :
+            input.Contains("会议") || input.Contains("客户") || input.Contains("公司") ? ActivityType.Work :
+            ActivityType.Other;
+
+        return new TripPlan
+        {
+            Title = input,
+            StartsAt = startsAt,
+            EndsAt = startsAt.AddHours(1),
+            LocationName = ExtractLocation(input),
+            ActivityType = activity,
+            Source = DataSource.AiParse,
+            Status = PlanStatus.Planned
+        };
+    }
+
+    private static string? ExtractLocation(string input)
+    {
+        var markers = new[] { "在", "去", "到" };
+        foreach (var marker in markers)
+        {
+            var index = input.IndexOf(marker, StringComparison.Ordinal);
+            if (index >= 0 && index < input.Length - 1)
+                return input[(index + marker.Length)..].Split(' ', '，', ',', '。').FirstOrDefault();
+        }
+        return null;
     }
 }
 

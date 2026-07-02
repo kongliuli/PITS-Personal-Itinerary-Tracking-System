@@ -1,3 +1,5 @@
+using PITS.MVP.Core.Entities;
+
 namespace PITS.MVP.Core.Services;
 
 public interface IImportService
@@ -11,6 +13,13 @@ public interface IImportService
     /// 从 GPX 流导入轨迹
     /// </summary>
     Task<ImportResult> ImportFromGpxAsync(Stream gpxStream, IProgress<ImportProgress>? progress = null);
+
+    Task<ImportResult> StageGoogleTakeoutAsync(Stream jsonStream, IProgress<ImportProgress>? progress = null);
+    Task<ImportResult> StageGpxAsync(Stream gpxStream, IProgress<ImportProgress>? progress = null);
+    Task<ImportResult> StageIcsAsync(Stream icsStream, IProgress<ImportProgress>? progress = null);
+    Task<IReadOnlyList<ImportStagingItem>> GetPendingStagingItemsAsync();
+    Task<Trip?> ConfirmStagingItemAsTripAsync(string stagingItemId);
+    Task<TripPlan?> ConfirmStagingItemAsPlanAsync(string stagingItemId);
 }
 
 public class ImportResult
@@ -18,6 +27,8 @@ public class ImportResult
     public int PointsImported { get; set; }
     public int TripsCreated { get; set; }
     public int PointsSkipped { get; set; }
+    public int ItemsStaged { get; set; }
+    public int ItemsConfirmed { get; set; }
     public List<string> Errors { get; set; } = new();
 }
 

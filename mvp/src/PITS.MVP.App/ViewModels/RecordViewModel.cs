@@ -10,6 +10,7 @@ namespace PITS.MVP.App.ViewModels;
 public partial class RecordViewModel : BaseViewModel
 {
     private readonly ITripService _tripService;
+    private readonly ITripPlanService _planService;
     private readonly IGeocodingService _geoService;
 
     [ObservableProperty] private string _currentAddress = "正在定位...";
@@ -22,6 +23,9 @@ public partial class RecordViewModel : BaseViewModel
     [ObservableProperty] private TimeSpan _startTime = DateTime.Now.TimeOfDay;
     [ObservableProperty] private DateTime _endDate = DateTime.Today;
     [ObservableProperty] private TimeSpan _endTime = DateTime.Now.TimeOfDay.Add(TimeSpan.FromHours(1));
+    [ObservableProperty] private string? _selectedPlanId;
+
+    public ObservableCollection<TripPlan> UpcomingPlans { get; } = new();
 
     public ObservableCollection<ActivityTypeModel> ActivityTypes { get; } = new()
     {
@@ -36,9 +40,10 @@ public partial class RecordViewModel : BaseViewModel
     public List<VisibilityLevel> VisibilityLevels { get; } = 
         Enum.GetValues<VisibilityLevel>().ToList();
 
-    public RecordViewModel(ITripService tripService, IGeocodingService geoService)
+    public RecordViewModel(ITripService tripService, ITripPlanService planService, IGeocodingService geoService)
     {
         _tripService = tripService;
+        _planService = planService;
         _geoService = geoService;
         Title = "记录行程";
     }
@@ -47,6 +52,13 @@ public partial class RecordViewModel : BaseViewModel
     {
         await ExecuteAsync(async () =>
         {
+            UpcomingPlans.Clear();
+            var plans = await _planService.GetUpcomingAsync(DateTime.Now.AddDays(-1), 5);
+            foreach (var plan in plans)
+            {
+                UpcomingPlans.Add(plan);
+            }
+
             var location = await Geolocation.GetLocationAsync(
                 new GeolocationRequest(GeolocationAccuracy.Best, TimeSpan.FromSeconds(10)));
 
@@ -62,6 +74,19 @@ public partial class RecordViewModel : BaseViewModel
                 CurrentAddress = "无法获取位置";
             }
         });
+    }
+
+    [RelayCommand]
+    private void UsePlan(TripPlan plan)
+    {
+        SelectedPlanId = plan.Id;
+        Description = plan.Title;
+        SelectedActivity = plan.ActivityType;
+        SelectedVisibility = plan.Visibility;
+        StartDate = plan.StartsAt.Date;
+        StartTime = plan.StartsAt.TimeOfDay;
+        EndDate = (plan.EndsAt ?? plan.StartsAt.AddHours(1)).Date;
+        EndTime = (plan.EndsAt ?? plan.StartsAt.AddHours(1)).TimeOfDay;
     }
 
     [RelayCommand]
@@ -90,10 +115,16 @@ public partial class RecordViewModel : BaseViewModel
                 Visibility = SelectedVisibility,
                 Source = DataSource.Manual,
                 Accuracy = CurrentLocation.Accuracy,
-                Address = CurrentAddress
+                Address = CurrentAddress,
+                PlanId = SelectedPlanId
             };
 
             await _tripService.AddAsync(trip);
+            if (!string.IsNullOrWhiteSpace(SelectedPlanId))
+            {
+                await _planService.MarkCompletedAsync(SelectedPlanId);
+                SelectedPlanId = null;
+            }
 
             await Shell.Current.DisplayAlertAsync("成功", "行程已记录", "确定");
             Description = "";

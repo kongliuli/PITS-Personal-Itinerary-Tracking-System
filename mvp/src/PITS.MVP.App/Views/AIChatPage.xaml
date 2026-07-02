@@ -11,7 +11,17 @@
                     <Frame Margin="5" Padding="12" CornerRadius="15"
                            BackgroundColor="{Binding IsUser, Converter={StaticResource BoolToColorConverter}}"
                            HorizontalOptions="{Binding IsUser, Converter={StaticResource BoolToLayoutConverter}}">
-                        <Label Text="{Binding Content}" TextColor="{Binding IsUser, Converter={StaticResource BoolToTextColorConverter}}"/>
+                        <VerticalStackLayout Spacing="8">
+                            <Label Text="{Binding Content}" TextColor="{Binding IsUser, Converter={StaticResource BoolToTextColorConverter}}"/>
+                            <Frame Padding="8" IsVisible="{Binding HasTripCard}" BackgroundColor="White">
+                                <VerticalStackLayout Spacing="4">
+                                    <Label Text="{Binding TripCard.Title}" FontAttributes="Bold"/>
+                                    <Label Text="{Binding TripCard.Time}" FontSize="12"/>
+                                    <Label Text="{Binding TripCard.Location}" FontSize="12"/>
+                                    <Button Text="确认保存计划" Command="{Binding TripCard.ConfirmCommand}"/>
+                                </VerticalStackLayout>
+                            </Frame>
+                        </VerticalStackLayout>
                     </Frame>
                 </DataTemplate>
             </CollectionView.ItemTemplate>

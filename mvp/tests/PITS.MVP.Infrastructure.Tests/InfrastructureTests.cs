@@ -2,8 +2,10 @@ using Microsoft.EntityFrameworkCore;
 using NetTopologySuite;
 using NetTopologySuite.Geometries;
 using PITS.MVP.Core.Entities;
+using PITS.MVP.Core.Services;
 using PITS.MVP.Infrastructure.Data;
 using PITS.MVP.Infrastructure.Services;
+using System.Text;
 using Xunit;
 
 namespace PITS.MVP.Infrastructure.Tests;
@@ -390,5 +392,141 @@ public class TransportModeDetectorTests
 
         var result = _detector.DetectMode(points);
         Assert.True(result.MaxSpeedKmh >= result.AverageSpeedKmh);
+    }
+}
+
+public class TripPlanServiceTests : IDisposable
+{
+    private readonly TripContext _context;
+    private readonly TripPlanService _service;
+
+    public TripPlanServiceTests()
+    {
+        var options = new DbContextOptionsBuilder<TripContext>()
+            .UseSqlite("DataSource=:memory:", sqliteOptions => sqliteOptions.UseNetTopologySuite())
+            .Options;
+
+        _context = new TripContext(options);
+        _context.Database.OpenConnection();
+        _context.Database.EnsureCreated();
+        _service = new TripPlanService(_context);
+    }
+
+    public void Dispose()
+    {
+        _context.Database.CloseConnection();
+        _context.Dispose();
+    }
+
+    [Fact]
+    public async Task ConvertToTrip_MarksPlanCompletedAndLinksTrip()
+    {
+        var plan = await _service.AddAsync(new TripPlan
+        {
+            Title = "客户会议",
+            StartsAt = new DateTime(2026, 7, 3, 9, 0, 0),
+            EndsAt = new DateTime(2026, 7, 3, 10, 0, 0),
+            ActivityType = ActivityType.Work
+        });
+
+        var trip = await _service.ConvertToTripAsync(plan.Id, plan.StartsAt.AddMinutes(20), plan.EndsAt);
+
+        Assert.NotNull(trip);
+        Assert.Equal(plan.Id, trip.PlanId);
+        Assert.Equal(PlanStatus.Completed, (await _context.TripPlans.FindAsync(plan.Id))!.Status);
+    }
+}
+
+public class ImportStagingTests : IDisposable
+{
+    private readonly TripContext _context;
+    private readonly ImportService _service;
+
+    public ImportStagingTests()
+    {
+        var options = new DbContextOptionsBuilder<TripContext>()
+            .UseSqlite("DataSource=:memory:", sqliteOptions => sqliteOptions.UseNetTopologySuite())
+            .Options;
+
+        _context = new TripContext(options);
+        _context.Database.OpenConnection();
+        _context.Database.EnsureCreated();
+        _service = new ImportService(_context);
+    }
+
+    public void Dispose()
+    {
+        _context.Database.CloseConnection();
+        _context.Dispose();
+    }
+
+    [Fact]
+    public async Task StageIcs_DeduplicatesByFingerprint()
+    {
+        var ics = """
+BEGIN:VCALENDAR
+BEGIN:VEVENT
+UID:pits-test-1
+DTSTART:20260703T090000
+DTEND:20260703T100000
+SUMMARY:客户会议
+LOCATION:上海
+END:VEVENT
+END:VCALENDAR
+""";
+
+        await _service.StageIcsAsync(new MemoryStream(Encoding.UTF8.GetBytes(ics)));
+        var second = await _service.StageIcsAsync(new MemoryStream(Encoding.UTF8.GetBytes(ics)));
+
+        Assert.Equal(0, second.ItemsStaged);
+        Assert.Single(await _service.GetPendingStagingItemsAsync());
+    }
+
+    [Fact]
+    public async Task ConfirmStagingItemAsPlan_CreatesPlannedTripPlan()
+    {
+        var ics = """
+BEGIN:VCALENDAR
+BEGIN:VEVENT
+UID:pits-test-2
+DTSTART:20260704T090000
+SUMMARY:出差
+END:VEVENT
+END:VCALENDAR
+""";
+
+        await _service.StageIcsAsync(new MemoryStream(Encoding.UTF8.GetBytes(ics)));
+        var item = (await _service.GetPendingStagingItemsAsync()).Single();
+        var plan = await _service.ConfirmStagingItemAsPlanAsync(item.Id);
+
+        Assert.NotNull(plan);
+        Assert.Equal(PlanStatus.Planned, plan.Status);
+        Assert.Equal(DataSource.CalendarSync, plan.Source);
+        Assert.Empty(await _service.GetPendingStagingItemsAsync());
+    }
+}
+
+public class PrivacyExportServiceTests
+{
+    [Fact]
+    public void RedactTrip_HidesClassifiedDetails()
+    {
+        var service = new PrivacyExportService();
+        var trip = new Trip
+        {
+            StartedAt = DateTime.UtcNow,
+            ActivityType = ActivityType.Work,
+            Visibility = VisibilityLevel.Classified,
+            Description = "secret",
+            Address = "home",
+            Location = new Point(121.473701, 31.230401) { SRID = 4326 }
+        };
+
+        var row = service.RedactTrip(trip, VisibilityLevel.Private);
+
+        Assert.Null(row.Description);
+        Assert.Null(row.Address);
+        Assert.Null(row.Latitude);
+        Assert.Null(row.Longitude);
     }
 }

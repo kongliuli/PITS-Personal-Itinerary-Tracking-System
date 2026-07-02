@@ -9,6 +9,7 @@ namespace PITS.MVP.App.ViewModels;
 public partial class CalendarViewModel : BaseViewModel
 {
     private readonly ITripService _tripService;
+    private readonly ITripPlanService _planService;
     private readonly IReminderService _reminderService;
 
     [ObservableProperty] private DateTime _currentMonth = DateTime.Today;
@@ -17,14 +18,16 @@ public partial class CalendarViewModel : BaseViewModel
 
     public ObservableCollection<CalendarDayModel> CalendarDays { get; } = new();
     public ObservableCollection<Trip> SelectedDayTrips { get; } = new();
+    public ObservableCollection<TripPlan> SelectedDayPlans { get; } = new();
 
     public string CurrentMonthLabel => CurrentMonth.ToString("yyyy年MM月");
 
     public bool HasSelectedDay => SelectedDay != null;
 
-    public CalendarViewModel(ITripService tripService, IReminderService reminderService)
+    public CalendarViewModel(ITripService tripService, ITripPlanService planService, IReminderService reminderService)
     {
         _tripService = tripService;
+        _planService = planService;
         _reminderService = reminderService;
         Title = "日历";
     }
@@ -64,8 +67,12 @@ public partial class CalendarViewModel : BaseViewModel
             var trips = await _tripService.GetByDateRangeAsync(
                 firstDay.AddDays(-startPadding), 
                 lastDay.AddDays(7 - ((int)lastDay.DayOfWeek == 0 ? 7 : (int)lastDay.DayOfWeek)));
+            var plans = await _planService.GetByDateRangeAsync(
+                firstDay.AddDays(-startPadding),
+                lastDay.AddDays(7 - ((int)lastDay.DayOfWeek == 0 ? 7 : (int)lastDay.DayOfWeek)));
 
             var tripsByDate = trips.GroupBy(t => t.StartedAt.Date).ToDictionary(g => g.Key, g => g.ToList());
+            var plansByDate = plans.GroupBy(p => p.StartsAt.Date).ToDictionary(g => g.Key, g => g.ToList());
 
             for (int i = 0; i < startPadding; i++)
             {
@@ -75,6 +82,7 @@ public partial class CalendarViewModel : BaseViewModel
             for (var date = firstDay; date <= lastDay; date = date.AddDays(1))
             {
                 var dayTrips = tripsByDate.GetValueOrDefault(date, new List<Trip>());
+                var dayPlans = plansByDate.GetValueOrDefault(date, new List<TripPlan>());
                 CalendarDays.Add(new CalendarDayModel
                 {
                     Date = date,
@@ -82,7 +90,10 @@ public partial class CalendarViewModel : BaseViewModel
                     IsCurrentMonth = true,
                     IsToday = date.Date == DateTime.Today,
                     Trips = dayTrips,
-                    Indicators = dayTrips.Select(t => new TripIndicator(t.ActivityType)).ToList()
+                    Plans = dayPlans,
+                    Indicators = dayTrips.Select(t => new TripIndicator(t.ActivityType))
+                        .Concat(dayPlans.Select(p => new TripIndicator(p.ActivityType, true)))
+                        .ToList()
                 });
             }
         });
@@ -95,9 +106,14 @@ public partial class CalendarViewModel : BaseViewModel
 
         SelectedDay = day;
         SelectedDayTrips.Clear();
+        SelectedDayPlans.Clear();
         foreach (var trip in day.Trips)
         {
             SelectedDayTrips.Add(trip);
+        }
+        foreach (var plan in day.Plans)
+        {
+            SelectedDayPlans.Add(plan);
         }
         OnPropertyChanged(nameof(HasSelectedDay));
     }
@@ -124,14 +140,15 @@ public partial class CalendarDayModel : ObservableObject
     public bool IsCurrentMonth { get; set; }
     public bool IsToday { get; set; }
     public IList<Trip> Trips { get; set; } = new List<Trip>();
+    public IList<TripPlan> Plans { get; set; } = new List<TripPlan>();
     public IList<TripIndicator> Indicators { get; set; } = new List<TripIndicator>();
 
     public Color BorderColor => IsToday ? Colors.Blue : Colors.Transparent;
 }
 
-public record TripIndicator(ActivityType ActivityType)
+public record TripIndicator(ActivityType ActivityType, bool IsPlan = false)
 {
-    public Color Color => ActivityType switch
+    public Color Color => IsPlan ? Colors.Black : ActivityType switch
     {
         ActivityType.Work => Colors.Blue,
         ActivityType.Commute => Colors.Grey,

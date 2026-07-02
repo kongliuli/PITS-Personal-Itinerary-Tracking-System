@@ -8,6 +8,7 @@ namespace PITS.MVP.App.ViewModels;
 public partial class StatsViewModel : BaseViewModel
 {
     private readonly IStatsService _statsService;
+    private readonly ITripPlanService _planService;
     private readonly ITripService _tripService;
     private readonly ITripSegmentAnalyzer _segmentAnalyzer;
 
@@ -38,9 +39,19 @@ public partial class StatsViewModel : BaseViewModel
     [ObservableProperty]
     private string _totalGapDuration = "";
 
-    public StatsViewModel(IStatsService statsService, ITripService tripService, ITripSegmentAnalyzer segmentAnalyzer)
+    [ObservableProperty]
+    private string _planCompletionRate = "";
+
+    [ObservableProperty]
+    private int _delayedPlanCount;
+
+    [ObservableProperty]
+    private string _commuteDuration = "";
+
+    public StatsViewModel(IStatsService statsService, ITripPlanService planService, ITripService tripService, ITripSegmentAnalyzer segmentAnalyzer)
     {
         _statsService = statsService;
+        _planService = planService;
         _tripService = tripService;
         _segmentAnalyzer = segmentAnalyzer;
         Title = "统计";
@@ -92,6 +103,17 @@ public partial class StatsViewModel : BaseViewModel
             GapCount = allGaps.Count;
             var totalGap = allGaps.Aggregate(TimeSpan.Zero, (acc, g) => acc + g.Duration);
             TotalGapDuration = $"{(int)totalGap.TotalHours}小时{totalGap.Minutes}分钟";
+
+            var monthStart = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+            var planStats = await _planService.GetStatsAsync(monthStart, DateTime.Today.AddDays(1));
+            PlanCompletionRate = $"{planStats.CompletionRate:P0}";
+            DelayedPlanCount = planStats.DelayedCount;
+
+            var commuteTicks = trips
+                .Where(t => t.ActivityType == ActivityType.Commute && t.EndedAt.HasValue)
+                .Sum(t => (t.EndedAt!.Value - t.StartedAt).Ticks);
+            var commute = TimeSpan.FromTicks(commuteTicks);
+            CommuteDuration = $"{(int)commute.TotalHours}小时{commute.Minutes}分钟";
         });
     }
 

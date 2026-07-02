@@ -37,6 +37,9 @@ public static class MauiProgram
         builder.Services.AddSingleton<IMqttLocationPublisher, MqttLocationPublisher>();
         builder.Services.AddSingleton<ITrackingProfileService, TrackingProfileService>();
         builder.Services.AddSingleton<IPhotoService, PhotoService>();
+        builder.Services.AddSingleton<ITripPlanService, TripPlanService>();
+        builder.Services.AddSingleton<IPrivacyExportService, PrivacyExportService>();
+        builder.Services.AddSingleton<IBackupService, BackupService>();
 
         builder.Services.AddTransient<RecordPage>();
         builder.Services.AddTransient<RecordViewModel>();

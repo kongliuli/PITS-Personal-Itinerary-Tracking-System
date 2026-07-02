@@ -35,6 +35,21 @@ public enum DataSource
     Import
 }
 
+public enum PlanStatus
+{
+    Planned,
+    Confirmed,
+    Completed,
+    Cancelled
+}
+
+public enum ImportStagingStatus
+{
+    Pending,
+    Confirmed,
+    Skipped
+}
+
 public enum PlaceCategory
 {
     Office,

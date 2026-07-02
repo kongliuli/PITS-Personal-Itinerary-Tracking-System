@@ -91,6 +91,21 @@ public class TrackPointEntityTests
     }
 }
 
+public class TripPlanEntityTests
+{
+    [Fact]
+    public void TripPlan_NewInstance_HasDefaultValues()
+    {
+        var plan = new TripPlan();
+
+        Assert.NotNull(plan.Id);
+        Assert.NotEmpty(plan.Id);
+        Assert.Equal(PlanStatus.Planned, plan.Status);
+        Assert.Equal(VisibilityLevel.Private, plan.Visibility);
+        Assert.Equal(DataSource.Manual, plan.Source);
+    }
+}
+
 public class GeoHashTests
 {
     [Theory]

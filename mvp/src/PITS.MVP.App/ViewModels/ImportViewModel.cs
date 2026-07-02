@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using PITS.MVP.Core.Entities;
 using PITS.MVP.Core.Services;
 
 namespace PITS.MVP.App.ViewModels;
@@ -88,15 +89,48 @@ public partial class ImportViewModel : BaseViewModel
         }
     }
 
+    [RelayCommand]
+    private async Task ImportIcsAsync()
+    {
+        var filePath = await PickFileAsync("ics");
+        if (filePath == null) return;
+
+        IsImporting = true;
+        ImportStatus = "正在导入日历计划...";
+        ImportProgress = 0;
+        ImportResult = "";
+
+        try
+        {
+            using var stream = File.OpenRead(filePath);
+            var result = await _importService.StageIcsAsync(stream);
+            var pending = await _importService.GetPendingStagingItemsAsync();
+            var calendarItems = pending.Where(i => i.Source == DataSource.CalendarSync).ToList();
+            foreach (var item in calendarItems)
+            {
+                await _importService.ConfirmStagingItemAsPlanAsync(item.Id);
+            }
+            ImportResult = $"导入完成：{result.ItemsStaged} 个日历计划";
+        }
+        catch (Exception ex)
+        {
+            ImportResult = $"导入失败：{ex.Message}";
+        }
+        finally
+        {
+            IsImporting = false;
+        }
+    }
+
     private static async Task<string?> PickFileAsync(string extension)
     {
         var customFileType = new FilePickerFileType(
             new Dictionary<DevicePlatform, IEnumerable<string>>
             {
-                { DevicePlatform.Android, new[] { "application/json", "application/gpx+xml" } },
-                { DevicePlatform.iOS, new[] { "public.json", "com.topografix.gpx" } },
-                { DevicePlatform.MacCatalyst, new[] { "public.json", "com.topografix.gpx" } },
-                { DevicePlatform.WinUI, new[] { ".json", ".gpx" } },
+                { DevicePlatform.Android, new[] { "application/json", "application/gpx+xml", "text/calendar" } },
+                { DevicePlatform.iOS, new[] { "public.json", "com.topografix.gpx", "public.ics" } },
+                { DevicePlatform.MacCatalyst, new[] { "public.json", "com.topografix.gpx", "public.ics" } },
+                { DevicePlatform.WinUI, new[] { ".json", ".gpx", ".ics" } },
             });
 
         var options = new PickOptions

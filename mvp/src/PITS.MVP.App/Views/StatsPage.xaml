@@ -31,6 +31,23 @@
                 </Frame>
             </Grid>
 
+            <Frame Padding="10" BackgroundColor="#607D8B">
+                <Grid ColumnDefinitions="*,*,*" ColumnSpacing="10">
+                    <VerticalStackLayout Grid.Column="0">
+                        <Label Text="计划完成率" TextColor="White" FontSize="12"/>
+                        <Label Text="{Binding PlanCompletionRate}" TextColor="White" FontSize="20" FontAttributes="Bold"/>
+                    </VerticalStackLayout>
+                    <VerticalStackLayout Grid.Column="1">
+                        <Label Text="延误计划" TextColor="White" FontSize="12"/>
+                        <Label Text="{Binding DelayedPlanCount}" TextColor="White" FontSize="20" FontAttributes="Bold"/>
+                    </VerticalStackLayout>
+                    <VerticalStackLayout Grid.Column="2">
+                        <Label Text="通勤时长" TextColor="White" FontSize="12"/>
+                        <Label Text="{Binding CommuteDuration}" TextColor="White" FontSize="16" FontAttributes="Bold"/>
+                    </VerticalStackLayout>
+                </Grid>
+            </Frame>
+
             <!-- 数据缺口卡片 -->
             <Frame Padding="10" BackgroundColor="#F44336">
                 <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto">

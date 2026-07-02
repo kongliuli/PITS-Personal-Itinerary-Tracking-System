@@ -14,6 +14,7 @@ public class Trip
     public double? Accuracy { get; set; }
     public string? Address { get; set; }
     public string? PlaceId { get; set; }
+    public string? PlanId { get; set; }
 
     public ActivityType ActivityType { get; set; }
     public string? Description { get; set; }
@@ -27,5 +28,6 @@ public class Trip
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
     public Place? Place { get; set; }
+    public TripPlan? Plan { get; set; }
     public List<TrackPoint> TrackPoints { get; set; } = new();
 }

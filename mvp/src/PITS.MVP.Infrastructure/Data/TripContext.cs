@@ -6,8 +6,10 @@ namespace PITS.MVP.Infrastructure.Data;
 public class TripContext : DbContext
 {
     public DbSet<Trip> Trips => Set<Trip>();
+    public DbSet<TripPlan> TripPlans => Set<TripPlan>();
     public DbSet<Place> Places => Set<Place>();
     public DbSet<TrackPoint> TrackPoints => Set<TrackPoint>();
+    public DbSet<ImportStagingItem> ImportStagingItems => Set<ImportStagingItem>();
 
     public TripContext(DbContextOptions<TripContext> options) : base(options)
     {
@@ -23,10 +25,30 @@ public class TripContext : DbContext
             entity.HasIndex(e => e.Visibility);
             entity.HasIndex(e => e.GeoHash);
             entity.HasIndex(e => e.PlaceId);
+            entity.HasIndex(e => e.PlanId);
 
             entity.Property(e => e.ActivityType).HasConversion<string>();
             entity.Property(e => e.Visibility).HasConversion<string>();
             entity.Property(e => e.Source).HasConversion<string>();
+            entity.Property(e => e.Location).HasSrid(4326);
+
+            entity.HasOne(e => e.Plan)
+                .WithMany(e => e.ActualTrips)
+                .HasForeignKey(e => e.PlanId)
+                .OnDelete(DeleteBehavior.SetNull);
+        });
+
+        model.Entity<TripPlan>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.HasIndex(e => e.StartsAt);
+            entity.HasIndex(e => e.Status);
+            entity.HasIndex(e => e.Source);
+            entity.HasIndex(e => e.ExternalId);
+            entity.Property(e => e.ActivityType).HasConversion<string>();
+            entity.Property(e => e.Visibility).HasConversion<string>();
+            entity.Property(e => e.Source).HasConversion<string>();
+            entity.Property(e => e.Status).HasConversion<string>();
             entity.Property(e => e.Location).HasSrid(4326);
         });
 
@@ -44,6 +66,17 @@ public class TripContext : DbContext
             entity.HasKey(e => e.Id);
             entity.HasIndex(e => e.Timestamp);
             entity.HasIndex(e => e.TripId);
+            entity.Property(e => e.Location).HasSrid(4326);
+        });
+
+        model.Entity<ImportStagingItem>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.HasIndex(e => e.Fingerprint).IsUnique();
+            entity.HasIndex(e => e.Status);
+            entity.HasIndex(e => e.StartsAt);
+            entity.Property(e => e.Source).HasConversion<string>();
+            entity.Property(e => e.Status).HasConversion<string>();
             entity.Property(e => e.Location).HasSrid(4326);
         });
     }

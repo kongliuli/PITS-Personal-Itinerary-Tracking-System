@@ -54,6 +54,7 @@ Android SDK，会在 MAUI Android 项目上失败。
 - [MVP 架构](mvp/docs/ARCHITECTURE.md)
 - [MVP 数据模型](mvp/docs/DATA_MODEL.md)
 - [PR 收口设计](docs/MVP_PR_READINESS.md)
+- [个人行程演进计划](docs/PERSONAL_ITINERARY_EVOLUTION.md)
 - [全案蓝图](Dosc/PITS-全案蓝图-统一版.md)
 
 ## 许可证

@@ -1,4 +1,3 @@
-using System.Text.Json;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using PITS.MVP.Core.Entities;
@@ -9,6 +8,8 @@ namespace PITS.MVP.App.ViewModels;
 public partial class SettingsViewModel : BaseViewModel
 {
     private readonly ITripService _tripService;
+    private readonly IPrivacyExportService _privacyExportService;
+    private readonly IBackupService _backupService;
 
     [ObservableProperty] private VisibilityLevel _defaultVisibility = VisibilityLevel.Private;
     [ObservableProperty] private bool _enableBackgroundLocation = true;
@@ -53,9 +54,11 @@ public partial class SettingsViewModel : BaseViewModel
     partial void OnMqttPasswordChanged(string value) => Preferences.Default.Set("mqtt_password", value);
     partial void OnMqttEnabledChanged(bool value) => Preferences.Default.Set("mqtt_enabled", value);
 
-    public SettingsViewModel(ITripService tripService)
+    public SettingsViewModel(ITripService tripService, IPrivacyExportService privacyExportService, IBackupService backupService)
     {
         _tripService = tripService;
+        _privacyExportService = privacyExportService;
+        _backupService = backupService;
         Title = "设置";
 
         // 从 Preferences 恢复设置
@@ -70,7 +73,7 @@ public partial class SettingsViewModel : BaseViewModel
         await ExecuteAsync(async () =>
         {
             var trips = await _tripService.GetByVisibilityAsync(VisibilityLevel.Private);
-            var geoJson = GenerateGeoJson(trips);
+            var geoJson = _privacyExportService.ExportGeoJson(trips, VisibilityLevel.Private);
 
             var fileName = $"pits_export_{DateTime.Now:yyyyMMdd_HHmmss}.geojson";
             var filePath = Path.Combine(FileSystem.CacheDirectory, fileName);
@@ -90,7 +93,7 @@ public partial class SettingsViewModel : BaseViewModel
         await ExecuteAsync(async () =>
         {
             var trips = await _tripService.GetByVisibilityAsync(VisibilityLevel.Private);
-            var csv = GenerateCsv(trips);
+            var csv = _privacyExportService.ExportCsv(trips, VisibilityLevel.Private);
 
             var fileName = $"pits_export_{DateTime.Now:yyyyMMdd_HHmmss}.csv";
             var filePath = Path.Combine(FileSystem.CacheDirectory, fileName);
@@ -124,43 +127,18 @@ public partial class SettingsViewModel : BaseViewModel
         });
     }
 
-    private static string GenerateGeoJson(IEnumerable<Trip> trips)
+    [RelayCommand]
+    private async Task BackupDatabaseAsync()
     {
-        var features = trips.Where(t => t.Location != null).Select(t => new
+        await ExecuteAsync(async () =>
         {
-            type = "Feature",
-            geometry = new
+            var backupPath = await _backupService.BackupAsync(FileSystem.CacheDirectory);
+            await Share.Default.RequestAsync(new ShareFileRequest
             {
-                type = "Point",
-                coordinates = new[] { t.Location!.X, t.Location.Y }
-            },
-            properties = new
-            {
-                id = t.Id,
-                activity = t.ActivityType.ToString(),
-                description = t.Description ?? "",
-                startedAt = t.StartedAt.ToString("O")
-            }
+                Title = "备份 PITS 数据库",
+                File = new ShareFile(backupPath)
+            });
         });
-
-        var geoJson = new
-        {
-            type = "FeatureCollection",
-            features
-        };
-
-        return JsonSerializer.Serialize(geoJson);
-    }
-
-    private static string GenerateCsv(IEnumerable<Trip> trips)
-    {
-        var sb = new System.Text.StringBuilder();
-        sb.AppendLine("ID,开始时间,结束时间,活动类型,描述,地址,可见性");
-        foreach (var t in trips)
-        {
-            sb.AppendLine($"\"{t.Id}\",\"{t.StartedAt:O}\",\"{t.EndedAt?.ToString("O") ?? ""}\",\"{t.ActivityType}\",\"{t.Description ?? ""}\",\"{t.Address ?? ""}\",\"{t.Visibility}\"");
-        }
-        return sb.ToString();
     }
 
     private static string GenerateGpx(IEnumerable<Trip> trips)

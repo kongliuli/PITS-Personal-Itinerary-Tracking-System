@@ -58,21 +58,36 @@
 
         <Frame Grid.Row="3" VerticalOptions="End" Margin="10" Padding="10"
                IsVisible="{Binding HasSelectedDay}" HeightRequest="200">
-            <CollectionView ItemsSource="{Binding SelectedDayTrips}">
-                <CollectionView.ItemTemplate>
-                    <DataTemplate>
-                        <Grid ColumnDefinitions="Auto,*,Auto" Padding="10">
-                            <Label Text="{Binding StartedAt, StringFormat='{0:HH:mm}'}" FontSize="12"/>
-                            <Label Text="{Binding Description}" Grid.Column="1" Margin="10,0,0,0"/>
-                            <Frame Grid.Column="2" Padding="5,2" CornerRadius="10"
-                                   BackgroundColor="#2196F3">
-                                <Label Text="{Binding ActivityType}" 
-                                       TextColor="White" FontSize="10"/>
-                            </Frame>
-                        </Grid>
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-            </CollectionView>
+            <Grid RowDefinitions="Auto,*,Auto,*">
+                <Label Text="计划" FontAttributes="Bold" FontSize="13"/>
+                <CollectionView Grid.Row="1" ItemsSource="{Binding SelectedDayPlans}">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Grid ColumnDefinitions="Auto,*,Auto" Padding="6">
+                                <Label Text="{Binding StartsAt, StringFormat='{0:HH:mm}'}" FontSize="12"/>
+                                <Label Text="{Binding Title}" Grid.Column="1" Margin="10,0,0,0"/>
+                                <Label Text="{Binding Status}" Grid.Column="2" FontSize="11"/>
+                            </Grid>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+                <Label Grid.Row="2" Text="实际" FontAttributes="Bold" FontSize="13"/>
+                <CollectionView Grid.Row="3" ItemsSource="{Binding SelectedDayTrips}">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Grid ColumnDefinitions="Auto,*,Auto" Padding="6">
+                                <Label Text="{Binding StartedAt, StringFormat='{0:HH:mm}'}" FontSize="12"/>
+                                <Label Text="{Binding Description}" Grid.Column="1" Margin="10,0,0,0"/>
+                                <Frame Grid.Column="2" Padding="5,2" CornerRadius="10"
+                                       BackgroundColor="#2196F3">
+                                    <Label Text="{Binding ActivityType}"
+                                           TextColor="White" FontSize="10"/>
+                                </Frame>
+                            </Grid>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </Grid>
         </Frame>
         
     </Grid>
