@@ -46,6 +46,12 @@ public partial class StatsViewModel : BaseViewModel
     private int _delayedPlanCount;
 
     [ObservableProperty]
+    private string _planProgress = "";
+
+    [ObservableProperty]
+    private string _averagePlanDelay = "";
+
+    [ObservableProperty]
     private string _commuteDuration = "";
 
     public StatsViewModel(IStatsService statsService, ITripPlanService planService, ITripService tripService, ITripSegmentAnalyzer segmentAnalyzer)
@@ -108,6 +114,8 @@ public partial class StatsViewModel : BaseViewModel
             var planStats = await _planService.GetStatsAsync(monthStart, DateTime.Today.AddDays(1));
             PlanCompletionRate = $"{planStats.CompletionRate:P0}";
             DelayedPlanCount = planStats.DelayedCount;
+            PlanProgress = $"{planStats.CompletedCount}/{planStats.PlannedCount}";
+            AveragePlanDelay = $"{planStats.AverageDelayMinutes:F0}分钟";
 
             var commuteTicks = trips
                 .Where(t => t.ActivityType == ActivityType.Commute && t.EndedAt.HasValue)

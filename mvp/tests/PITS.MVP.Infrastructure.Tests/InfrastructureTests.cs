@@ -435,6 +435,34 @@ public class TripPlanServiceTests : IDisposable
         Assert.Equal(plan.Id, trip.PlanId);
         Assert.Equal(PlanStatus.Completed, (await _context.TripPlans.FindAsync(plan.Id))!.Status);
     }
+
+    [Fact]
+    public async Task GetStatsAsync_ReturnsPlanActualClosure()
+    {
+        var onTime = await _service.AddAsync(new TripPlan
+        {
+            Title = "准时会议",
+            StartsAt = new DateTime(2026, 7, 6, 9, 0, 0),
+            EndsAt = new DateTime(2026, 7, 6, 10, 0, 0)
+        });
+        var delayed = await _service.AddAsync(new TripPlan
+        {
+            Title = "延误会议",
+            StartsAt = new DateTime(2026, 7, 6, 14, 0, 0),
+            EndsAt = new DateTime(2026, 7, 6, 15, 0, 0)
+        });
+
+        await _service.ConvertToTripAsync(onTime.Id, onTime.StartsAt, onTime.EndsAt);
+        await _service.ConvertToTripAsync(delayed.Id, delayed.StartsAt.AddMinutes(30), delayed.EndsAt);
+
+        var stats = await _service.GetStatsAsync(new DateTime(2026, 7, 1), new DateTime(2026, 8, 1));
+
+        Assert.Equal(2, stats.PlannedCount);
+        Assert.Equal(2, stats.CompletedCount);
+        Assert.Equal(1, stats.DelayedCount);
+        Assert.Equal(15, stats.AverageDelayMinutes);
+        Assert.Equal(1, stats.CompletionRate);
+    }
 }
 
 public class ImportStagingTests : IDisposable

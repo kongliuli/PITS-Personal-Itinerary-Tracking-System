@@ -84,11 +84,22 @@ public class TripPlanService : ITripPlanService
             .Where(p => p.StartsAt >= start && p.StartsAt <= end)
             .ToListAsync();
 
+        var delays = plans
+            .Select(p => new
+            {
+                Plan = p,
+                Actual = p.ActualTrips.OrderBy(t => t.StartedAt).FirstOrDefault()
+            })
+            .Where(x => x.Actual != null)
+            .Select(x => Math.Max(0, (x.Actual!.StartedAt - x.Plan.StartsAt).TotalMinutes))
+            .ToList();
+
         return new PlanStats
         {
             PlannedCount = plans.Count,
             CompletedCount = plans.Count(p => p.Status == PlanStatus.Completed || p.ActualTrips.Count > 0),
-            DelayedCount = plans.Count(p => p.ActualTrips.Any(t => t.StartedAt > p.StartsAt.AddMinutes(15)))
+            DelayedCount = plans.Count(p => p.ActualTrips.Any(t => t.StartedAt > p.StartsAt.AddMinutes(15))),
+            AverageDelayMinutes = delays.Count == 0 ? 0 : delays.Average()
         };
     }
 }

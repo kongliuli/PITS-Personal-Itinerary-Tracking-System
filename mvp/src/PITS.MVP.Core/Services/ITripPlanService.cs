@@ -17,5 +17,6 @@ public class PlanStats
     public int PlannedCount { get; set; }
     public int CompletedCount { get; set; }
     public int DelayedCount { get; set; }
+    public double AverageDelayMinutes { get; set; }
     public double CompletionRate => PlannedCount == 0 ? 0 : (double)CompletedCount / PlannedCount;
 }

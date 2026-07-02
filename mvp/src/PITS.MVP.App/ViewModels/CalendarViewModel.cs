@@ -19,6 +19,7 @@ public partial class CalendarViewModel : BaseViewModel
     public ObservableCollection<CalendarDayModel> CalendarDays { get; } = new();
     public ObservableCollection<Trip> SelectedDayTrips { get; } = new();
     public ObservableCollection<TripPlan> SelectedDayPlans { get; } = new();
+    public ObservableCollection<PlanActualRow> SelectedDayComparisons { get; } = new();
 
     public string CurrentMonthLabel => CurrentMonth.ToString("yyyy年MM月");
 
@@ -107,6 +108,7 @@ public partial class CalendarViewModel : BaseViewModel
         SelectedDay = day;
         SelectedDayTrips.Clear();
         SelectedDayPlans.Clear();
+        SelectedDayComparisons.Clear();
         foreach (var trip in day.Trips)
         {
             SelectedDayTrips.Add(trip);
@@ -114,6 +116,17 @@ public partial class CalendarViewModel : BaseViewModel
         foreach (var plan in day.Plans)
         {
             SelectedDayPlans.Add(plan);
+            var actual = day.Trips
+                .Where(t => t.PlanId == plan.Id)
+                .OrderBy(t => t.StartedAt)
+                .FirstOrDefault();
+            SelectedDayComparisons.Add(PlanActualRow.FromPlan(plan, actual));
+        }
+
+        var planIds = day.Plans.Select(p => p.Id).ToHashSet();
+        foreach (var trip in day.Trips.Where(t => string.IsNullOrWhiteSpace(t.PlanId) || !planIds.Contains(t.PlanId)))
+        {
+            SelectedDayComparisons.Add(PlanActualRow.FromUnplannedTrip(trip));
         }
         OnPropertyChanged(nameof(HasSelectedDay));
     }
@@ -159,4 +172,57 @@ public record TripIndicator(ActivityType ActivityType, bool IsPlan = false)
         ActivityType.Entertainment => Colors.Pink,
         _ => Colors.DarkGray
     };
+}
+
+public class PlanActualRow
+{
+    public string PlannedTime { get; set; } = "";
+    public string PlannedTitle { get; set; } = "";
+    public string ActualTime { get; set; } = "";
+    public string ActualTitle { get; set; } = "";
+    public string Delta { get; set; } = "";
+    public string Status { get; set; } = "";
+    public Color StatusColor { get; set; } = Colors.Gray;
+
+    public static PlanActualRow FromPlan(TripPlan plan, Trip? actual)
+    {
+        if (actual == null)
+        {
+            var isPast = plan.StartsAt < DateTime.Now;
+            return new PlanActualRow
+            {
+                PlannedTime = plan.StartsAt.ToString("HH:mm"),
+                PlannedTitle = plan.Title,
+                ActualTime = "-",
+                ActualTitle = "未记录",
+                Status = isPast ? "未完成" : "待出行",
+                StatusColor = isPast ? Colors.Red : Colors.Gray
+            };
+        }
+
+        var delayMinutes = (int)Math.Round((actual.StartedAt - plan.StartsAt).TotalMinutes);
+        return new PlanActualRow
+        {
+            PlannedTime = plan.StartsAt.ToString("HH:mm"),
+            PlannedTitle = plan.Title,
+            ActualTime = actual.StartedAt.ToString("HH:mm"),
+            ActualTitle = actual.Description ?? actual.ActivityType.ToString(),
+            Delta = delayMinutes == 0 ? "准时" : $"{delayMinutes:+#;-#} 分钟",
+            Status = delayMinutes > 15 ? "延误" : "完成",
+            StatusColor = delayMinutes > 15 ? Colors.OrangeRed : Colors.Green
+        };
+    }
+
+    public static PlanActualRow FromUnplannedTrip(Trip trip)
+    {
+        return new PlanActualRow
+        {
+            PlannedTime = "-",
+            PlannedTitle = "未计划",
+            ActualTime = trip.StartedAt.ToString("HH:mm"),
+            ActualTitle = trip.Description ?? trip.ActivityType.ToString(),
+            Status = "实际",
+            StatusColor = Colors.DodgerBlue
+        };
+    }
 }

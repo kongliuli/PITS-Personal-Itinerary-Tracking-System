@@ -32,19 +32,30 @@
             </Grid>
 
             <Frame Padding="10" BackgroundColor="#607D8B">
-                <Grid ColumnDefinitions="*,*,*" ColumnSpacing="10">
-                    <VerticalStackLayout Grid.Column="0">
+                <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" ColumnSpacing="10" RowSpacing="10">
+                    <VerticalStackLayout Grid.Row="0" Grid.Column="0">
                         <Label Text="计划完成率" TextColor="White" FontSize="12"/>
                         <Label Text="{Binding PlanCompletionRate}" TextColor="White" FontSize="20" FontAttributes="Bold"/>
                     </VerticalStackLayout>
-                    <VerticalStackLayout Grid.Column="1">
+                    <VerticalStackLayout Grid.Row="0" Grid.Column="1">
+                        <Label Text="完成/计划" TextColor="White" FontSize="12"/>
+                        <Label Text="{Binding PlanProgress}" TextColor="White" FontSize="20" FontAttributes="Bold"/>
+                    </VerticalStackLayout>
+                    <VerticalStackLayout Grid.Row="1" Grid.Column="0">
                         <Label Text="延误计划" TextColor="White" FontSize="12"/>
                         <Label Text="{Binding DelayedPlanCount}" TextColor="White" FontSize="20" FontAttributes="Bold"/>
                     </VerticalStackLayout>
-                    <VerticalStackLayout Grid.Column="2">
-                        <Label Text="通勤时长" TextColor="White" FontSize="12"/>
-                        <Label Text="{Binding CommuteDuration}" TextColor="White" FontSize="16" FontAttributes="Bold"/>
+                    <VerticalStackLayout Grid.Row="1" Grid.Column="1">
+                        <Label Text="平均延误" TextColor="White" FontSize="12"/>
+                        <Label Text="{Binding AveragePlanDelay}" TextColor="White" FontSize="20" FontAttributes="Bold"/>
                     </VerticalStackLayout>
+                </Grid>
+            </Frame>
+
+            <Frame Padding="10" BackgroundColor="#455A64">
+                <Grid ColumnDefinitions="*,Auto">
+                    <Label Text="通勤时长" TextColor="White" FontSize="14" FontAttributes="Bold"/>
+                    <Label Grid.Column="1" Text="{Binding CommuteDuration}" TextColor="White" FontSize="16" FontAttributes="Bold"/>
                 </Grid>
             </Frame>
 
