@@ -69,7 +69,7 @@ public partial class RecordViewModel : BaseViewModel
     {
         if (CurrentLocation == null)
         {
-            await Shell.Current.DisplayAlert("错误", "无法获取位置", "确定");
+            await Shell.Current.DisplayAlertAsync("错误", "无法获取位置", "确定");
             return;
         }
 
@@ -95,7 +95,7 @@ public partial class RecordViewModel : BaseViewModel
 
             await _tripService.AddAsync(trip);
 
-            await Shell.Current.DisplayAlert("成功", "行程已记录", "确定");
+            await Shell.Current.DisplayAlertAsync("成功", "行程已记录", "确定");
             Description = "";
         });
     }

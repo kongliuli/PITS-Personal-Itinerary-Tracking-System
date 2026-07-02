@@ -81,7 +81,7 @@ public partial class PlaceViewModel : BaseViewModel
         {
             var created = await _placeClusterService.AutoCreatePlacesAsync();
             await LoadPlacesAsync();
-            await Shell.Current.DisplayAlert("完成", $"自动识别创建了 {created} 个新地点", "确定");
+            await Shell.Current.DisplayAlertAsync("完成", $"自动识别创建了 {created} 个新地点", "确定");
         });
     }
 }

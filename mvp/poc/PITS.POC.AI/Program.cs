@@ -1,5 +1,3 @@
-using Microsoft.SemanticKernel;
-
 namespace PITS.POC.AI;
 
 public class Program
@@ -8,19 +6,11 @@ public class Program
     {
         Console.WriteLine("=== PITS AI POC ===\n");
 
-        Console.WriteLine("--- Test 1: Semantic Kernel Setup ---");
-        var builder = Kernel.CreateBuilder();
-        Console.WriteLine("  Kernel builder created successfully");
-        var kernel = builder.Build();
-        Console.WriteLine("  Kernel built successfully\n");
-
-        Console.WriteLine("--- Test 2: Trip Log Plugin Definition ---");
-        
+        Console.WriteLine("--- Test 1: Trip Log Parser ---");
         var tripLogPlugin = new TripLogPlugin();
-        kernel.Plugins.AddFromObject(tripLogPlugin, "TripLog");
-        Console.WriteLine("  TripLogPlugin registered\n");
+        Console.WriteLine("  TripLogPlugin created\n");
 
-        Console.WriteLine("--- Test 3: Intent Parsing Simulation ---");
+        Console.WriteLine("--- Test 2: Intent Parsing Simulation ---");
         var testInputs = new[]
         {
             "记录今天下午3点到5点在公司开会",
@@ -38,18 +28,16 @@ public class Program
             Console.WriteLine();
         }
 
-        Console.WriteLine("--- Test 4: Trip Query Plugin ---");
+        Console.WriteLine("--- Test 3: Trip Query Plugin ---");
         var tripQueryPlugin = new TripQueryPlugin();
-        kernel.Plugins.AddFromObject(tripQueryPlugin, "TripQuery");
-        Console.WriteLine("  TripQueryPlugin registered\n");
+        Console.WriteLine("  TripQueryPlugin created\n");
 
-        Console.WriteLine("--- Test 5: Query Simulation ---");
+        Console.WriteLine("--- Test 4: Query Simulation ---");
         var queryResults = tripQueryPlugin.QueryTrips("last_week", null, null);
         Console.WriteLine($"  Query Result: {queryResults}\n");
 
         Console.WriteLine("=== AI POC Structure Ready ===");
-        Console.WriteLine("Note: Full Ollama integration requires running Ollama service.");
-        Console.WriteLine("Run 'ollama pull qwen2.5:14b' to enable local LLM.\n");
+        Console.WriteLine("Note: MVP AI uses local rule-based parsing; no LLM dependency is required.\n");
     }
 }
 

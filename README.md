@@ -1,82 +1,60 @@
 # PITS - Personal Itinerary Tracking System
 
-个人行程追踪系统 - 一个以本地优先、隐私保护的时空数据管理平台。
+PITS 是一个本地优先、隐私优先的个人行程追踪系统。当前分支收口的是
+.NET MAUI MVP：记录行程、查看日历和地图、管理地点、导入数据、查看统计，
+以及一个轻量 AI 查询助手。
 
-## 项目简介
-
-PITS 是一个面向个人的时空数据管理系统，以"**记录你在何时、何地、做什么**"为核心，通过权限分级和图层机制管理不同粒度的位置与行程信息，并支持 AI 自然语言交互。
-
-## 核心特性
-
-- **本地优先** - SQLite 单文件存储，数据主权归个人
-- **隐私分级** - 四级权限控制（Public/Work/Private/Classified）
-- **AI 赋能** - 自然语言解析意图，智能摘要与洞察
-- **全平台覆盖** - 移动端、CLI、TUI、Web API 多端协同
-- **跨设备同步** - Syncthing P2P 加密同步
-
-## 技术架构
+## 当前入口
 
 ```
-├── src/
-│   ├── PITS.Core/           # 核心域模型与服务接口
-│   ├── PITS.Infrastructure/ # EF Core + SQLite 数据层
-│   ├── PITS.App/            # .NET MAUI 移动端应用
-│   ├── PITS.CLI/             # 命令行工具
-│   ├── PITS.TUI/             # 终端界面
-│   ├── PITS.API/             # Web API
-│   └── PITS.AI/              # AI 插件与 MCP 集成
-├── tests/
-└── docs/
+PITS.sln                 # PR/CI 验证入口
+mvp/PITS.MVP.sln         # MVP 本地开发入口
+mvp/src/PITS.MVP.Core    # 领域实体、值对象、服务接口
+mvp/src/PITS.MVP.Infrastructure
+                         # SQLite、EF Core、位置/统计/导入服务
+mvp/src/PITS.MVP.App     # .NET MAUI App
+mvp/tests                # MVP 单元测试
+mvp/poc                  # 可选 POC，不作为产品入口
+mvp-art, svp-art         # 展示资产
 ```
 
-## 快速开始
+根目录 `src/` 和 `tests/` 保留为后续多端蓝图/占位，不是当前 MVP 验证路径。
 
-### 环境要求
+## 环境要求
 
-- .NET 6.0 SDK+
-- Android SDK / Xcode (iOS 开发)
-- SQLite
+- .NET 10 SDK
+- .NET MAUI workload
+- Windows 目标构建可直接验证
+- Android/iOS 构建需要本机安装对应 SDK
 
-### 构建项目
+## 验证命令
 
 ```bash
-# 克隆项目
-git clone https://github.com/your-repo/PITS.git
-cd PITS
-
-# 还原依赖
-dotnet restore
-
-# 构建解决方案
-dotnet build
+dotnet restore PITS.sln
+dotnet build mvp/src/PITS.MVP.App/PITS.MVP.App.csproj -f net10.0-windows10.0.19041.0 --no-restore
+dotnet test mvp/tests/PITS.MVP.Core.Tests/PITS.MVP.Core.Tests.csproj --no-restore
+dotnet test mvp/tests/PITS.MVP.Infrastructure.Tests/PITS.MVP.Infrastructure.Tests.csproj --no-restore
+dotnet list PITS.sln package --vulnerable --include-transitive
 ```
 
-### 运行应用
+`dotnet build PITS.sln --no-restore` 会同时构建 Android 目标；如果本机没有
+Android SDK，会在 MAUI Android 项目上失败。
 
-```bash
-# 运行 MAUI 应用
-cd src/PITS.App
-dotnet run
+## MVP 功能
 
-# 或构建发布版本
-dotnet publish -c Release
-```
+- 本地 SQLite 存储和 NetTopologySuite 空间数据
+- 行程、地点、轨迹点、跟踪配置、提醒等核心实体
+- 手动记录、日历、地图、地点、导入、统计、设置页面
+- 交通方式识别、行程分段、地点聚类、统计服务
+- 轻量 AI 查询助手：统计周期、最近行程、记录意图提示
+- MQTT 位置发布服务接口和实现
 
 ## 文档
 
-- [架构文档](docs/ARCHITECTURE.md) - 详细技术架构说明
-- [API 文档](docs/API.md) - Web API 接口规范
-- [MCP Schema](docs/MCP_SCHEMA.md) - AI Agent 接口定义
-
-## 开发阶段
-
-| 阶段 | 周期 | 目标 |
-|------|------|------|
-| MVP | 1-6 周 | MAUI App 基础功能：记录、日历、地图、AI 对话 |
-| Phase 1 | 7-10 周 | 自动化采集：邮件解析、日历同步、WiFi 指纹 |
-| Phase 2 | 11-14 周 | AI 深度：向量检索、智能摘要、疲劳预警 |
-| Phase 3 | 15-18 周 | 全平台：CLI、TUI、MCP Server |
-| Phase 4 | 19-20 周+ | 生态：插件市场、团队模式、开源发布 |
+- [MVP 架构](mvp/docs/ARCHITECTURE.md)
+- [MVP 数据模型](mvp/docs/DATA_MODEL.md)
+- [PR 收口设计](docs/MVP_PR_READINESS.md)
+- [全案蓝图](Dosc/PITS-全案蓝图-统一版.md)
 
 ## 许可证
 

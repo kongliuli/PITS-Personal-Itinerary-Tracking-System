@@ -47,7 +47,7 @@ public partial class MapPage : ContentPage
             var pin = new Pin
             {
                 Label = trip.ActivityType.ToString(),
-                Address = trip.Description,
+                Address = trip.Description ?? string.Empty,
                 Location = new Location(trip.Location!.Y, trip.Location.X),
                 Type = PinType.Place
             };
