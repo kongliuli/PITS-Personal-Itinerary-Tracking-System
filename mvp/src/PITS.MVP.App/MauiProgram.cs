@@ -62,6 +62,9 @@ public static class MauiProgram
         builder.Logging.AddDebug();
 #endif
 
-        return builder.Build();
+        var app = builder.Build();
+        using var scope = app.Services.CreateScope();
+        TripContextSchema.EnsureReady(scope.ServiceProvider.GetRequiredService<TripContext>());
+        return app;
     }
 }

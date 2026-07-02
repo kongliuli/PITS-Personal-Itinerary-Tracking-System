@@ -215,6 +215,55 @@ public class TripContextTests : IDisposable
     }
 }
 
+public class TripContextSchemaTests
+{
+    [Fact]
+    public async Task EnsureReady_AddsPlanTablesToExistingDatabase()
+    {
+        var tempDir = Path.Combine(Path.GetTempPath(), "pits-schema-test-" + Guid.NewGuid());
+        Directory.CreateDirectory(tempDir);
+        var dbPath = Path.Combine(tempDir, "pits.db");
+
+        try
+        {
+            await using var context = CreateFileContext(dbPath);
+            await context.Database.ExecuteSqlRawAsync("""
+CREATE TABLE Trips (
+    Id TEXT NOT NULL PRIMARY KEY,
+    StartedAt TEXT NOT NULL,
+    ActivityType TEXT NOT NULL,
+    Visibility TEXT NOT NULL
+);
+""");
+
+            TripContextSchema.EnsureReady(context);
+
+            context.TripPlans.Add(new TripPlan
+            {
+                Title = "schema smoke",
+                StartsAt = new DateTime(2026, 7, 7, 9, 0, 0)
+            });
+            await context.SaveChangesAsync();
+
+            Assert.Equal(1, await context.TripPlans.CountAsync());
+        }
+        finally
+        {
+            if (tempDir.StartsWith(Path.GetTempPath(), StringComparison.OrdinalIgnoreCase))
+                Directory.Delete(tempDir, recursive: true);
+        }
+    }
+
+    private static TripContext CreateFileContext(string dbPath)
+    {
+        var options = new DbContextOptionsBuilder<TripContext>()
+            .UseSqlite($"Data Source={dbPath};Pooling=False", sqliteOptions => sqliteOptions.UseNetTopologySuite())
+            .Options;
+
+        return new TripContext(options);
+    }
+}
+
 public class TransportModeDetectorTests
 {
     private readonly TransportModeDetector _detector = new();
