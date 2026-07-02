@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ResourceDictionary xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!--  PITS Dark Aggressive Theme — Design Tokens  -->
+    <!-- ═══════════════════════════════════════════ -->
+
+    <!-- ── Core Palette ── -->
+    <Color x:Key="BgPrimary">#0A0A0F</Color>
+    <Color x:Key="BgSurface">#12121A</Color>
+    <Color x:Key="BgCard">#1A1A26</Color>
+    <Color x:Key="BgCardHover">#222233</Color>
+    <Color x:Key="BgElevated">#252536</Color>
+
+    <Color x:Key="TextPrimary">#F0F0F5</Color>
+    <Color x:Key="TextSecondary">#8888AA</Color>
+    <Color x:Key="TextTertiary">#555570</Color>
+    <Color x:Key="TextOnAccent">#FFFFFF</Color>
+
+    <!-- ── Accent: Electric Cyan-Blue ── -->
+    <Color x:Key="AccentPrimary">#00D4FF</Color>
+    <Color x:Key="AccentSecondary">#7C3AED</Color>
+    <Color x:Key="AccentTertiary">#F72585</Color>
+    <Color x:Key="AccentSuccess">#00F5A0</Color>
+    <Color x:Key="AccentWarning">#FFB800</Color>
+    <Color x:Key="AccentDanger">#FF3366</Color>
+
+    <!-- ── Gradient Stops (for LinearGradientBrush) ── -->
+    <Color x:Key="GradStart">#00D4FF</Color>
+    <Color x:Key="GradMid">#7C3AED</Color>
+    <Color x:Key="GradEnd">#F72585</Color>
+
+    <!-- ── Borders ── -->
+    <Color x:Key="BorderSubtle">#2A2A3E</Color>
+    <Color x:Key="BorderGlow">#00D4FF33</Color>
+
+    <!-- ── Misc ── -->
+    <Color x:Key="GlassBg">#1A1A2680</Color>
+    <Color x:Key="OverlayDark">#0A0A0FCC</Color>
+    <Color x:Key="DividerColor">#2A2A3E</Color>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!--  Gradient Brushes                            -->
+    <!-- ═══════════════════════════════════════════ -->
+    <LinearGradientBrush x:Key="PrimaryGradient" StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Color="{StaticResource GradStart}" Offset="0"/>
+        <GradientStop Color="{StaticResource GradMid}" Offset="0.5"/>
+        <GradientStop Color="{StaticResource GradEnd}" Offset="1"/>
+    </LinearGradientBrush>
+
+    <LinearGradientBrush x:Key="CyanToPurple" StartPoint="0,0" EndPoint="1,0">
+        <GradientStop Color="#00D4FF" Offset="0"/>
+        <GradientStop Color="#7C3AED" Offset="1"/>
+    </LinearGradientBrush>
+
+    <LinearGradientBrush x:Key="PinkToOrange" StartPoint="0,0" EndPoint="1,0">
+        <GradientStop Color="#F72585" Offset="0"/>
+        <GradientStop Color="#FF9E00" Offset="1"/>
+    </LinearGradientBrush>
+
+    <LinearGradientBrush x:Key="GreenToCyan" StartPoint="0,0" EndPoint="1,0">
+        <GradientStop Color="#00F5A0" Offset="0"/>
+        <GradientStop Color="#00D9FF" Offset="1"/>
+    </LinearGradientBrush>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!--  Shadow (simulated via border + bg layering) -->
+    <!-- ═══════════════════════════════════════════ -->
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!--  Global Styles                               -->
+    <!-- ═══════════════════════════════════════════ -->
+
+    <!-- Label -->
+    <Style TargetType="Label" x:Key="BaseLabel">
+        <Setter Property="TextColor" Value="{StaticResource TextPrimary}"/>
+    </Style>
+    <Style TargetType="Label" x:Key="Heading1" BasedOn="{StaticResource BaseLabel}">
+        <Setter Property="FontSize" Value="28"/>
+        <Setter Property="FontAttributes" Value="Bold"/>
+    </Style>
+    <Style TargetType="Label" x:Key="Heading2" BasedOn="{StaticResource BaseLabel}">
+        <Setter Property="FontSize" Value="20"/>
+        <Setter Property="FontAttributes" Value="Bold"/>
+    </Style>
+    <Style TargetType="Label" x:Key="Heading3" BasedOn="{StaticResource BaseLabel}">
+        <Setter Property="FontSize" Value="16"/>
+        <Setter Property="FontAttributes" Value="Bold"/>
+    </Style>
+    <Style TargetType="Label" x:Key="Caption" BasedOn="{StaticResource BaseLabel}">
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="TextColor" Value="{StaticResource TextSecondary}"/>
+    </Style>
+    <Style TargetType="Label" x:Key="Overline" BasedOn="{StaticResource BaseLabel}">
+        <Setter Property="FontSize" Value="11"/>
+        <Setter Property="TextColor" Value="{StaticResource TextTertiary}"/>
+        <Setter Property="CharacterSpacing" Value="1.5"/>
+    </Style>
+
+    <!-- Glass Card Frame -->
+    <Style TargetType="Frame" x:Key="GlassCard">
+        <Setter Property="BackgroundColor" Value="{StaticResource GlassBg}"/>
+        <Setter Property="BorderColor" Value="{StaticResource BorderSubtle}"/>
+        <Setter Property="CornerRadius" Value="20"/>
+        <Setter Property="Padding" Value="20"/>
+        <Setter Property="HasShadow" Value="False"/>
+    </Style>
+
+    <!-- Solid Card Frame -->
+    <Style TargetType="Frame" x:Key="Card">
+        <Setter Property="BackgroundColor" Value="{StaticResource BgCard}"/>
+        <Setter Property="BorderColor" Value="{StaticResource BorderSubtle}"/>
+        <Setter Property="CornerRadius" Value="16"/>
+        <Setter Property="Padding" Value="16"/>
+        <Setter Property="HasShadow" Value="False"/>
+    </Style>
+
+    <!-- Elevated Card -->
+    <Style TargetType="Frame" x:Key="CardElevated" BasedOn="{StaticResource Card}">
+        <Setter Property="BackgroundColor" Value="{StaticResource BgElevated}"/>
+    </Style>
+
+    <!-- Accent Button (gradient simulation via bg color) -->
+    <Style TargetType="Button" x:Key="AccentButton">
+        <Setter Property="BackgroundColor" Value="{StaticResource AccentPrimary}"/>
+        <Setter Property="TextColor" Value="{StaticResource TextOnAccent}"/>
+        <Setter Property="CornerRadius" Value="14"/>
+        <Setter Property="Padding" Value="24,14"/>
+        <Setter Property="FontSize" Value="15"/>
+        <Setter Property="FontAttributes" Value="Bold"/>
+    </Style>
+
+    <!-- Ghost Button -->
+    <Style TargetType="Button" x:Key="GhostButton">
+        <Setter Property="BackgroundColor" Value="Transparent"/>
+        <Setter Property="TextColor" Value="{StaticResource AccentPrimary}"/>
+        <Setter Property="BorderColor" Value="{StaticResource AccentPrimary}"/>
+        <Setter Property="BorderWidth" Value="1.5"/>
+        <Setter Property="CornerRadius" Value="14"/>
+        <Setter Property="Padding" Value="24,14"/>
+        <Setter Property="FontSize" Value="15"/>
+        <Setter Property="FontAttributes" Value="Bold"/>
+    </Style>
+
+    <!-- Danger Button -->
+    <Style TargetType="Button" x:Key="DangerButton">
+        <Setter Property="BackgroundColor" Value="{StaticResource AccentDanger}"/>
+        <Setter Property="TextColor" Value="White"/>
+        <Setter Property="CornerRadius" Value="14"/>
+        <Setter Property="Padding" Value="24,14"/>
+        <Setter Property="FontSize" Value="15"/>
+        <Setter Property="FontAttributes" Value="Bold"/>
+    </Style>
+
+    <!-- Pill Button (small, rounded) -->
+    <Style TargetType="Button" x:Key="PillButton">
+        <Setter Property="BackgroundColor" Value="{StaticResource BgElevated}"/>
+        <Setter Property="TextColor" Value="{StaticResource TextPrimary}"/>
+        <Setter Property="CornerRadius" Value="50"/>
+        <Setter Property="Padding" Value="16,8"/>
+        <Setter Property="FontSize" Value="13"/>
+    </Style>
+
+    <!-- Entry (input) -->
+    <Style TargetType="Entry">
+        <Setter Property="BackgroundColor" Value="{StaticResource BgCard}"/>
+        <Setter Property="TextColor" Value="{StaticResource TextPrimary}"/>
+        <Setter Property="PlaceholderColor" Value="{StaticResource TextTertiary}"/>
+    </Style>
+
+    <!-- Editor -->
+    <Style TargetType="Editor">
+        <Setter Property="BackgroundColor" Value="{StaticResource BgCard}"/>
+        <Setter Property="TextColor" Value="{StaticResource TextPrimary}"/>
+        <Setter Property="PlaceholderColor" Value="{StaticResource TextTertiary}"/>
+    </Style>
+
+    <!-- Picker -->
+    <Style TargetType="Picker">
+        <Setter Property="BackgroundColor" Value="{StaticResource BgCard}"/>
+        <Setter Property="TextColor" Value="{StaticResource TextPrimary}"/>
+        <Setter Property="TitleColor" Value="{StaticResource TextSecondary}"/>
+    </Style>
+
+    <!-- Switch Thumb + Track colors -->
+    <Style TargetType="Switch">
+        <Setter Property="OnColor" Value="{StaticResource AccentPrimary}"/>
+        <Setter Property="ThumbColor" Value="{StaticResource TextPrimary}"/>
+    </Style>
+
+    <!-- Slider -->
+    <Style TargetType="Slider">
+        <Setter Property="MinimumTrackColor" Value="{StaticResource AccentPrimary}"/>
+        <Setter Property="MaximumTrackColor" Value="{StaticResource BorderSubtle}"/>
+        <Setter Property="ThumbColor" Value="{StaticResource AccentPrimary}"/>
+    </Style>
+
+    <!-- ProgressBar -->
+    <Style TargetType="ProgressBar">
+        <Setter Property="ProgressColor" Value="{StaticResource AccentPrimary}"/>
+        <Setter Property="BackgroundColor" Value="{StaticResource BorderSubtle}"/>
+    </Style>
+
+    <!-- ScrollView -->
+    <Style TargetType="ScrollView">
+        <Setter Property="BackgroundColor" Value="{StaticResource BgPrimary}"/>
+    </Style>
+
+    <!-- ContentPage base -->
+    <Style TargetType="ContentPage">
+        <Setter Property="BackgroundColor" Value="{StaticResource BgPrimary}"/>
+    </Style>
+
+</ResourceDictionary>

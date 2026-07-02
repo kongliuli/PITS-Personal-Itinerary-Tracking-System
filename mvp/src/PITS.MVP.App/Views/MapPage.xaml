@@ -3,70 +3,94 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="PITS.MVP.App.Views.MapPage"
              Title="轨迹">
-    <Grid RowDefinitions="Auto,Auto,*" BackgroundColor="#F6F8FA">
-        <Grid Grid.Row="0" Padding="18,16" ColumnDefinitions="*,Auto">
+    <Grid RowDefinitions="Auto,Auto,*" BackgroundColor="{StaticResource BgPrimary}">
+        <Grid Grid.Row="0" Padding="20,18" ColumnDefinitions="*,Auto">
             <VerticalStackLayout Spacing="4">
-                <Label Text="轨迹概览" FontSize="24" FontAttributes="Bold" TextColor="#17202A"/>
-                <Label Text="{Binding Summary}" FontSize="13" TextColor="#607080"/>
+                <Label Text="轨迹概览"
+                       FontSize="28"
+                       FontAttributes="Bold"
+                       TextColor="{StaticResource AccentPrimary}"/>
+                <Label Text="{Binding Summary}"
+                       FontSize="13"
+                       TextColor="{StaticResource TextSecondary}"/>
             </VerticalStackLayout>
             <Button Grid.Column="1"
                     Text="刷新"
                     Command="{Binding RefreshCommand}"
+                    Style="{StaticResource GhostButton}"
                     WidthRequest="76"
                     HeightRequest="38"
-                    Padding="10,0"
                     VerticalOptions="Center"/>
         </Grid>
 
-        <Grid Grid.Row="1" Padding="18,0,18,12" ColumnDefinitions="*,*" ColumnSpacing="10">
-            <Frame Padding="12,8" CornerRadius="8" BackgroundColor="White" BorderColor="#DDE4EC">
+        <Grid Grid.Row="1" Padding="20,0,20,12" ColumnDefinitions="*,*" ColumnSpacing="10">
+            <Border Padding="14,10"
+                    BackgroundColor="{StaticResource BgCard}"
+                    Stroke="{StaticResource BorderSubtle}"
+                    StrokeShape="RoundRectangle 16">
                 <VerticalStackLayout Spacing="4">
-                    <Label Text="时间范围" FontSize="12" TextColor="#607080"/>
+                    <Label Text="时间范围"
+                           FontSize="12"
+                           TextColor="{StaticResource TextSecondary}"/>
                     <Picker ItemsSource="{Binding TimeOptions}"
                             SelectedItem="{Binding SelectedTimeRange}"
-                            FontSize="14"/>
+                            FontSize="14"
+                            TextColor="{StaticResource TextPrimary}"/>
                 </VerticalStackLayout>
-            </Frame>
-            <Frame Grid.Column="1" Padding="12,8" CornerRadius="8" BackgroundColor="White" BorderColor="#DDE4EC">
+            </Border>
+            <Border Grid.Column="1"
+                    Padding="14,10"
+                    BackgroundColor="{StaticResource BgCard}"
+                    Stroke="{StaticResource BorderSubtle}"
+                    StrokeShape="RoundRectangle 16">
                 <VerticalStackLayout Spacing="4">
-                    <Label Text="可见范围" FontSize="12" TextColor="#607080"/>
+                    <Label Text="可见范围"
+                           FontSize="12"
+                           TextColor="{StaticResource TextSecondary}"/>
                     <Picker ItemsSource="{Binding LayerOptions}"
                             SelectedItem="{Binding SelectedLayer}"
-                            FontSize="14"/>
+                            FontSize="14"
+                            TextColor="{StaticResource TextPrimary}"/>
                 </VerticalStackLayout>
-            </Frame>
+            </Border>
         </Grid>
 
         <Grid Grid.Row="2">
-            <CollectionView ItemsSource="{Binding Trips}" Margin="18,0,18,18">
+            <CollectionView ItemsSource="{Binding Trips}" Margin="20,0,20,20">
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
-                        <Frame Margin="0,0,0,10" Padding="14" CornerRadius="8"
-                               BackgroundColor="White" BorderColor="#E2E8F0">
-                            <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto" RowSpacing="6">
+                        <Border Margin="0,0,0,10"
+                                Padding="16"
+                                BackgroundColor="{StaticResource BgCard}"
+                                Stroke="{StaticResource BorderSubtle}"
+                                StrokeShape="RoundRectangle 16">
+                            <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto" RowSpacing="8">
                                 <Label Text="{Binding Title}"
                                        FontSize="16"
                                        FontAttributes="Bold"
-                                       TextColor="#1B2631"
+                                       TextColor="{StaticResource TextPrimary}"
                                        LineBreakMode="TailTruncation"/>
-                                <Frame Grid.Column="1" Padding="8,3" CornerRadius="8"
-                                       BackgroundColor="{Binding BadgeColor}"
-                                       HasShadow="False">
-                                    <Label Text="{Binding Badge}" TextColor="White" FontSize="11"/>
-                                </Frame>
+                                <Border Grid.Column="1"
+                                        Padding="10,4"
+                                        BackgroundColor="{Binding BadgeColor}"
+                                        StrokeShape="RoundRectangle 50">
+                                    <Label Text="{Binding Badge}"
+                                           TextColor="{StaticResource TextOnAccent}"
+                                           FontSize="11"/>
+                                </Border>
 
                                 <Label Grid.Row="1"
                                        Text="{Binding Location}"
                                        FontSize="13"
-                                       TextColor="#607080"
+                                       TextColor="{StaticResource TextSecondary}"
                                        LineBreakMode="TailTruncation"/>
 
                                 <Grid Grid.Row="2" Grid.ColumnSpan="2" ColumnDefinitions="*,Auto">
-                                    <Label Text="{Binding Time}" FontSize="12" TextColor="#7B8794"/>
-                                    <Label Grid.Column="1" Text="{Binding Detail}" FontSize="12" TextColor="#7B8794"/>
+                                    <Label Text="{Binding Time}" FontSize="12" TextColor="{StaticResource TextTertiary}"/>
+                                    <Label Grid.Column="1" Text="{Binding Detail}" FontSize="12" TextColor="{StaticResource TextTertiary}"/>
                                 </Grid>
                             </Grid>
-                        </Frame>
+                        </Border>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
@@ -75,7 +99,7 @@
                    IsVisible="{Binding IsEmpty}"
                    HorizontalOptions="Center"
                    VerticalOptions="Center"
-                   TextColor="#7B8794"
+                   TextColor="{StaticResource TextSecondary}"
                    FontSize="15"/>
         </Grid>
     </Grid>

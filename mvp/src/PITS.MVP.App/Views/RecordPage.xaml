@@ -2,80 +2,242 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="PITS.MVP.App.Views.RecordPage"
-             Title="记录行程">
-    <ScrollView>
-        <VerticalStackLayout Padding="20" Spacing="15">
+             BackgroundColor="{StaticResource BgPrimary}">
 
-            <Frame BorderColor="#E0E0E0" Padding="15">
-                <VerticalStackLayout>
-                    <Label Text="📍 当前位置" FontAttributes="Bold" FontSize="16"/>
-                    <Label Text="{Binding CurrentAddress}" 
-                           TextColor="Gray" FontSize="14" Margin="0,5,0,0"/>
-                    <Label Text="{Binding CurrentCoords}" 
-                           TextColor="LightGray" FontSize="12"/>
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="16">
+
+            <!-- ====== 页面标题 ====== -->
+            <Label Text="记录行程"
+                   FontSize="32"
+                   FontAttributes="Bold"
+                   TextColor="{StaticResource AccentPrimary}"
+                   Margin="0,8,0,4">
+                <Label.Shadow>
+                    <Shadow Brush="{StaticResource AccentPrimary}"
+                             Opacity="0.3"
+                             Radius="12"
+                             Offset="0,0"/>
+                </Label.Shadow>
+            </Label>
+            <Label Text="追踪你的每一步旅程"
+                   FontSize="14"
+                   TextColor="{StaticResource TextSecondary}"
+                   Margin="0,0,0,8"/>
+
+            <!-- ====== 当前位置 - 玻璃拟态卡片 ====== -->
+            <Frame BackgroundColor="{StaticResource GlassBg}"
+                   BorderColor="#00D4FF33"
+                   Padding="18"
+                   CornerRadius="20"
+                   HasShadow="False">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="📍  当前位置"
+                           FontAttributes="Bold"
+                           FontSize="16"
+                           TextColor="{StaticResource TextPrimary}"/>
+                    <Label Text="{Binding CurrentAddress}"
+                           TextColor="{StaticResource TextSecondary}"
+                           FontSize="14"
+                           LineBreakMode="WordWrap"/>
+                    <Label Text="{Binding CurrentCoords}"
+                           TextColor="{StaticResource TextTertiary}"
+                           FontSize="12"/>
                 </VerticalStackLayout>
             </Frame>
 
-            <Label Text="待执行计划" FontAttributes="Bold" FontSize="14"/>
-            <CollectionView ItemsSource="{Binding UpcomingPlans}" HeightRequest="90">
-                <CollectionView.ItemTemplate>
-                    <DataTemplate>
-                        <Grid ColumnDefinitions="Auto,*,Auto" Padding="6">
-                            <Label Text="{Binding StartsAt, StringFormat='{0:MM-dd HH:mm}'}" FontSize="12"/>
-                            <Label Text="{Binding Title}" Grid.Column="1" Margin="8,0"/>
-                            <Button Grid.Column="2" Text="使用"
-                                    Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.UsePlanCommand}"
-                                    CommandParameter="{Binding .}"/>
-                        </Grid>
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-            </CollectionView>
+            <!-- ====== 待执行计划 ====== -->
+            <Label Text="待执行计划"
+                   FontAttributes="Bold"
+                   FontSize="15"
+                   TextColor="{StaticResource TextPrimary}"
+                   Margin="0,6,0,0"/>
+            <Frame BackgroundColor="{StaticResource BgCard}"
+                   BorderColor="{StaticResource BorderSubtle}"
+                   Padding="2"
+                   CornerRadius="16"
+                   HasShadow="False">
+                <CollectionView ItemsSource="{Binding UpcomingPlans}" HeightRequest="100">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Grid ColumnDefinitions="Auto,*,Auto"
+                                  Padding="12,10"
+                                  ColumnSpacing="10">
+                                <Label Text="{Binding StartsAt, StringFormat='{0:MM-dd HH:mm}'}"
+                                       FontSize="12"
+                                       TextColor="{StaticResource AccentPrimary}"
+                                       VerticalOptions="Center"/>
+                                <Label Text="{Binding Title}"
+                                       Grid.Column="1"
+                                       FontSize="14"
+                                       TextColor="{StaticResource TextPrimary}"
+                                       VerticalOptions="Center"
+                                       LineBreakMode="TailTruncation"/>
+                                <Button Grid.Column="2"
+                                        Text="使用"
+                                        FontSize="12"
+                                        FontAttributes="Bold"
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.UsePlanCommand}"
+                                        CommandParameter="{Binding .}"
+                                        Style="{StaticResource PillButton}"/>
+                            </Grid>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </Frame>
 
-            <Label Text="活动类型" FontAttributes="Bold" FontSize="14"/>
+            <!-- ====== 活动类型 - 胶囊选择 ====== -->
+            <Label Text="活动类型"
+                   FontAttributes="Bold"
+                   FontSize="15"
+                   TextColor="{StaticResource TextPrimary}"
+                   Margin="0,6,0,0"/>
             <CollectionView ItemsSource="{Binding ActivityTypes}"
                             SelectionMode="Single"
-                            SelectedItem="{Binding SelectedActivity}">
+                            SelectedItem="{Binding SelectedActivity}"
+                            Margin="0,-2,0,0">
                 <CollectionView.ItemsLayout>
                     <LinearItemsLayout Orientation="Horizontal" ItemSpacing="10"/>
                 </CollectionView.ItemsLayout>
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
-                        <Frame Padding="15,8" CornerRadius="20"
-                               BackgroundColor="{Binding Color}">
-                            <Label Text="{Binding Icon}" FontSize="16"
-                                   TextColor="White" HorizontalOptions="Center"/>
+                        <Frame Padding="16,10"
+                               CornerRadius="50"
+                               BackgroundColor="{StaticResource BgElevated}"
+                               BorderColor="{StaticResource BorderSubtle}"
+                               HasShadow="False">
+                            <VerticalStackLayout Spacing="4">
+                                <Label Text="{Binding Icon}"
+                                       FontSize="20"
+                                       HorizontalOptions="Center"/>
+                                <Label Text="{Binding Name}"
+                                       FontSize="11"
+                                       TextColor="{StaticResource TextSecondary}"
+                                       HorizontalOptions="Center"/>
+                            </VerticalStackLayout>
                         </Frame>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
 
-            <Label Text="时间" FontAttributes="Bold" FontSize="14"/>
-            <Grid ColumnDefinitions="*,Auto,*" ColumnSpacing="10">
-                <DatePicker Date="{Binding StartDate}" Grid.Column="0"/>
-                <TimePicker Time="{Binding StartTime}" Grid.Column="1"/>
-                <Label Text="至" Grid.Column="2" VerticalOptions="Center"/>
-            </Grid>
-            <Grid ColumnDefinitions="*,Auto">
-                <DatePicker Date="{Binding EndDate}" Grid.Column="0"/>
-                <TimePicker Time="{Binding EndTime}" Grid.Column="1"/>
-            </Grid>
+            <!-- ====== 时间选择 ====== -->
+            <Label Text="时间"
+                   FontAttributes="Bold"
+                   FontSize="15"
+                   TextColor="{StaticResource TextPrimary}"
+                   Margin="0,6,0,0"/>
 
-            <Label Text="描述" FontAttributes="Bold" FontSize="14"/>
-            <Editor Placeholder="描述这次行程..."
-                    Text="{Binding Description}"
-                    HeightRequest="80"/>
+            <!-- 开始时间行 -->
+            <Frame BackgroundColor="{StaticResource BgCard}"
+                   BorderColor="{StaticResource BorderSubtle}"
+                   Padding="14,10"
+                   CornerRadius="12"
+                   HasShadow="False">
+                <Grid ColumnDefinitions="Auto,*,Auto,*,Auto">
+                    <Label Text="开始"
+                           FontSize="13"
+                           TextColor="{StaticResource TextTertiary}"
+                           VerticalOptions="Center"/>
+                    <DatePicker Date="{Binding StartDate}"
+                                Grid.Column="1"
+                                TextColor="{StaticResource TextPrimary}"
+                                BackgroundColor="Transparent"/>
+                    <BoxView Grid.Column="2"
+                             WidthRequest="1"
+                             HeightRequest="24"
+                             BackgroundColor="{StaticResource BorderSubtle}"
+                             Margin="8,0"/>
+                    <TimePicker Time="{Binding StartTime}"
+                                Grid.Column="3"
+                                TextColor="{StaticResource TextPrimary}"
+                                BackgroundColor="Transparent"/>
+                    <Label Grid.Column="4"
+                           Text=""
+                           WidthRequest="0"/>
+                </Grid>
+            </Frame>
 
-            <Label Text="可见性级别" FontAttributes="Bold" FontSize="14"/>
-            <Picker Title="选择可见性"
-                    ItemsSource="{Binding VisibilityLevels}"
-                    SelectedItem="{Binding SelectedVisibility}"/>
+            <!-- 结束时间行 -->
+            <Frame BackgroundColor="{StaticResource BgCard}"
+                   BorderColor="{StaticResource BorderSubtle}"
+                   Padding="14,10"
+                   CornerRadius="12"
+                   HasShadow="False">
+                <Grid ColumnDefinitions="Auto,*,Auto,*,Auto">
+                    <Label Text="结束"
+                           FontSize="13"
+                           TextColor="{StaticResource TextTertiary}"
+                           VerticalOptions="Center"/>
+                    <DatePicker Date="{Binding EndDate}"
+                                Grid.Column="1"
+                                TextColor="{StaticResource TextPrimary}"
+                                BackgroundColor="Transparent"/>
+                    <BoxView Grid.Column="2"
+                             WidthRequest="1"
+                             HeightRequest="24"
+                             BackgroundColor="{StaticResource BorderSubtle}"
+                             Margin="8,0"/>
+                    <TimePicker Time="{Binding EndTime}"
+                                Grid.Column="3"
+                                TextColor="{StaticResource TextPrimary}"
+                                BackgroundColor="Transparent"/>
+                    <Label Grid.Column="4"
+                           Text=""
+                           WidthRequest="0"/>
+                </Grid>
+            </Frame>
 
-            <Button Text="保存记录"
+            <!-- ====== 描述 ====== -->
+            <Label Text="描述"
+                   FontAttributes="Bold"
+                   FontSize="15"
+                   TextColor="{StaticResource TextPrimary}"
+                   Margin="0,6,0,0"/>
+            <Frame BackgroundColor="{StaticResource BgCard}"
+                   BorderColor="{StaticResource BorderSubtle}"
+                   Padding="4"
+                   CornerRadius="12"
+                   HasShadow="False">
+                <Editor Placeholder="描述这次旅程的细节..."
+                        PlaceholderColor="{StaticResource TextTertiary}"
+                        Text="{Binding Description}"
+                        TextColor="{StaticResource TextPrimary}"
+                        BackgroundColor="Transparent"
+                        HeightRequest="100"
+                        Margin="8,4"
+                        FontSize="14"/>
+            </Frame>
+
+            <!-- ====== 可见性级别 ====== -->
+            <Label Text="可见性级别"
+                   FontAttributes="Bold"
+                   FontSize="15"
+                   TextColor="{StaticResource TextPrimary}"
+                   Margin="0,6,0,0"/>
+            <Frame BackgroundColor="{StaticResource BgCard}"
+                   BorderColor="{StaticResource BorderSubtle}"
+                   Padding="4"
+                   CornerRadius="12"
+                   HasShadow="False">
+                <Picker Title="选择可见性"
+                        TitleColor="{StaticResource TextTertiary}"
+                        TextColor="{StaticResource TextPrimary}"
+                        ItemsSource="{Binding VisibilityLevels}"
+                        SelectedItem="{Binding SelectedVisibility}"
+                        BackgroundColor="Transparent"
+                        FontSize="14"
+                        Margin="8,0"/>
+            </Frame>
+
+            <!-- ====== 保存按钮 ====== -->
+            <Button Text="保  存  记  录"
                     Command="{Binding SaveCommand}"
-                    BackgroundColor="#2196F3"
-                    TextColor="White"
-                    CornerRadius="8"
-                    Margin="0,20,0,0"/>
+                    Style="{StaticResource AccentButton}"
+                    FontSize="16"
+                    FontAttributes="Bold"
+                    HeightRequest="54"
+                    CornerRadius="14"
+                    Margin="0,20,0,30"/>
 
         </VerticalStackLayout>
     </ScrollView>

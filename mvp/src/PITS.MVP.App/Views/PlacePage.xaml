@@ -3,40 +3,115 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:PITS.MVP.App.ViewModels"
              x:Class="PITS.MVP.App.Views.PlacePage"
-             Title="地点管理">
+             BackgroundColor="{StaticResource BgPrimary}">
+
     <Grid RowDefinitions="Auto,*">
-        
-        <Frame Grid.Row="0" Margin="10" Padding="15">
-            <VerticalStackLayout Spacing="10">
-                <Label Text="添加新地点" FontAttributes="Bold"/>
-                <Entry Placeholder="地点名称" Text="{Binding NewPlaceName}"/>
-                <Picker Title="选择类别" ItemsSource="{Binding Categories}"
-                        SelectedItem="{Binding SelectedCategory}"/>
-                <Button Text="添加当前位置" Command="{Binding AddPlaceCommand}"/>
-                <Button Text="自动识别" Command="{Binding AutoIdentifyPlacesCommand}"
-                        BackgroundColor="#2196F3" TextColor="White"/>
+
+        <!-- 顶部标题区域 -->
+        <Label Grid.Row="0"
+               Text="地点管理"
+               FontSize="24"
+               FontAttributes="Bold"
+               TextColor="{StaticResource AccentPrimary}"
+               Margin="20,24,20,12"/>
+
+        <!-- 添加区域 - GlassCard 风格 -->
+        <Frame Grid.Row="0"
+               Margin="20,56,20,16"
+               Padding="20"
+               BackgroundColor="{StaticResource GlassBg}"
+               Stroke="{StaticResource BorderSubtle}"
+               StrokeThickness="1"
+               CornerRadius="20"
+               HasShadow="False"
+               VerticalOptions="Start">
+            <VerticalStackLayout Spacing="14">
+
+                <Label Text="添加新地点"
+                       FontSize="16"
+                       FontAttributes="Bold"
+                       TextColor="{StaticResource TextPrimary}"
+                       Margin="0,0,0,4"/>
+
+                <Entry Placeholder="输入地点名称"
+                       PlaceholderColor="{StaticResource TextTertiary}"
+                       Text="{Binding NewPlaceName}"
+                       BackgroundColor="{StaticResource BgCard}"
+                       TextColor="{StaticResource TextPrimary}"
+                       CornerRadius="12"
+                       HeightRequest="48"
+                       Margin="0"/>
+
+                <Picker Title="选择类别"
+                        TitleColor="{StaticResource TextTertiary}"
+                        ItemsSource="{Binding Categories}"
+                        SelectedItem="{Binding SelectedCategory}"
+                        BackgroundColor="{StaticResource BgCard}"
+                        TextColor="{StaticResource TextPrimary}"
+                        FontSize="14"
+                        HeightRequest="48"
+                        Margin="0"/>
+
+                <Button Text="添加当前位置"
+                        Command="{Binding AddPlaceCommand}"
+                        Style="{StaticResource AccentButton}"
+                        CornerRadius="14"
+                        HeightRequest="48"
+                        Margin="0"/>
+
+                <Button Text="自动识别"
+                        Command="{Binding AutoIdentifyPlacesCommand}"
+                        Style="{StaticResource GhostButton}"
+                        CornerRadius="14"
+                        HeightRequest="48"
+                        Margin="0"/>
+
             </VerticalStackLayout>
         </Frame>
 
-        <CollectionView Grid.Row="1" ItemsSource="{Binding Places}" Margin="10">
+        <!-- 地点列表 -->
+        <CollectionView Grid.Row="1"
+                        ItemsSource="{Binding Places}"
+                        Margin="20,0,20,20">
             <CollectionView.ItemTemplate>
                 <DataTemplate>
-                    <Frame Margin="0,0,0,10" Padding="15">
+                    <Frame Margin="0,0,0,12"
+                           Padding="16"
+                           BackgroundColor="{StaticResource BgCard}"
+                           Stroke="{StaticResource BorderSubtle}"
+                           StrokeThickness="1"
+                           CornerRadius="16"
+                           HasShadow="False">
                         <Grid ColumnDefinitions="*,Auto">
-                            <VerticalStackLayout>
-                                <Label Text="{Binding Name}" FontAttributes="Bold"/>
-                                <Label Text="{Binding Category}" FontSize="12" TextColor="Gray"/>
-                                <Label Text="{Binding VisitCount, StringFormat='访问 {0} 次'}" 
-                                       FontSize="11" TextColor="LightGray"/>
+                            <VerticalStackLayout Grid.Column="0"
+                                               Spacing="6">
+                                <Label Text="{Binding Name}"
+                                       FontSize="16"
+                                       FontAttributes="Bold"
+                                       TextColor="{StaticResource TextPrimary}"/>
+                                <Label Text="{Binding Category}"
+                                       FontSize="13"
+                                       TextColor="{StaticResource TextSecondary}"/>
+                                <Label Text="{Binding VisitCount, StringFormat='访问 {0} 次'}"
+                                       FontSize="12"
+                                       TextColor="{StaticResource TextTertiary}"/>
                             </VerticalStackLayout>
-                            <Button Text="删除" Command="{Binding Source={RelativeSource AncestorType={x:Type vm:PlaceViewModel}}, Path=DeletePlaceCommand}"
+
+                            <Button Grid.Column="1"
+                                    Text="删除"
+                                    VerticalOptions="Center"
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:PlaceViewModel}}, Path=DeletePlaceCommand}"
                                     CommandParameter="{Binding .}"
-                                    BackgroundColor="Red" Grid.Column="1"/>
+                                    Style="{StaticResource DangerButton}"
+                                    CornerRadius="10"
+                                    HeightRequest="36"
+                                    Padding="16,0"
+                                    Margin="8,0,0,0"/>
                         </Grid>
                     </Frame>
                 </DataTemplate>
             </CollectionView.ItemTemplate>
         </CollectionView>
-        
+
     </Grid>
 </ContentPage>

@@ -3,31 +3,53 @@
        xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
        xmlns:views="clr-namespace:PITS.MVP.App.Views"
        x:Class="PITS.MVP.App.AppShell"
-       Title="PITS">
+       Title="PITS"
+       Shell.BackgroundColor="{StaticResource BgSurface}"
+       Shell.ForegroundColor="{StaticResource TextPrimary}"
+       Shell.TitleColor="{StaticResource TextPrimary}"
+       Shell.DisabledColor="{StaticResource TextTertiary}"
+       Shell.UnselectedColor="{StaticResource TextSecondary}"
+       Shell.TabBarBackgroundColor="{StaticResource BgSurface}"
+       Shell.TabBarForegroundColor="{StaticResource AccentPrimary}"
+       Shell.TabBarUnselectedColor="{StaticResource TextTertiary}"
+       Shell.TabBarTitleColor="{StaticResource TextSecondary}">
+
+    <Shell.FlyoutHeader>
+        <Grid HeightRequest="180" BackgroundColor="{StaticResource BgCard}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Label Grid.Row="0" Text="PITS" FontSize="32" FontAttributes="Bold"
+                   TextColor="{StaticResource AccentPrimary}" Margin="20,30,20,0"/>
+            <Label Grid.Row="1" Text="Personal Itinerary Tracking"
+                   FontSize="13" TextColor="{StaticResource TextSecondary}" Margin="20,4,20,20"/>
+        </Grid>
+    </Shell.FlyoutHeader>
 
     <TabBar>
-        <Tab Title="记录">
+        <Tab Title="记录" Icon="dotnet_bot.svg">
             <ShellContent ContentTemplate="{DataTemplate views:RecordPage}"/>
         </Tab>
-        <Tab Title="日历">
+        <Tab Title="日历" Icon="dotnet_bot.svg">
             <ShellContent ContentTemplate="{DataTemplate views:CalendarPage}"/>
         </Tab>
-        <Tab Title="轨迹">
+        <Tab Title="轨迹" Icon="dotnet_bot.svg">
             <ShellContent ContentTemplate="{DataTemplate views:MapPage}"/>
         </Tab>
-        <Tab Title="地点">
+        <Tab Title="地点" Icon="dotnet_bot.svg">
             <ShellContent ContentTemplate="{DataTemplate views:PlacePage}"/>
         </Tab>
-        <Tab Title="AI">
+        <Tab Title="AI" Icon="dotnet_bot.svg">
             <ShellContent ContentTemplate="{DataTemplate views:AIChatPage}"/>
         </Tab>
-        <Tab Title="统计">
+        <Tab Title="统计" Icon="dotnet_bot.svg">
             <ShellContent ContentTemplate="{DataTemplate views:StatsPage}"/>
         </Tab>
-        <Tab Title="设置">
+        <Tab Title="设置" Icon="dotnet_bot.svg">
             <ShellContent ContentTemplate="{DataTemplate views:SettingsPage}"/>
         </Tab>
-        <Tab Title="导入">
+        <Tab Title="导入" Icon="dotnet_bot.svg">
             <ShellContent ContentTemplate="{DataTemplate views:ImportPage}"/>
         </Tab>
     </TabBar>

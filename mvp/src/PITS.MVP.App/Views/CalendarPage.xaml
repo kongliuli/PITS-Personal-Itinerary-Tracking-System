@@ -3,44 +3,63 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:PITS.MVP.App.ViewModels"
              x:Class="PITS.MVP.App.Views.CalendarPage"
-             Title="日历">
+             BackgroundColor="{StaticResource BgPrimary}">
     <Grid RowDefinitions="Auto,Auto,*,Auto">
 
-        <Frame Grid.Row="0" Margin="15,10" Padding="12" BackgroundColor="#FFF3E0"
-               BorderColor="#FFB74D" IsVisible="{Binding OnThisDaySummary, Converter={StaticResource NotNullOrEmptyStringConverter}}"
-               CornerRadius="10">
-            <VerticalStackLayout>
-                <Label Text="🕰️ 去年今日" FontAttributes="Bold" FontSize="15" TextColor="#E65100"/>
-                <Label Text="{Binding OnThisDaySummary}" FontSize="13" TextColor="#5D4037"
-                       Margin="0,4,0,0" LineBreakMode="WordWrap"/>
+        <!-- 去年今日提示卡片 - 暗色风格 + AccentWarning 边框发光 -->
+        <Frame Grid.Row="0" Margin="16,12" Padding="14"
+               BackgroundColor="{StaticResource BgCard}"
+               BorderColor="#FFB800"
+               HasShadow="False"
+               IsVisible="{Binding OnThisDaySummary, Converter={StaticResource NotNullOrEmptyStringConverter}}"
+               CornerRadius="16">
+            <VerticalStackLayout Spacing="6">
+                <Label Text="去年今日" FontAttributes="Bold" FontSize="15"
+                       TextColor="#FFB800"/>
+                <Label Text="{Binding OnThisDaySummary}" FontSize="13"
+                       TextColor="{StaticResource TextSecondary}"
+                       LineBreakMode="WordWrap"/>
             </VerticalStackLayout>
         </Frame>
 
-        <Grid ColumnDefinitions="Auto,*,Auto" Padding="15" Grid.Row="1">
-            <Button Text="◀" Command="{Binding PrevMonthCommand}" WidthRequest="50"/>
-            <Label Text="{Binding CurrentMonthLabel}" 
+        <!-- 月份导航 -->
+        <Grid ColumnDefinitions="Auto,*,Auto" Padding="16,8" Grid.Row="1">
+            <Button Text="&#x25C0;" Command="{Binding PrevMonthCommand}"
+                    Style="{StaticResource GhostButton}" WidthRequest="50" HeightRequest="42"
+                    CornerRadius="12"/>
+            <Label Text="{Binding CurrentMonthLabel}"
                    HorizontalOptions="Center" FontAttributes="Bold" FontSize="18"
+                   TextColor="{StaticResource AccentPrimary}"
                    Grid.Column="1" VerticalOptions="Center"/>
-            <Button Text="▶" Command="{Binding NextMonthCommand}" Grid.Column="2" WidthRequest="50"/>
+            <Button Text="&#x25B6;" Command="{Binding NextMonthCommand}"
+                    Style="{StaticResource GhostButton}" WidthRequest="50" HeightRequest="42"
+                    CornerRadius="12" Grid.Column="2"/>
         </Grid>
 
+        <!-- 日历网格 -->
         <CollectionView Grid.Row="2" ItemsSource="{Binding CalendarDays}">
             <CollectionView.ItemsLayout>
                 <GridItemsLayout Orientation="Vertical" Span="7"/>
             </CollectionView.ItemsLayout>
             <CollectionView.ItemTemplate>
                 <DataTemplate>
-                    <Frame Padding="5" BorderColor="{Binding BorderColor}" HeightRequest="60">
-                        <VerticalStackLayout HorizontalOptions="Fill">
-                            <Label Text="{Binding DayNumber}" 
-                                   HorizontalOptions="End" FontSize="14"/>
-                            <HorizontalStackLayout Spacing="2" HorizontalOptions="Center">
+                    <Frame Padding="4" Margin="3"
+                           BackgroundColor="{StaticResource BgCard}"
+                           BorderColor="{Binding BorderColor}"
+                           HasShadow="False"
+                           HeightRequest="60"
+                           CornerRadius="16">
+                        <VerticalStackLayout HorizontalOptions="Fill" Spacing="2">
+                            <Label Text="{Binding DayNumber}"
+                                   HorizontalOptions="End" FontSize="14"
+                                   TextColor="{StaticResource TextPrimary}"/>
+                            <HorizontalStackLayout Spacing="3" HorizontalOptions="Center" VerticalOptions="EndAndExpand">
                                 <BindableLayout.ItemsSource>
                                     <Binding Path="Indicators"/>
                                 </BindableLayout.ItemsSource>
                                 <BindableLayout.ItemTemplate>
                                     <DataTemplate>
-                                        <BoxView Color="{Binding Color}" 
+                                        <BoxView Color="{Binding Color}"
                                                  WidthRequest="6" HeightRequest="6"
                                                  CornerRadius="3"/>
                                     </DataTemplate>
@@ -56,31 +75,53 @@
             </CollectionView.ItemTemplate>
         </CollectionView>
 
-        <Frame Grid.Row="3" VerticalOptions="End" Margin="10" Padding="10"
-               IsVisible="{Binding HasSelectedDay}" HeightRequest="220">
+        <!-- 底部选中日详情面板 -->
+        <Frame Grid.Row="3" VerticalOptions="End" Margin="10,0" Padding="16,14"
+               BackgroundColor="{StaticResource BgSurface}"
+               HasShadow="False"
+               IsVisible="{Binding HasSelectedDay}" HeightRequest="220"
+               CornerRadius="20,20,0,0">
             <Grid RowDefinitions="Auto,*">
-                <Grid ColumnDefinitions="*,*,Auto,Auto" Padding="6,0,6,4">
-                    <Label Text="计划" FontAttributes="Bold" FontSize="13"/>
-                    <Label Text="实际" Grid.Column="1" FontAttributes="Bold" FontSize="13"/>
-                    <Label Text="偏差" Grid.Column="2" FontAttributes="Bold" FontSize="13"/>
-                    <Label Text="状态" Grid.Column="3" FontAttributes="Bold" FontSize="13"/>
+                <!-- 表头 -->
+                <Grid ColumnDefinitions="*,*,Auto,Auto" Padding="4,0,4,8">
+                    <Label Text="计划" FontAttributes="Bold" FontSize="13"
+                           TextColor="{StaticResource TextSecondary}"/>
+                    <Label Text="实际" Grid.Column="1" FontAttributes="Bold" FontSize="13"
+                           TextColor="{StaticResource TextSecondary}"/>
+                    <Label Text="偏差" Grid.Column="2" FontAttributes="Bold" FontSize="13"
+                           TextColor="{StaticResource TextSecondary}"/>
+                    <Label Text="状态" Grid.Column="3" FontAttributes="Bold" FontSize="13"
+                           TextColor="{StaticResource TextSecondary}"/>
                 </Grid>
+                <!-- 数据行 -->
                 <CollectionView Grid.Row="1" ItemsSource="{Binding SelectedDayComparisons}">
                     <CollectionView.ItemTemplate>
                         <DataTemplate>
-                            <Grid ColumnDefinitions="*,*,Auto,Auto" Padding="6" ColumnSpacing="8">
+                            <Grid ColumnDefinitions="*,*,Auto,Auto" Padding="4,4" ColumnSpacing="8">
                                 <VerticalStackLayout>
-                                    <Label Text="{Binding PlannedTime}" FontSize="12" TextColor="Gray"/>
-                                    <Label Text="{Binding PlannedTitle}" FontSize="13" LineBreakMode="TailTruncation"/>
+                                    <Label Text="{Binding PlannedTime}" FontSize="12"
+                                           TextColor="{StaticResource TextTertiary}"/>
+                                    <Label Text="{Binding PlannedTitle}" FontSize="13"
+                                           TextColor="{StaticResource TextPrimary}"
+                                           LineBreakMode="TailTruncation"/>
                                 </VerticalStackLayout>
                                 <VerticalStackLayout Grid.Column="1">
-                                    <Label Text="{Binding ActualTime}" FontSize="12" TextColor="Gray"/>
-                                    <Label Text="{Binding ActualTitle}" FontSize="13" LineBreakMode="TailTruncation"/>
+                                    <Label Text="{Binding ActualTime}" FontSize="12"
+                                           TextColor="{StaticResource TextTertiary}"/>
+                                    <Label Text="{Binding ActualTitle}" FontSize="13"
+                                           TextColor="{StaticResource TextPrimary}"
+                                           LineBreakMode="TailTruncation"/>
                                 </VerticalStackLayout>
-                                <Label Grid.Column="2" Text="{Binding Delta}" FontSize="12" VerticalOptions="Center"/>
-                                <Frame Grid.Column="3" Padding="6,2" CornerRadius="8"
-                                       BackgroundColor="{Binding StatusColor}" VerticalOptions="Center">
-                                    <Label Text="{Binding Status}" TextColor="White" FontSize="11"/>
+                                <Label Grid.Column="2" Text="{Binding Delta}" FontSize="12"
+                                       TextColor="{StaticResource TextPrimary}"
+                                       VerticalOptions="Center"/>
+                                <Frame Grid.Column="3" Padding="8,2" CornerRadius="50"
+                                       BackgroundColor="{Binding StatusColor}"
+                                       HasShadow="False"
+                                       VerticalOptions="Center">
+                                    <Label Text="{Binding Status}"
+                                           TextColor="{StaticResource TextOnAccent}"
+                                           FontSize="11"/>
                                 </Frame>
                             </Grid>
                         </DataTemplate>
@@ -88,6 +129,6 @@
                 </CollectionView>
             </Grid>
         </Frame>
-        
+
     </Grid>
 </ContentPage>
