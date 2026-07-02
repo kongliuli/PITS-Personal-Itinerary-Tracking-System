@@ -504,6 +504,79 @@ END:VCALENDAR
         Assert.Equal(DataSource.CalendarSync, plan.Source);
         Assert.Empty(await _service.GetPendingStagingItemsAsync());
     }
+
+    [Fact]
+    public async Task StageEmailAsync_StagesConfirmationAsPlan()
+    {
+        var email = """
+Subject: 上海客户会议
+日期: 2026-07-05 09:30
+地点: 上海虹桥
+""";
+
+        var result = await _service.StageEmailAsync(new MemoryStream(Encoding.UTF8.GetBytes(email)));
+        var item = (await _service.GetPendingStagingItemsAsync()).Single();
+
+        Assert.Equal(1, result.ItemsStaged);
+        Assert.Equal(DataSource.EmailParse, item.Source);
+        Assert.Equal("上海客户会议", item.Title);
+        Assert.Equal("上海虹桥", item.LocationName);
+
+        var plan = await _service.ConfirmStagingItemAsPlanAsync(item.Id);
+
+        Assert.NotNull(plan);
+        Assert.Equal(DataSource.EmailParse, plan.Source);
+        Assert.Equal(new DateTime(2026, 7, 5, 9, 30, 0), plan.StartsAt);
+        Assert.Equal("上海虹桥", plan.LocationName);
+    }
+}
+
+public class BackupServiceTests
+{
+    [Fact]
+    public async Task RestoreAsync_ReplacesDatabaseFile()
+    {
+        var tempDir = Path.Combine(Path.GetTempPath(), "pits-backup-test-" + Guid.NewGuid());
+        Directory.CreateDirectory(tempDir);
+        var dbPath = Path.Combine(tempDir, "pits.db");
+
+        try
+        {
+            await using (var context = CreateFileContext(dbPath))
+            {
+                await context.Database.EnsureCreatedAsync();
+                context.Trips.Add(new Trip { StartedAt = DateTime.UtcNow, ActivityType = ActivityType.Work });
+                await context.SaveChangesAsync();
+
+                var service = new BackupService(context);
+                var backupPath = await service.BackupAsync(tempDir);
+
+                context.Trips.Add(new Trip { StartedAt = DateTime.UtcNow, ActivityType = ActivityType.Personal });
+                await context.SaveChangesAsync();
+
+                await service.RestoreAsync(backupPath);
+            }
+
+            await using (var restored = CreateFileContext(dbPath))
+            {
+                Assert.Equal(1, await restored.Trips.CountAsync());
+            }
+        }
+        finally
+        {
+            if (tempDir.StartsWith(Path.GetTempPath(), StringComparison.OrdinalIgnoreCase))
+                Directory.Delete(tempDir, recursive: true);
+        }
+    }
+
+    private static TripContext CreateFileContext(string dbPath)
+    {
+        var options = new DbContextOptionsBuilder<TripContext>()
+            .UseSqlite($"Data Source={dbPath};Pooling=False", sqliteOptions => sqliteOptions.UseNetTopologySuite())
+            .Options;
+
+        return new TripContext(options);
+    }
 }
 
 public class PrivacyExportServiceTests

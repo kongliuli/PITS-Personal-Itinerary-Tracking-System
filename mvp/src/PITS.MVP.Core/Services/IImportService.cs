@@ -17,6 +17,7 @@ public interface IImportService
     Task<ImportResult> StageGoogleTakeoutAsync(Stream jsonStream, IProgress<ImportProgress>? progress = null);
     Task<ImportResult> StageGpxAsync(Stream gpxStream, IProgress<ImportProgress>? progress = null);
     Task<ImportResult> StageIcsAsync(Stream icsStream, IProgress<ImportProgress>? progress = null);
+    Task<ImportResult> StageEmailAsync(Stream emailStream, IProgress<ImportProgress>? progress = null);
     Task<IReadOnlyList<ImportStagingItem>> GetPendingStagingItemsAsync();
     Task<Trip?> ConfirmStagingItemAsTripAsync(string stagingItemId);
     Task<TripPlan?> ConfirmStagingItemAsPlanAsync(string stagingItemId);

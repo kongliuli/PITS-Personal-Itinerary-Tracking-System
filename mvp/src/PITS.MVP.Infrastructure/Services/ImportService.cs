@@ -1,6 +1,7 @@
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using System.Xml;
 using Microsoft.EntityFrameworkCore;
 using NetTopologySuite.Geometries;
@@ -50,6 +51,18 @@ public class ImportService : IImportService
         var events = ParseIcsEvents(content).ToList();
         var items = await AddStagingItemsAsync(events, progress);
         return new ImportResult { ItemsStaged = items.Count, PointsImported = items.Count };
+    }
+
+    public async Task<ImportResult> StageEmailAsync(Stream emailStream, IProgress<ImportProgress>? progress = null)
+    {
+        using var reader = new StreamReader(emailStream, Encoding.UTF8, leaveOpen: true);
+        var content = await reader.ReadToEndAsync();
+        var item = ParseEmailConfirmation(content);
+        if (item == null)
+            return new ImportResult { PointsSkipped = 1, Errors = { "未找到可识别的行程时间" } };
+
+        var items = await AddStagingItemsAsync(new[] { item }, progress);
+        return new ImportResult { ItemsStaged = items.Count, PointsImported = items.Count, PointsSkipped = items.Count == 0 ? 1 : 0 };
     }
 
     public async Task<IReadOnlyList<ImportStagingItem>> GetPendingStagingItemsAsync()
@@ -266,6 +279,60 @@ public class ImportService : IImportService
                 Fingerprint = Fingerprint(DataSource.CalendarSync, start.Value, title, uid ?? location)
             };
         }
+    }
+
+    private static ImportStagingItem? ParseEmailConfirmation(string content)
+    {
+        var normalized = content.Replace("\r\n", "\n");
+        var title = ReadHeader(normalized, "Subject") ?? ReadHeader(normalized, "主题") ?? "Email itinerary";
+        var start = ReadEmailDate(normalized);
+        if (start == null) return null;
+
+        var location = ReadLabeledValue(normalized, "地点")
+            ?? ReadLabeledValue(normalized, "地址")
+            ?? ReadLabeledValue(normalized, "Location")
+            ?? ReadLabeledValue(normalized, "Address");
+
+        return new ImportStagingItem
+        {
+            Source = DataSource.EmailParse,
+            StartsAt = start.Value,
+            EndsAt = start.Value.AddHours(1),
+            Title = title,
+            LocationName = location,
+            RawPayload = content,
+            Fingerprint = Fingerprint(DataSource.EmailParse, start.Value, title, location)
+        };
+    }
+
+    private static string? ReadHeader(string content, string name)
+    {
+        return content.Split('\n')
+            .FirstOrDefault(l => l.StartsWith(name + ":", StringComparison.OrdinalIgnoreCase))
+            ?.Split(':', 2)[1]
+            .Trim();
+    }
+
+    private static string? ReadLabeledValue(string content, string name)
+    {
+        var match = Regex.Match(content, $@"(?:{Regex.Escape(name)})\s*[:：]\s*(.+)");
+        return match.Success ? match.Groups[1].Value.Trim() : null;
+    }
+
+    private static DateTime? ReadEmailDate(string content)
+    {
+        var match = Regex.Match(content, @"(?<date>\d{4}[-/年]\d{1,2}[-/月]\d{1,2})\D{0,8}(?<time>\d{1,2}:\d{2})?");
+        if (!match.Success) return null;
+
+        var value = match.Groups["date"].Value
+            .Replace("年", "-")
+            .Replace("月", "-")
+            .Replace("/", "-")
+            .TrimEnd('日');
+        if (match.Groups["time"].Success)
+            value += " " + match.Groups["time"].Value;
+
+        return DateTime.TryParse(value, out var parsed) ? parsed : null;
     }
 
     private static string? ReadIcsValue(string block, string name)

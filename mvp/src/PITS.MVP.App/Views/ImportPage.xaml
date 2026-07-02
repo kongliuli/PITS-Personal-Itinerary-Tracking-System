@@ -47,6 +47,17 @@
             </VerticalStackLayout>
         </Frame>
 
+        <Frame Padding="15">
+            <VerticalStackLayout Spacing="10">
+                <Label Text="邮件确认单" FontSize="18" FontAttributes="Bold"/>
+                <Label Text="从邮件文本或 EML 中提取行程计划" FontSize="12" TextColor="Gray"/>
+                <Button Text="选择邮件文件"
+                        Command="{Binding ImportEmailCommand}"
+                        IsEnabled="{Binding IsImporting, Converter={StaticResource InvertedBoolConverter}}"
+                        BackgroundColor="#795548" TextColor="White"/>
+            </VerticalStackLayout>
+        </Frame>
+
         <!-- 进度 -->
         <ProgressBar Progress="{Binding ImportProgress}" IsVisible="{Binding IsImporting}"/>
         <Label Text="{Binding ImportStatus}" IsVisible="{Binding IsImporting}" FontSize="14"/>

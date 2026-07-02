@@ -69,6 +69,7 @@
                     <Button Text="导出 CSV" Command="{Binding ExportCsvCommand}"/>
                     <Button Text="导出 GPX" Command="{Binding ExportGpxCommand}"/>
                     <Button Text="备份本地数据库" Command="{Binding BackupDatabaseCommand}"/>
+                    <Button Text="恢复本地数据库" Command="{Binding RestoreDatabaseCommand}"/>
                 </VerticalStackLayout>
             </Frame>
 

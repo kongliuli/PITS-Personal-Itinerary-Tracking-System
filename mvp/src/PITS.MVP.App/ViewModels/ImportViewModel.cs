@@ -122,15 +122,51 @@ public partial class ImportViewModel : BaseViewModel
         }
     }
 
+    [RelayCommand]
+    private async Task ImportEmailAsync()
+    {
+        var filePath = await PickFileAsync("eml");
+        if (filePath == null) return;
+
+        IsImporting = true;
+        ImportStatus = "正在解析邮件确认单...";
+        ImportProgress = 0;
+        ImportResult = "";
+
+        try
+        {
+            using var stream = File.OpenRead(filePath);
+            var result = await _importService.StageEmailAsync(stream);
+            var pending = await _importService.GetPendingStagingItemsAsync();
+            var emailItems = pending.Where(i => i.Source == DataSource.EmailParse).ToList();
+            foreach (var item in emailItems)
+            {
+                await _importService.ConfirmStagingItemAsPlanAsync(item.Id);
+            }
+
+            ImportResult = result.Errors.Any()
+                ? $"解析失败：{string.Join(", ", result.Errors)}"
+                : $"导入完成：{result.ItemsStaged} 个邮件计划";
+        }
+        catch (Exception ex)
+        {
+            ImportResult = $"导入失败：{ex.Message}";
+        }
+        finally
+        {
+            IsImporting = false;
+        }
+    }
+
     private static async Task<string?> PickFileAsync(string extension)
     {
         var customFileType = new FilePickerFileType(
             new Dictionary<DevicePlatform, IEnumerable<string>>
             {
-                { DevicePlatform.Android, new[] { "application/json", "application/gpx+xml", "text/calendar" } },
-                { DevicePlatform.iOS, new[] { "public.json", "com.topografix.gpx", "public.ics" } },
-                { DevicePlatform.MacCatalyst, new[] { "public.json", "com.topografix.gpx", "public.ics" } },
-                { DevicePlatform.WinUI, new[] { ".json", ".gpx", ".ics" } },
+                { DevicePlatform.Android, new[] { "application/json", "application/gpx+xml", "text/calendar", "message/rfc822", "text/plain" } },
+                { DevicePlatform.iOS, new[] { "public.json", "com.topografix.gpx", "public.ics", "public.email-message", "public.plain-text" } },
+                { DevicePlatform.MacCatalyst, new[] { "public.json", "com.topografix.gpx", "public.ics", "public.email-message", "public.plain-text" } },
+                { DevicePlatform.WinUI, new[] { ".json", ".gpx", ".ics", ".eml", ".txt" } },
             });
 
         var options = new PickOptions

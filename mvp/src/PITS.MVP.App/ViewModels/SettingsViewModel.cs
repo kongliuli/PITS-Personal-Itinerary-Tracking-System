@@ -141,6 +141,29 @@ public partial class SettingsViewModel : BaseViewModel
         });
     }
 
+    [RelayCommand]
+    private async Task RestoreDatabaseAsync()
+    {
+        var file = await FilePicker.Default.PickAsync(new PickOptions
+        {
+            PickerTitle = "选择 PITS 数据库备份",
+            FileTypes = new FilePickerFileType(new Dictionary<DevicePlatform, IEnumerable<string>>
+            {
+                { DevicePlatform.Android, new[] { "application/octet-stream" } },
+                { DevicePlatform.iOS, new[] { "public.database", "public.data" } },
+                { DevicePlatform.MacCatalyst, new[] { "public.database", "public.data" } },
+                { DevicePlatform.WinUI, new[] { ".db" } }
+            })
+        });
+        if (file?.FullPath == null) return;
+
+        await ExecuteAsync(async () =>
+        {
+            await _backupService.RestoreAsync(file.FullPath);
+            await Shell.Current.DisplayAlertAsync("完成", "数据库已恢复，建议重启应用。", "确定");
+        });
+    }
+
     private static string GenerateGpx(IEnumerable<Trip> trips)
     {
         var sb = new System.Text.StringBuilder();

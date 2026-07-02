@@ -26,13 +26,13 @@ public class BackupService : IBackupService
         return backupPath;
     }
 
-    public Task RestoreAsync(string backupFilePath)
+    public async Task RestoreAsync(string backupFilePath)
     {
         var target = _context.Database.GetDbConnection().DataSource;
         if (string.IsNullOrWhiteSpace(target) || target == ":memory:")
             throw new InvalidOperationException("Current database cannot be restored as a file.");
 
+        await _context.Database.CloseConnectionAsync();
         File.Copy(backupFilePath, target, overwrite: true);
-        return Task.CompletedTask;
     }
 }
