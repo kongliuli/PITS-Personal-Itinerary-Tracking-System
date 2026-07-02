@@ -24,7 +24,7 @@ public static class MauiProgram
 
         var dbPath = Path.Combine(FileSystem.AppDataDirectory, "pits_mvp.db");
         builder.Services.AddDbContext<TripContext>(options =>
-            options.UseSqlite($"Data Source={dbPath}", sqlite => sqlite.UseNetTopologySuite()));
+            options.UseSqlite($"Data Source={dbPath}"));
 
         builder.Services.AddScoped<ITripService, TripService>();
         builder.Services.AddScoped<IPlaceService, PlaceService>();

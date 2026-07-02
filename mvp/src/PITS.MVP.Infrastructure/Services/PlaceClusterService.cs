@@ -62,9 +62,11 @@ public class PlaceClusterService : IPlaceClusterService
         foreach (var cluster in clusters)
         {
             // 检查是否已存在附近的 Place
-            var existingPlace = await _context.Places
-                .FirstOrDefaultAsync(p => p.Location != null &&
-                    p.Location.Distance(new Point(cluster.Longitude, cluster.Latitude) { SRID = 4326 }) < 100);
+            var places = await _context.Places
+                .Where(p => p.Location != null)
+                .ToListAsync();
+            var existingPlace = places.FirstOrDefault(p =>
+                DistanceMeters(p.Location!, cluster.Latitude, cluster.Longitude) < 100);
 
             if (existingPlace == null)
             {
@@ -85,5 +87,18 @@ public class PlaceClusterService : IPlaceClusterService
 
         await _context.SaveChangesAsync();
         return created;
+    }
+
+    private static double DistanceMeters(Point point, double latitude, double longitude)
+    {
+        const double earthRadius = 6371000;
+        var lat1 = point.Y * Math.PI / 180;
+        var lat2 = latitude * Math.PI / 180;
+        var dLat = (latitude - point.Y) * Math.PI / 180;
+        var dLon = (longitude - point.X) * Math.PI / 180;
+        var a = Math.Sin(dLat / 2) * Math.Sin(dLat / 2) +
+                Math.Cos(lat1) * Math.Cos(lat2) *
+                Math.Sin(dLon / 2) * Math.Sin(dLon / 2);
+        return earthRadius * 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
     }
 }

@@ -1,10 +1,19 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using NetTopologySuite.Geometries;
+using NetTopologySuite.IO;
 using PITS.MVP.Core.Entities;
 
 namespace PITS.MVP.Infrastructure.Data;
 
 public class TripContext : DbContext
 {
+    private static readonly ValueConverter<Point?, byte[]?> NullablePointConverter =
+        new(point => WritePoint(point), bytes => ReadPoint(bytes));
+
+    private static readonly ValueConverter<Point, byte[]> PointConverter =
+        new(point => WritePoint(point)!, bytes => ReadPoint(bytes)!);
+
     public DbSet<Trip> Trips => Set<Trip>();
     public DbSet<TripPlan> TripPlans => Set<TripPlan>();
     public DbSet<Place> Places => Set<Place>();
@@ -30,7 +39,7 @@ public class TripContext : DbContext
             entity.Property(e => e.ActivityType).HasConversion<string>();
             entity.Property(e => e.Visibility).HasConversion<string>();
             entity.Property(e => e.Source).HasConversion<string>();
-            entity.Property(e => e.Location).HasSrid(4326);
+            entity.Property(e => e.Location).HasConversion(NullablePointConverter).HasColumnType("BLOB");
 
             entity.HasOne(e => e.Plan)
                 .WithMany(e => e.ActualTrips)
@@ -49,7 +58,7 @@ public class TripContext : DbContext
             entity.Property(e => e.Visibility).HasConversion<string>();
             entity.Property(e => e.Source).HasConversion<string>();
             entity.Property(e => e.Status).HasConversion<string>();
-            entity.Property(e => e.Location).HasSrid(4326);
+            entity.Property(e => e.Location).HasConversion(NullablePointConverter).HasColumnType("BLOB");
         });
 
         model.Entity<Place>(entity =>
@@ -58,7 +67,7 @@ public class TripContext : DbContext
             entity.HasIndex(e => e.GeoHash);
             entity.HasIndex(e => e.Name);
             entity.Property(e => e.Category).HasConversion<string>();
-            entity.Property(e => e.Location).HasSrid(4326);
+            entity.Property(e => e.Location).HasConversion(NullablePointConverter).HasColumnType("BLOB");
         });
 
         model.Entity<TrackPoint>(entity =>
@@ -66,7 +75,7 @@ public class TripContext : DbContext
             entity.HasKey(e => e.Id);
             entity.HasIndex(e => e.Timestamp);
             entity.HasIndex(e => e.TripId);
-            entity.Property(e => e.Location).HasSrid(4326);
+            entity.Property(e => e.Location).HasConversion(PointConverter).HasColumnType("BLOB");
         });
 
         model.Entity<ImportStagingItem>(entity =>
@@ -77,7 +86,20 @@ public class TripContext : DbContext
             entity.HasIndex(e => e.StartsAt);
             entity.Property(e => e.Source).HasConversion<string>();
             entity.Property(e => e.Status).HasConversion<string>();
-            entity.Property(e => e.Location).HasSrid(4326);
+            entity.Property(e => e.Location).HasConversion(NullablePointConverter).HasColumnType("BLOB");
         });
+    }
+
+    private static byte[]? WritePoint(Point? point)
+    {
+        return point == null ? null : new WKBWriter().Write(point);
+    }
+
+    private static Point? ReadPoint(byte[]? bytes)
+    {
+        if (bytes == null || bytes.Length == 0) return null;
+        var point = (Point)new WKBReader().Read(bytes);
+        if (point.SRID == 0) point.SRID = 4326;
+        return point;
     }
 }

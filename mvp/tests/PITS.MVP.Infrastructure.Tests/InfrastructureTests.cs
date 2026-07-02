@@ -17,7 +17,7 @@ public class TripContextTests : IDisposable
     public TripContextTests()
     {
         var options = new DbContextOptionsBuilder<TripContext>()
-            .UseSqlite($"DataSource=:memory:", sqliteOptions => sqliteOptions.UseNetTopologySuite())
+            .UseSqlite($"DataSource=:memory:")
             .EnableSensitiveDataLogging()
             .Options;
 
@@ -257,7 +257,7 @@ CREATE TABLE Trips (
     private static TripContext CreateFileContext(string dbPath)
     {
         var options = new DbContextOptionsBuilder<TripContext>()
-            .UseSqlite($"Data Source={dbPath};Pooling=False", sqliteOptions => sqliteOptions.UseNetTopologySuite())
+            .UseSqlite($"Data Source={dbPath};Pooling=False")
             .Options;
 
         return new TripContext(options);
@@ -452,7 +452,7 @@ public class TripPlanServiceTests : IDisposable
     public TripPlanServiceTests()
     {
         var options = new DbContextOptionsBuilder<TripContext>()
-            .UseSqlite("DataSource=:memory:", sqliteOptions => sqliteOptions.UseNetTopologySuite())
+            .UseSqlite("DataSource=:memory:")
             .Options;
 
         _context = new TripContext(options);
@@ -522,7 +522,7 @@ public class ImportStagingTests : IDisposable
     public ImportStagingTests()
     {
         var options = new DbContextOptionsBuilder<TripContext>()
-            .UseSqlite("DataSource=:memory:", sqliteOptions => sqliteOptions.UseNetTopologySuite())
+            .UseSqlite("DataSource=:memory:")
             .Options;
 
         _context = new TripContext(options);
@@ -649,7 +649,7 @@ public class BackupServiceTests
     private static TripContext CreateFileContext(string dbPath)
     {
         var options = new DbContextOptionsBuilder<TripContext>()
-            .UseSqlite($"Data Source={dbPath};Pooling=False", sqliteOptions => sqliteOptions.UseNetTopologySuite())
+            .UseSqlite($"Data Source={dbPath};Pooling=False")
             .Options;
 
         return new TripContext(options);
