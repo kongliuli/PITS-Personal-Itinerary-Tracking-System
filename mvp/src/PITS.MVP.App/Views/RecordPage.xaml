@@ -5,14 +5,11 @@
              BackgroundColor="{StaticResource BgPrimary}">
 
     <ScrollView>
-        <VerticalStackLayout Padding="20" Spacing="16">
+        <VerticalStackLayout Style="{StaticResource PageStack}">
 
             <!-- ====== 页面标题 ====== -->
             <Label Text="记录行程"
-                   FontSize="32"
-                   FontAttributes="Bold"
-                   TextColor="{StaticResource AccentPrimary}"
-                   Margin="0,8,0,4">
+                   Style="{StaticResource PageTitle}">
                 <Label.Shadow>
                     <Shadow Brush="{StaticResource AccentPrimary}"
                              Opacity="0.3"
@@ -21,9 +18,7 @@
                 </Label.Shadow>
             </Label>
             <Label Text="追踪你的每一步旅程"
-                   FontSize="14"
-                   TextColor="{StaticResource TextSecondary}"
-                   Margin="0,0,0,8"/>
+                   Style="{StaticResource PageSubtitle}"/>
 
             <!-- ====== 当前位置 - 玻璃拟态卡片 ====== -->
             <Frame BackgroundColor="{StaticResource GlassBg}"
@@ -237,7 +232,7 @@
                     FontAttributes="Bold"
                     HeightRequest="54"
                     CornerRadius="14"
-                    Margin="0,20,0,30"/>
+                    Margin="0,14,0,4"/>
 
         </VerticalStackLayout>
     </ScrollView>

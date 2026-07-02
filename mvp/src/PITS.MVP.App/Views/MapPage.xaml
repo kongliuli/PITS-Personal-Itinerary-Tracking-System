@@ -4,26 +4,32 @@
              x:Class="PITS.MVP.App.Views.MapPage"
              BackgroundColor="{StaticResource BgPrimary}">
     <Grid RowDefinitions="Auto,Auto,*">
-        <Grid Grid.Row="0" Padding="20,18" ColumnDefinitions="*,Auto">
-            <VerticalStackLayout Spacing="4">
+        <Grid Grid.Row="0" Padding="20,26,20,14" ColumnDefinitions="44,*,44"
+              MaximumWidthRequest="720"
+              HorizontalOptions="Fill">
+            <VerticalStackLayout Grid.Column="1" Spacing="4" HorizontalOptions="Center">
                 <Label Text="轨迹概览"
-                       FontSize="28"
-                       FontAttributes="Bold"
-                       TextColor="{StaticResource AccentPrimary}"/>
+                       Style="{StaticResource PageTitle}"
+                       Margin="0"/>
                 <Label Text="{Binding Summary}"
                        FontSize="13"
-                       TextColor="{StaticResource TextSecondary}"/>
+                       TextColor="{StaticResource TextSecondary}"
+                       HorizontalTextAlignment="Center"/>
             </VerticalStackLayout>
-            <Button Grid.Column="1"
-                    Text="刷新"
+            <Button Grid.Column="2"
+                    Text="↻"
                     Command="{Binding RefreshCommand}"
                     Style="{StaticResource GhostButton}"
-                    WidthRequest="76"
+                    FontSize="18"
+                    Padding="0"
+                    WidthRequest="40"
                     HeightRequest="38"
                     VerticalOptions="Center"/>
         </Grid>
 
-        <Grid Grid.Row="1" Padding="20,0,20,12" ColumnDefinitions="*,*" ColumnSpacing="10">
+        <Grid Grid.Row="1" Padding="20,0,20,12" ColumnDefinitions="*,*" ColumnSpacing="10"
+              MaximumWidthRequest="720"
+              HorizontalOptions="Fill">
             <Border Padding="14,10"
                     BackgroundColor="{StaticResource BgCard}"
                     Stroke="{StaticResource BorderSubtle}"
@@ -56,7 +62,9 @@
         </Grid>
 
         <Grid Grid.Row="2">
-            <CollectionView ItemsSource="{Binding Trips}" Margin="20,0,20,20">
+            <CollectionView ItemsSource="{Binding Trips}" Margin="20,0,20,20"
+                            MaximumWidthRequest="720"
+                            HorizontalOptions="Fill">
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
                         <Border Margin="0,0,0,10"

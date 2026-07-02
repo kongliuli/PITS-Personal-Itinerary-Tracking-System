@@ -5,14 +5,11 @@
              BackgroundColor="{StaticResource BgPrimary}">
 
     <ScrollView>
-        <VerticalStackLayout Padding="20" Spacing="20">
+        <VerticalStackLayout Style="{StaticResource PageStack}">
 
             <!-- Page Title -->
             <Label Text="设置"
-                   FontSize="28"
-                   FontAttributes="Bold"
-                   TextColor="{StaticResource AccentPrimary}"
-                   Margin="0,0,0,4" />
+                   Style="{StaticResource PageTitle}" />
 
             <!-- ============================================ -->
             <!-- Section 1 - Default Settings                 -->

@@ -5,20 +5,20 @@
              x:Class="PITS.MVP.App.Views.PlacePage"
              BackgroundColor="{StaticResource BgPrimary}">
 
-    <Grid RowDefinitions="Auto,*">
+    <Grid RowDefinitions="Auto,Auto,*">
 
         <!-- 顶部标题区域 -->
         <Label Grid.Row="0"
                Text="地点管理"
-               FontSize="24"
-               FontAttributes="Bold"
-               TextColor="{StaticResource AccentPrimary}"
-               Margin="20,24,20,12"/>
+               Style="{StaticResource PageTitle}"
+               Margin="20,28,20,6"/>
 
         <!-- 添加区域 - GlassCard 风格 -->
-        <Frame Grid.Row="0"
-               Margin="20,56,20,16"
+        <Frame Grid.Row="1"
+               Margin="20,0,20,18"
                Padding="20"
+               MaximumWidthRequest="720"
+               HorizontalOptions="Fill"
                BackgroundColor="{StaticResource GlassBg}"
                BorderColor="{StaticResource BorderSubtle}"
                CornerRadius="20"
@@ -69,9 +69,11 @@
         </Frame>
 
         <!-- 地点列表 -->
-        <CollectionView Grid.Row="1"
+        <CollectionView Grid.Row="2"
                         ItemsSource="{Binding Places}"
-                        Margin="20,0,20,20">
+                        Margin="20,0,20,20"
+                        MaximumWidthRequest="720"
+                        HorizontalOptions="Fill">
             <CollectionView.ItemTemplate>
                 <DataTemplate>
                     <Frame Margin="0,0,0,12"

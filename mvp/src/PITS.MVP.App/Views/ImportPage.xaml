@@ -7,18 +7,14 @@
              BackgroundColor="{StaticResource BgPrimary}">
 
     <ScrollView>
-        <VerticalStackLayout Padding="20" Spacing="16">
+        <VerticalStackLayout Style="{StaticResource PageStack}">
 
             <!-- 页面标题区 -->
             <Label Text="导入位置历史"
-                   FontSize="28"
-                   FontAttributes="Bold"
-                   TextColor="{StaticResource AccentPrimary}"/>
+                   Style="{StaticResource PageTitle}"/>
 
             <Label Text="从 Google Takeout、GPX、日历或邮件中导入您的位置历史数据"
-                   FontSize="14"
-                   TextColor="{StaticResource TextSecondary}"
-                   Margin="0,-8,0,4"/>
+                   Style="{StaticResource PageSubtitle}"/>
 
             <!-- Google Takeout 导入卡片 -->
             <Frame Padding="0"
@@ -26,7 +22,7 @@
                    BorderColor="{StaticResource BorderSubtle}"
                    StrokeShape="RoundRectangle 16"
                    HasShadow="False">
-                <Grid ColumnDefinitions="4, Auto" ColumnSpacing="0">
+                <Grid ColumnDefinitions="4,*" ColumnSpacing="0">
                     <!-- 左侧彩色竖条 -->
                     <BoxView Color="{StaticResource AccentPrimary}" WidthRequest="4"/>
 
@@ -44,7 +40,8 @@
                                 BackgroundColor="{StaticResource AccentPrimary}"
                                 TextColor="{StaticResource TextOnAccent}"
                                 CornerRadius="14"
-                                HeightRequest="46"/>
+                                HeightRequest="46"
+                                HorizontalOptions="Fill"/>
                     </VerticalStackLayout>
                 </Grid>
             </Frame>
@@ -55,7 +52,7 @@
                    BorderColor="{StaticResource BorderSubtle}"
                    CornerRadius="16"
                    HasShadow="False">
-                <Grid ColumnDefinitions="4, Auto" ColumnSpacing="0">
+                <Grid ColumnDefinitions="4,*" ColumnSpacing="0">
                     <BoxView Color="{StaticResource AccentSuccess}" WidthRequest="4"/>
 
                     <VerticalStackLayout Grid.Column="1" Padding="16" Spacing="12">
@@ -72,7 +69,8 @@
                                 BackgroundColor="{StaticResource AccentSuccess}"
                                 TextColor="#0A0A0F"
                                 CornerRadius="14"
-                                HeightRequest="46"/>
+                                HeightRequest="46"
+                                HorizontalOptions="Fill"/>
                     </VerticalStackLayout>
                 </Grid>
             </Frame>
@@ -83,7 +81,7 @@
                    BorderColor="{StaticResource BorderSubtle}"
                    CornerRadius="16"
                    HasShadow="False">
-                <Grid ColumnDefinitions="4, Auto" ColumnSpacing="0">
+                <Grid ColumnDefinitions="4,*" ColumnSpacing="0">
                     <BoxView Color="{StaticResource AccentSecondary}" WidthRequest="4"/>
 
                     <VerticalStackLayout Grid.Column="1" Padding="16" Spacing="12">
@@ -100,7 +98,8 @@
                                 BackgroundColor="{StaticResource AccentSecondary}"
                                 TextColor="{StaticResource TextOnAccent}"
                                 CornerRadius="14"
-                                HeightRequest="46"/>
+                                HeightRequest="46"
+                                HorizontalOptions="Fill"/>
                     </VerticalStackLayout>
                 </Grid>
             </Frame>
@@ -111,7 +110,7 @@
                    BorderColor="{StaticResource BorderSubtle}"
                    CornerRadius="16"
                    HasShadow="False">
-                <Grid ColumnDefinitions="4, Auto" ColumnSpacing="0">
+                <Grid ColumnDefinitions="4,*" ColumnSpacing="0">
                     <BoxView Color="{StaticResource AccentTertiary}" WidthRequest="4"/>
 
                     <VerticalStackLayout Grid.Column="1" Padding="16" Spacing="12">
@@ -128,7 +127,8 @@
                                 BackgroundColor="{StaticResource AccentTertiary}"
                                 TextColor="{StaticResource TextOnAccent}"
                                 CornerRadius="14"
-                                HeightRequest="46"/>
+                                HeightRequest="46"
+                                HorizontalOptions="Fill"/>
                     </VerticalStackLayout>
                 </Grid>
             </Frame>

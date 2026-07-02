@@ -7,14 +7,11 @@
              BackgroundColor="{StaticResource BgPrimary}">
 
     <ScrollView>
-        <VerticalStackLayout Padding="20" Spacing="16">
+        <VerticalStackLayout Style="{StaticResource PageStack}">
 
             <!-- 页面标题 -->
             <Label Text="统计"
-                   TextColor="{StaticResource AccentPrimary}"
-                   FontSize="28"
-                   FontAttributes="Bold"
-                   Margin="0,0,0,4"/>
+                   Style="{StaticResource PageTitle}"/>
 
             <!-- 统计卡片行（三列） -->
             <Grid ColumnDefinitions="*,*,*" ColumnSpacing="10">
@@ -22,6 +19,7 @@
                 <Border Grid.Column="0"
                         BackgroundColor="#E600D4FF"
                         StrokeThickness="0"
+                        HeightRequest="74"
                         StrokeShape="RoundRectangle 16">
                     <Border.StrokeShape>
                         <RoundRectangle CornerRadius="16"/>
@@ -42,6 +40,7 @@
                 <Border Grid.Column="1"
                         BackgroundColor="#E67C3AED"
                         StrokeThickness="0"
+                        HeightRequest="74"
                         StrokeShape="RoundRectangle 16">
                     <Border.StrokeShape>
                         <RoundRectangle CornerRadius="16"/>
@@ -62,6 +61,7 @@
                 <Border Grid.Column="2"
                         BackgroundColor="#E6F72585"
                         StrokeThickness="0"
+                        HeightRequest="74"
                         StrokeShape="RoundRectangle 16">
                     <Border.StrokeShape>
                         <RoundRectangle CornerRadius="16"/>

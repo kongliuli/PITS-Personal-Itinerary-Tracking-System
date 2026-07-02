@@ -98,6 +98,28 @@
         <Setter Property="CharacterSpacing" Value="1.5"/>
     </Style>
 
+    <Style TargetType="VerticalStackLayout" x:Key="PageStack">
+        <Setter Property="Padding" Value="22,28,22,34"/>
+        <Setter Property="Spacing" Value="18"/>
+        <Setter Property="MaximumWidthRequest" Value="720"/>
+        <Setter Property="HorizontalOptions" Value="Fill"/>
+    </Style>
+
+    <Style TargetType="Label" x:Key="PageTitle" BasedOn="{StaticResource Heading1}">
+        <Setter Property="TextColor" Value="{StaticResource AccentPrimary}"/>
+        <Setter Property="HorizontalOptions" Value="Center"/>
+        <Setter Property="HorizontalTextAlignment" Value="Center"/>
+        <Setter Property="Margin" Value="0,8,0,0"/>
+    </Style>
+
+    <Style TargetType="Label" x:Key="PageSubtitle" BasedOn="{StaticResource Caption}">
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="HorizontalOptions" Value="Center"/>
+        <Setter Property="HorizontalTextAlignment" Value="Center"/>
+        <Setter Property="LineBreakMode" Value="WordWrap"/>
+        <Setter Property="Margin" Value="8,-10,8,6"/>
+    </Style>
+
     <!-- Glass Card Frame -->
     <Style TargetType="Frame" x:Key="GlassCard">
         <Setter Property="BackgroundColor" Value="{StaticResource GlassBg}"/>
