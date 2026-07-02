@@ -156,6 +156,7 @@ public partial class CalendarDayModel : ObservableObject
     public IList<TripPlan> Plans { get; set; } = new List<TripPlan>();
     public IList<TripIndicator> Indicators { get; set; } = new List<TripIndicator>();
 
+    public double CellOpacity => IsCurrentMonth ? 1 : 0;
     public Color BorderColor => IsToday ? Colors.Blue : Colors.Transparent;
 }
 

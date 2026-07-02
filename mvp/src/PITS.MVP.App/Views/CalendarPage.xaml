@@ -95,10 +95,12 @@
                            BackgroundColor="{StaticResource BgCard}"
                            BorderColor="{Binding BorderColor}"
                            HasShadow="False"
+                           Opacity="{Binding CellOpacity}"
                            HeightRequest="60"
                            CornerRadius="16">
                         <VerticalStackLayout HorizontalOptions="Fill" Spacing="2">
                             <Label Text="{Binding DayNumber}"
+                                   IsVisible="{Binding IsCurrentMonth}"
                                    HorizontalOptions="End" FontSize="14"
                                    TextColor="{StaticResource TextPrimary}"/>
                             <HorizontalStackLayout Spacing="3" HorizontalOptions="Center" VerticalOptions="EndAndExpand">
