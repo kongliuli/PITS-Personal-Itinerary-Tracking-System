@@ -90,6 +90,12 @@ public class TripService : ITripService
         return trip;
     }
 
+    public async Task AddTrackPointAsync(TrackPoint point)
+    {
+        _context.TrackPoints.Add(point);
+        await _context.SaveChangesAsync();
+    }
+
     public async Task UpdateAsync(Trip trip)
     {
         trip.UpdatedAt = DateTime.UtcNow;

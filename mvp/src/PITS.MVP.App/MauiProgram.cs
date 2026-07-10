@@ -41,6 +41,12 @@ public static class MauiProgram
         builder.Services.AddSingleton<ITripPlanService, TripPlanService>();
         builder.Services.AddSingleton<IPrivacyExportService, PrivacyExportService>();
         builder.Services.AddSingleton<IBackupService, BackupService>();
+        builder.Services.AddSingleton<IAlmanacService, AlmanacService>();
+#if ANDROID
+        builder.Services.AddSingleton<ILocationTrackingService, AndroidLocationTrackingService>();
+#else
+        builder.Services.AddSingleton<ILocationTrackingService, LocationTrackingService>();
+#endif
 
         builder.Services.AddTransient<RecordPage>();
         builder.Services.AddTransient<RecordViewModel>();

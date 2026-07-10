@@ -1,4 +1,5 @@
 using PITS.MVP.Core.Entities;
+using PITS.MVP.Core.Services;
 using PITS.MVP.Core.ValueObjects;
 using Xunit;
 
@@ -89,6 +90,52 @@ public class TrackPointEntityTests
         Assert.Equal(5.2, point.Speed);
         Assert.Equal(100.0, point.Altitude);
     }
+}
+
+public class LocationTrackingOptionsTests
+{
+    private readonly LocationTrackingOptions _options = new()
+    {
+        SampleIntervalSeconds = 30,
+        MinimumDistanceMeters = 10
+    };
+
+    [Fact]
+    public void ShouldSave_SavesFirstSample()
+    {
+        Assert.True(_options.ShouldSave(null, Sample(0, 31.2304, 121.4737)));
+    }
+
+    [Fact]
+    public void ShouldSave_SkipsWhenTimeAndDistanceAreBelowThresholds()
+    {
+        Assert.False(_options.ShouldSave(
+            Sample(0, 31.2304, 121.4737),
+            Sample(10, 31.230401, 121.473701)));
+    }
+
+    [Fact]
+    public void ShouldSave_SavesWhenIntervalIsReached()
+    {
+        Assert.True(_options.ShouldSave(
+            Sample(0, 31.2304, 121.4737),
+            Sample(30, 31.230401, 121.473701)));
+    }
+
+    [Fact]
+    public void ShouldSave_SavesWhenDistanceIsReached()
+    {
+        Assert.True(_options.ShouldSave(
+            Sample(0, 31.2304, 121.4737),
+            Sample(10, 31.2306, 121.4737)));
+    }
+
+    private static LocationSample Sample(int seconds, double latitude, double longitude) => new()
+    {
+        Timestamp = new DateTime(2026, 7, 2, 8, 0, 0, DateTimeKind.Utc).AddSeconds(seconds),
+        Latitude = latitude,
+        Longitude = longitude
+    };
 }
 
 public class TripPlanEntityTests

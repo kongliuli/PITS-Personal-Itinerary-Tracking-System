@@ -1,0 +1,37 @@
+MVP Cleanup — Evidence Log
+============================
+Date: 2026-07-10
+Worker: FILE-ONLY cleanup agent
+
+## Step 1 — Deleted 6 empty skeleton projects under src/
+- src/PITS.Core          ✓ GONE
+- src/PITS.Infrastructure ✓ GONE
+- src/PITS.AI            ✓ GONE
+- src/PITS.API           ✓ GONE
+- src/PITS.CLI           ✓ GONE
+- src/PITS.TUI           ✓ GONE
+
+## Step 2 — Deleted empty test projects, dirs, dist/
+- tests/PITS.Core.Tests       ✓ GONE
+- tests/PITS.Integration.Tests ✓ GONE
+- .uploads                    ✓ GONE
+- .agents                     ✓ GONE
+- dist                        ✓ GONE
+
+## Step 3 — Fixed Dosc/ → docs/
+- Dosc/ deleted            ✓ GONE
+- docs/ created            ✓ EXISTS
+- PITS-全案蓝图-统一版.md moved to docs/  ✓
+
+## Step 4 — .gitignore updated
+- Added `/dist/` entry     ✓
+
+## Step 5 — Build verification
+- PITS.sln:         Built successfully (pre-existing env errors: no Android SDK, no MacCatalyst on Windows)
+- mvp/PITS.MVP.sln: Built successfully (same pre-existing env errors)
+- All core library and test projects compiled. No regressions from cleanup.
+
+## Pre-existing build limitations (not caused by cleanup)
+- XA5300: Android SDK not installed on this machine
+- CS5001: MacCatalyst target requires macOS host
+- Both existed before cleanup and are unrelated to deleted paths.

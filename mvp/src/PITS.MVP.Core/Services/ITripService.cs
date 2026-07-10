@@ -11,6 +11,7 @@ public interface ITripService
     Task<IEnumerable<Trip>> GetByVisibilityAsync(VisibilityLevel maxVisibility);
     Task AddAsync(Trip trip);
     Task<Trip> CreateTripAsync(Trip trip, IReadOnlyList<TrackPoint>? trackPoints = null);
+    Task AddTrackPointAsync(TrackPoint point);
     Task UpdateAsync(Trip trip);
     Task DeleteAsync(string id);
     Task<IEnumerable<Trip>> SearchAsync(string query, VisibilityLevel maxVisibility);

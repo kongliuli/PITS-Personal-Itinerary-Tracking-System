@@ -198,6 +198,29 @@ public class TripContextTests : IDisposable
     }
 
     [Fact]
+    public async Task TripService_AddTrackPointAsync_SavesUnassignedPoint()
+    {
+        var service = new TripService(_context, new TransportModeDetector());
+        var point = new TrackPoint
+        {
+            TripId = null,
+            Timestamp = new DateTime(2026, 7, 2, 9, 0, 0, DateTimeKind.Utc),
+            Location = new Point(121.4737, 31.2304) { SRID = 4326 },
+            Accuracy = 6,
+            Speed = 1.5
+        };
+
+        await service.AddTrackPointAsync(point);
+
+        var saved = await _context.TrackPoints.SingleAsync();
+        Assert.Null(saved.TripId);
+        Assert.Equal(121.4737, saved.Location.X, 4);
+        Assert.Equal(31.2304, saved.Location.Y, 4);
+        Assert.Equal(6, saved.Accuracy);
+        Assert.Equal(1.5, saved.Speed);
+    }
+
+    [Fact]
     public async Task MultipleTrips_CanBeAdded()
     {
         var trips = Enumerable.Range(0, 100).Select(i => new Trip
@@ -583,6 +606,27 @@ END:VCALENDAR
     }
 
     [Fact]
+    public async Task SkipStagingItem_RemovesPendingItem()
+    {
+        var ics = """
+BEGIN:VCALENDAR
+BEGIN:VEVENT
+UID:pits-test-skip
+DTSTART:20260704T090000
+SUMMARY:Skip me
+END:VEVENT
+END:VCALENDAR
+""";
+
+        await _service.StageIcsAsync(new MemoryStream(Encoding.UTF8.GetBytes(ics)));
+        var item = (await _service.GetPendingStagingItemsAsync()).Single();
+
+        await _service.SkipStagingItemAsync(item.Id);
+
+        Assert.Empty(await _service.GetPendingStagingItemsAsync());
+    }
+
+    [Fact]
     public async Task StageEmailAsync_StagesConfirmationAsPlan()
     {
         var email = """
@@ -653,6 +697,74 @@ public class BackupServiceTests
             .Options;
 
         return new TripContext(options);
+    }
+}
+
+public class StatsServiceTests : IDisposable
+{
+    private readonly TripContext _context;
+
+    public StatsServiceTests()
+    {
+        var options = new DbContextOptionsBuilder<TripContext>()
+            .UseSqlite("DataSource=:memory:")
+            .Options;
+
+        _context = new TripContext(options);
+        _context.Database.OpenConnection();
+        _context.Database.EnsureCreated();
+    }
+
+    public void Dispose()
+    {
+        _context.Database.CloseConnection();
+        _context.Dispose();
+    }
+
+    [Fact]
+    public async Task GetTotalDistanceAsync_UsesTrackPoints()
+    {
+        var trip = new Trip { StartedAt = DateTime.UtcNow, ActivityType = ActivityType.Walking };
+        _context.Trips.Add(trip);
+        _context.TrackPoints.AddRange(
+            new TrackPoint
+            {
+                TripId = trip.Id,
+                Timestamp = trip.StartedAt,
+                Location = new Point(121.0, 31.0) { SRID = 4326 }
+            },
+            new TrackPoint
+            {
+                TripId = trip.Id,
+                Timestamp = trip.StartedAt.AddMinutes(1),
+                Location = new Point(121.0, 31.001) { SRID = 4326 }
+            });
+        await _context.SaveChangesAsync();
+
+        var distance = await new StatsService(_context).GetTotalDistanceAsync();
+
+        Assert.InRange(distance, 100, 125);
+    }
+}
+
+public class V1PlaceholderServiceTests
+{
+    [Fact]
+    public async Task AlmanacService_ReturnsUnconfiguredStatus()
+    {
+        var almanac = await new AlmanacService().GetAsync(new DateTime(2026, 7, 2));
+
+        Assert.False(almanac.IsConfigured);
+        Assert.Contains("未配置", almanac.Summary);
+    }
+
+    [Fact]
+    public async Task LocationTrackingService_ReturnsStoppedStatus()
+    {
+        var status = await new LocationTrackingService().GetStatusAsync();
+
+        Assert.False(status.IsRunning);
+        Assert.Contains("未启动", status.Message);
     }
 }
 

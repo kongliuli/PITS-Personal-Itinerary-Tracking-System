@@ -11,10 +11,12 @@ public partial class CalendarViewModel : BaseViewModel
     private readonly ITripService _tripService;
     private readonly ITripPlanService _planService;
     private readonly IReminderService _reminderService;
+    private readonly IAlmanacService _almanacService;
 
     [ObservableProperty] private DateTime _currentMonth = DateTime.Today;
     [ObservableProperty] private CalendarDayModel? _selectedDay;
     [ObservableProperty] private string _onThisDaySummary = "";
+    [ObservableProperty] private string _almanacSummary = "v1 黄历 API 未配置";
 
     public ObservableCollection<CalendarDayModel> CalendarDays { get; } = new();
     public ObservableCollection<Trip> SelectedDayTrips { get; } = new();
@@ -25,11 +27,12 @@ public partial class CalendarViewModel : BaseViewModel
 
     public bool HasSelectedDay => SelectedDay != null;
 
-    public CalendarViewModel(ITripService tripService, ITripPlanService planService, IReminderService reminderService)
+    public CalendarViewModel(ITripService tripService, ITripPlanService planService, IReminderService reminderService, IAlmanacService almanacService)
     {
         _tripService = tripService;
         _planService = planService;
         _reminderService = reminderService;
+        _almanacService = almanacService;
         Title = "日历";
     }
 
@@ -37,6 +40,7 @@ public partial class CalendarViewModel : BaseViewModel
     {
         await LoadMonthDataAsync();
         await LoadOnThisDayAsync();
+        await LoadAlmanacAsync(SelectedDay?.Date ?? DateTime.Today);
     }
 
     [RelayCommand]
@@ -101,7 +105,7 @@ public partial class CalendarViewModel : BaseViewModel
     }
 
     [RelayCommand]
-    private void SelectDay(CalendarDayModel day)
+    private async Task SelectDayAsync(CalendarDayModel day)
     {
         if (!day.IsCurrentMonth) return;
 
@@ -129,6 +133,13 @@ public partial class CalendarViewModel : BaseViewModel
             SelectedDayComparisons.Add(PlanActualRow.FromUnplannedTrip(trip));
         }
         OnPropertyChanged(nameof(HasSelectedDay));
+        await LoadAlmanacAsync(day.Date);
+    }
+
+    private async Task LoadAlmanacAsync(DateTime date)
+    {
+        var almanac = await _almanacService.GetAsync(date);
+        AlmanacSummary = almanac.Summary;
     }
 
     [RelayCommand]

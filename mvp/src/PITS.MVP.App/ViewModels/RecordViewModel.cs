@@ -45,6 +45,7 @@ public partial class RecordViewModel : BaseViewModel
         _tripService = tripService;
         _planService = planService;
         _geoService = geoService;
+        SelectedVisibility = (VisibilityLevel)Preferences.Default.Get("default_visibility", (int)VisibilityLevel.Private);
         Title = "记录行程";
     }
 
@@ -52,12 +53,7 @@ public partial class RecordViewModel : BaseViewModel
     {
         await ExecuteAsync(async () =>
         {
-            UpcomingPlans.Clear();
-            var plans = await _planService.GetUpcomingAsync(DateTime.Now.AddDays(-1), 5);
-            foreach (var plan in plans)
-            {
-                UpcomingPlans.Add(plan);
-            }
+            await LoadUpcomingPlansAsync();
 
             var location = await Geolocation.GetLocationAsync(
                 new GeolocationRequest(GeolocationAccuracy.Best, TimeSpan.FromSeconds(10)));
@@ -92,30 +88,30 @@ public partial class RecordViewModel : BaseViewModel
     [RelayCommand]
     private async Task SaveAsync()
     {
-        if (CurrentLocation == null)
-        {
-            await Shell.Current.DisplayAlertAsync("错误", "无法获取位置", "确定");
-            return;
-        }
-
         await ExecuteAsync(async () =>
         {
             var startedAt = StartDate.Add(StartTime);
             var endedAt = EndDate.Add(EndTime);
+            if (endedAt < startedAt)
+            {
+                await Shell.Current.DisplayAlertAsync("错误", "结束时间不能早于开始时间", "确定");
+                return;
+            }
 
             var trip = new Trip
             {
                 StartedAt = startedAt,
                 EndedAt = endedAt,
-                Location = new NetTopologySuite.Geometries.Point(
-                    CurrentLocation.Longitude, CurrentLocation.Latitude) { SRID = 4326 },
-                GeoHash = GeoHash.Encode(CurrentLocation.Latitude, CurrentLocation.Longitude, 8),
+                Location = CurrentLocation == null
+                    ? null
+                    : new NetTopologySuite.Geometries.Point(CurrentLocation.Longitude, CurrentLocation.Latitude) { SRID = 4326 },
+                GeoHash = CurrentLocation == null ? null : GeoHash.Encode(CurrentLocation.Latitude, CurrentLocation.Longitude, 8),
                 ActivityType = SelectedActivity,
                 Description = Description,
                 Visibility = SelectedVisibility,
                 Source = DataSource.Manual,
-                Accuracy = CurrentLocation.Accuracy,
-                Address = CurrentAddress,
+                Accuracy = CurrentLocation?.Accuracy,
+                Address = CurrentLocation == null ? null : CurrentAddress,
                 PlanId = SelectedPlanId
             };
 
@@ -128,7 +124,49 @@ public partial class RecordViewModel : BaseViewModel
 
             await Shell.Current.DisplayAlertAsync("成功", "行程已记录", "确定");
             Description = "";
+            await LoadUpcomingPlansAsync();
         });
+    }
+
+    [RelayCommand]
+    private async Task SavePlanAsync()
+    {
+        await ExecuteAsync(async () =>
+        {
+            var startsAt = StartDate.Add(StartTime);
+            var endsAt = EndDate.Add(EndTime);
+            if (endsAt < startsAt)
+            {
+                await Shell.Current.DisplayAlertAsync("错误", "结束时间不能早于开始时间", "确定");
+                return;
+            }
+
+            await _planService.AddAsync(new TripPlan
+            {
+                Title = string.IsNullOrWhiteSpace(Description) ? "日程计划" : Description,
+                StartsAt = startsAt,
+                EndsAt = endsAt,
+                LocationName = CurrentLocation == null ? null : CurrentAddress,
+                ActivityType = SelectedActivity,
+                Visibility = SelectedVisibility,
+                Source = DataSource.Manual,
+                Status = PlanStatus.Planned
+            });
+
+            await Shell.Current.DisplayAlertAsync("成功", "计划已保存", "确定");
+            Description = "";
+            await LoadUpcomingPlansAsync();
+        });
+    }
+
+    private async Task LoadUpcomingPlansAsync()
+    {
+        UpcomingPlans.Clear();
+        var plans = await _planService.GetUpcomingAsync(DateTime.Now.AddDays(-1), 5);
+        foreach (var plan in plans)
+        {
+            UpcomingPlans.Add(plan);
+        }
     }
 }
 

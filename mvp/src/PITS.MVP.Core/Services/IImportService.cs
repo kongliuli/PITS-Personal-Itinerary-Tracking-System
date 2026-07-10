@@ -21,6 +21,7 @@ public interface IImportService
     Task<IReadOnlyList<ImportStagingItem>> GetPendingStagingItemsAsync();
     Task<Trip?> ConfirmStagingItemAsTripAsync(string stagingItemId);
     Task<TripPlan?> ConfirmStagingItemAsPlanAsync(string stagingItemId);
+    Task SkipStagingItemAsync(string stagingItemId);
 }
 
 public class ImportResult

@@ -123,6 +123,15 @@ public class ImportService : IImportService
         return plan;
     }
 
+    public async Task SkipStagingItemAsync(string stagingItemId)
+    {
+        var item = await _context.ImportStagingItems.FindAsync(stagingItemId);
+        if (item == null || item.Status != ImportStagingStatus.Pending) return;
+
+        item.Status = ImportStagingStatus.Skipped;
+        await _context.SaveChangesAsync();
+    }
+
     private async Task<ImportResult> ConfirmAsTripsAsync(IReadOnlyList<ImportStagingItem> items)
     {
         var result = new ImportResult { ItemsStaged = items.Count, PointsImported = items.Count };

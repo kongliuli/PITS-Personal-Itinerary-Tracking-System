@@ -37,7 +37,6 @@
                        Text="{Binding NewPlaceName}"
                        BackgroundColor="{StaticResource BgCard}"
                        TextColor="{StaticResource TextPrimary}"
-                       CornerRadius="12"
                        HeightRequest="48"
                        Margin="0"/>
 

@@ -65,6 +65,10 @@ android/
 ios/
 mac/
 windows/
+!mvp/src/PITS.MVP.App/Platforms/
+!mvp/src/PITS.MVP.App/Platforms/Android/
+!mvp/src/PITS.MVP.App/Platforms/Android/*.cs
+!mvp/src/PITS.MVP.App/Platforms/Android/*.xml
 
 # Local data files (SQLite databases)
 *.db
@@ -91,3 +95,6 @@ windows/
 Thumbs.db
 ehthumbs.db
 Desktop.ini
+
+# Build output directories
+/dist/

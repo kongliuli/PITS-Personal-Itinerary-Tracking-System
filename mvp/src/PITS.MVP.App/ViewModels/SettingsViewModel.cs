@@ -10,6 +10,9 @@ public partial class SettingsViewModel : BaseViewModel
     private readonly ITripService _tripService;
     private readonly IPrivacyExportService _privacyExportService;
     private readonly IBackupService _backupService;
+    private readonly IMqttLocationPublisher _mqttPublisher;
+    private readonly ILocationTrackingService _locationTrackingService;
+    private readonly ITrackingProfileService _trackingProfileService;
 
     [ObservableProperty] private VisibilityLevel _defaultVisibility = VisibilityLevel.Private;
     [ObservableProperty] private bool _enableBackgroundLocation = true;
@@ -27,6 +30,10 @@ public partial class SettingsViewModel : BaseViewModel
     [ObservableProperty] private string _mqttPassword = Preferences.Default.Get("mqtt_password", "");
 
     [ObservableProperty] private bool _mqttEnabled = Preferences.Default.Get("mqtt_enabled", false);
+    [ObservableProperty] private string _almanacApiBaseUrl = Preferences.Default.Get("almanac_api_base_url", "");
+    [ObservableProperty] private string _almanacApiKey = Preferences.Default.Get("almanac_api_key", "");
+    [ObservableProperty] private string _mqttStatus = "";
+    [ObservableProperty] private string _locationTrackingStatus = "v1 后台定位未启动";
 
     public List<VisibilityLevel> VisibilityLevels { get; } = Enum.GetValues<VisibilityLevel>().ToList();
 
@@ -53,18 +60,104 @@ public partial class SettingsViewModel : BaseViewModel
     partial void OnMqttUsernameChanged(string value) => Preferences.Default.Set("mqtt_username", value);
     partial void OnMqttPasswordChanged(string value) => Preferences.Default.Set("mqtt_password", value);
     partial void OnMqttEnabledChanged(bool value) => Preferences.Default.Set("mqtt_enabled", value);
+    partial void OnAlmanacApiBaseUrlChanged(string value) => Preferences.Default.Set("almanac_api_base_url", value);
+    partial void OnAlmanacApiKeyChanged(string value) => Preferences.Default.Set("almanac_api_key", value);
 
-    public SettingsViewModel(ITripService tripService, IPrivacyExportService privacyExportService, IBackupService backupService)
+    public SettingsViewModel(
+        ITripService tripService,
+        IPrivacyExportService privacyExportService,
+        IBackupService backupService,
+        IMqttLocationPublisher mqttPublisher,
+        ILocationTrackingService locationTrackingService,
+        ITrackingProfileService trackingProfileService)
     {
         _tripService = tripService;
         _privacyExportService = privacyExportService;
         _backupService = backupService;
+        _mqttPublisher = mqttPublisher;
+        _locationTrackingService = locationTrackingService;
+        _trackingProfileService = trackingProfileService;
         Title = "设置";
 
         // 从 Preferences 恢复设置
         _defaultVisibility = (VisibilityLevel)Preferences.Default.Get("default_visibility", (int)VisibilityLevel.Private);
         _enableBackgroundLocation = Preferences.Default.Get("enable_background_location", true);
         _geofenceRadius = Preferences.Default.Get("geofence_radius", 200.0);
+    }
+
+    public async Task LoadStatusAsync()
+    {
+        var status = await _locationTrackingService.GetStatusAsync();
+        var lastSample = status.LastSampleAt.HasValue
+            ? $" Last sample: {status.LastSampleAt.Value:MM-dd HH:mm:ss} UTC."
+            : "";
+        LocationTrackingStatus = $"{status.Message}. Saved points: {status.SavedPointCount}.{lastSample}";
+    }
+
+    [RelayCommand]
+    private async Task StartLocationTrackingAsync()
+    {
+        if (!await EnsureLocationPermissionsAsync())
+        {
+            LocationTrackingStatus = "Location or notification permission denied";
+            return;
+        }
+
+        await ExecuteAsync(async () =>
+        {
+            var profile = await _trackingProfileService.GetCurrentProfileAsync();
+            await _locationTrackingService.StartAsync(new LocationTrackingOptions
+            {
+                Enabled = true,
+                SampleIntervalSeconds = profile.UpdateIntervalSeconds,
+                MinimumDistanceMeters = profile.MinimumDistanceMeters,
+                GeofenceRadiusMeters = GeofenceRadius,
+                StayRadiusMeters = StayRadius,
+                StayDurationMinutes = StayDurationMinutes,
+                GapThresholdMinutes = GapThresholdMinutes
+            });
+            await LoadStatusAsync();
+        });
+
+        if (HasError)
+            LocationTrackingStatus = $"Location tracking failed: {ErrorMessage}";
+    }
+
+    [RelayCommand]
+    private async Task StopLocationTrackingAsync()
+    {
+        await ExecuteAsync(async () =>
+        {
+            await _locationTrackingService.StopAsync();
+            await LoadStatusAsync();
+        });
+    }
+
+    [RelayCommand]
+    private async Task TestMqttConnectionAsync()
+    {
+        if (string.IsNullOrWhiteSpace(MqttHost))
+        {
+            MqttStatus = "请先填写 MQTT 服务器地址";
+            return;
+        }
+
+        await ExecuteAsync(async () =>
+        {
+            try
+            {
+                await _mqttPublisher.ConnectAsync(MqttHost, MqttPort, MqttUsername, MqttPassword);
+                MqttStatus = _mqttPublisher.IsConnected ? "MQTT 连接成功" : "MQTT 未连接";
+            }
+            catch (Exception ex)
+            {
+                MqttStatus = $"MQTT 连接失败：{ex.Message}";
+            }
+            finally
+            {
+                await _mqttPublisher.DisconnectAsync();
+            }
+        });
     }
 
     [RelayCommand]
@@ -199,5 +292,26 @@ public partial class SettingsViewModel : BaseViewModel
 
         sb.AppendLine("</gpx>");
         return sb.ToString();
+    }
+
+    private static async Task<bool> EnsureLocationPermissionsAsync()
+    {
+        var location = await Permissions.CheckStatusAsync<Permissions.LocationWhenInUse>();
+        if (location != PermissionStatus.Granted)
+            location = await Permissions.RequestAsync<Permissions.LocationWhenInUse>();
+
+        if (location != PermissionStatus.Granted) return false;
+
+#if ANDROID
+        if (OperatingSystem.IsAndroidVersionAtLeast(33))
+        {
+            var notification = await Permissions.CheckStatusAsync<Permissions.PostNotifications>();
+            if (notification != PermissionStatus.Granted)
+                notification = await Permissions.RequestAsync<Permissions.PostNotifications>();
+            return notification == PermissionStatus.Granted;
+        }
+#endif
+
+        return true;
     }
 }

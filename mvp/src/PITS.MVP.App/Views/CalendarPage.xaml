@@ -45,7 +45,7 @@
                            FontAttributes="Bold"
                            FontSize="15"
                            TextColor="{StaticResource TextPrimary}"/>
-                    <Label Text="选择日期后可查看宜忌、节气、冲煞等完整信息"
+                    <Label Text="{Binding AlmanacSummary}"
                            FontSize="13"
                            TextColor="{StaticResource TextSecondary}"
                            LineBreakMode="WordWrap"/>

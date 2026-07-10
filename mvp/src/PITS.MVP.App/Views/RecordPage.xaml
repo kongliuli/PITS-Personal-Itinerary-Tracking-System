@@ -240,6 +240,15 @@
                     CornerRadius="14"
                     Margin="0,14,0,4"/>
 
+            <Button Text="保存为计划"
+                    Command="{Binding SavePlanCommand}"
+                    Style="{StaticResource GhostButton}"
+                    FontSize="15"
+                    FontAttributes="Bold"
+                    HeightRequest="46"
+                    CornerRadius="14"
+                    Margin="0,-2,0,4"/>
+
         </VerticalStackLayout>
     </ScrollView>
 </ContentPage>

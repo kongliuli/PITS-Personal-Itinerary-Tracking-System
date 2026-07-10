@@ -16,8 +16,9 @@ public class StatsService : IStatsService
 
     public async Task<double> GetTotalDistanceAsync()
     {
-        // 基于 TrackPoint 计算，或使用 Trip 的 Distance 字段
-        var trips = await _context.Trips.ToListAsync();
+        var trips = await _context.Trips
+            .Include(t => t.TrackPoints)
+            .ToListAsync();
         return trips.Sum(t => CalculateTripDistance(t));
     }
 
@@ -80,8 +81,33 @@ public class StatsService : IStatsService
 
     private static double CalculateTripDistance(Trip trip)
     {
-        // 简单估算，实际应基于 TrackPoint
-        if (!trip.EndedAt.HasValue || trip.EndedAt.Value == trip.StartedAt) return 0;
-        return 0; // 需要实际 TrackPoint 计算
+        var points = trip.TrackPoints
+            .Where(p => p.Location != null)
+            .OrderBy(p => p.Timestamp)
+            .Select(p => p.Location!)
+            .ToList();
+
+        if (points.Count < 2) return 0;
+
+        var meters = 0d;
+        for (var i = 1; i < points.Count; i++)
+        {
+            meters += HaversineMeters(points[i - 1].Y, points[i - 1].X, points[i].Y, points[i].X);
+        }
+
+        return meters;
     }
+
+    private static double HaversineMeters(double lat1, double lon1, double lat2, double lon2)
+    {
+        const double earthRadiusMeters = 6371000;
+        var dLat = ToRadians(lat2 - lat1);
+        var dLon = ToRadians(lon2 - lon1);
+        var a = Math.Sin(dLat / 2) * Math.Sin(dLat / 2) +
+            Math.Cos(ToRadians(lat1)) * Math.Cos(ToRadians(lat2)) *
+            Math.Sin(dLon / 2) * Math.Sin(dLon / 2);
+        return earthRadiusMeters * 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
+    }
+
+    private static double ToRadians(double degrees) => degrees * Math.PI / 180;
 }

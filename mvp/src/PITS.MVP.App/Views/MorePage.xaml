@@ -5,8 +5,7 @@
              Shell.NavBarIsVisible="False"
              BackgroundColor="{StaticResource BgPrimary}">
 
-    <ScrollView>
-        <VerticalStackLayout Style="{StaticResource PageStack}">
+    <VerticalStackLayout Style="{StaticResource PageStack}">
             <Label Text="更多"
                    Style="{StaticResource PageTitle}" />
             <Label Text="低频功能集中放在这里，底部导航只保留每天会用的入口"
@@ -35,6 +34,5 @@
                             HorizontalOptions="Fill" />
                 </VerticalStackLayout>
             </Border>
-        </VerticalStackLayout>
-    </ScrollView>
+    </VerticalStackLayout>
 </ContentPage>

@@ -9,6 +9,7 @@
        Shell.TitleColor="{StaticResource TextPrimary}"
        Shell.DisabledColor="{StaticResource TextTertiary}"
        Shell.UnselectedColor="{StaticResource TextSecondary}"
+       FlyoutBehavior="Disabled"
        Shell.TabBarBackgroundColor="{StaticResource BgSurface}"
        Shell.TabBarForegroundColor="{StaticResource AccentPrimary}"
        Shell.TabBarUnselectedColor="{StaticResource TextTertiary}"
