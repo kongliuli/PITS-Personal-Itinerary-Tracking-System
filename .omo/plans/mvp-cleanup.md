@@ -61,7 +61,7 @@ Your next move: Run `$start-work` to execute.
 ## Todos
 > Implementation + Test = ONE todo. Never separate.
 <!-- APPEND TASK BATCHES BELOW THIS LINE WITH edit/apply_patch - never rewrite the headers above. -->
-- [ ] 1. Delete `src/PITS.Core/` and `src/PITS.Infrastructure/`
+- [x] 1. Delete `src/PITS.Core/` and `src/PITS.Infrastructure/`
   What to do / Must NOT do: Remove the two directories recursively. These projects are NOT referenced in PITS.sln (confirmed: PITS.sln only references `mvp/src/PITS.MVP.Core` and `mvp/src/PITS.MVP.Infrastructure` under the `mvp/` prefix). Must NOT touch the `mvp/src/PITS.MVP.Core/` or `mvp/src/PITS.MVP.Infrastructure/` directories.
   Parallelization: Wave 1 | Blocked by: — | Blocks: 7
   References: `PITS.sln` lines 9-12 (only references mvp/ projects), `src/PITS.Core/Class1.cs`, `src/PITS.Infrastructure/Class1.cs`
@@ -70,7 +70,7 @@ Your next move: Run `$start-work` to execute.
   Evidence: `.omo/evidence/task-1-mvp-cleanup.dry-run.txt`
   Commit: N | squashed into final commit
 
-- [ ] 2. Delete `src/PITS.AI/` and `src/PITS.API/`
+- [x] 2. Delete `src/PITS.AI/` and `src/PITS.API/`
   What to do / Must NOT do: Remove the two directories. PITS.AI is a skeleton with only Class1.cs + stale NuGet refs to SemanticKernel/OllamaSharp (target net8.0). PITS.API is a bare `CreateBuilder` + `Run()`. Neither is in any .sln. Must NOT touch `mvp/poc/PITS.POC.AI/`.
   Parallelization: Wave 1 | Blocked by: — | Blocks: 7
   References: `src/PITS.AI/Program.cs`, `src/PITS.API/Program.cs`
@@ -79,7 +79,7 @@ Your next move: Run `$start-work` to execute.
   Evidence: `.omo/evidence/task-2-mvp-cleanup.dry-run.txt`
   Commit: N
 
-- [ ] 3. Delete `src/PITS.CLI/` and `src/PITS.TUI/`
+- [x] 3. Delete `src/PITS.CLI/` and `src/PITS.TUI/`
   What to do / Must NOT do: Remove the two directories. Both contain only a single `Console.WriteLine("... Coming Soon")` Program.cs. Phase 3 features — safe to delete.
   Parallelization: Wave 1 | Blocked by: — | Blocks: 7
   References: `src/PITS.CLI/Program.cs`, `src/PITS.TUI/Program.cs`
@@ -88,7 +88,7 @@ Your next move: Run `$start-work` to execute.
   Evidence: `.omo/evidence/task-3-mvp-cleanup.dry-run.txt`
   Commit: N
 
-- [ ] 4. Delete empty test projects, empty dirs, and dist/
+- [x] 4. Delete empty test projects, empty dirs, and dist/
   What to do / Must NOT do: Delete `tests/PITS.Core.Tests/`, `tests/PITS.Integration.Tests/` (not in PITS.sln — real tests are in `mvp/tests/`). Delete `.uploads/`, `.agents/`. Delete `dist/` entirely (publish artifact, user confirmed delete). Must NOT touch `mvp/tests/` directory.
   Parallelization: Wave 2 | Blocked by: — | Blocks: 7
   References: `tests/PITS.Core.Tests/UnitTest1.cs`, `tests/PITS.Integration.Tests/UnitTest1.cs`, `.uploads/` (empty), `.agents/` (empty), `dist/PITS-MVP-20260702.zip`
@@ -97,7 +97,7 @@ Your next move: Run `$start-work` to execute.
   Evidence: `.omo/evidence/task-4-mvp-cleanup.dry-run.txt`
   Commit: N
 
-- [ ] 5. Fix `Dosc/` — move blueprint doc, delete Readme
+- [x] 5. Fix `Dosc/` — move blueprint doc, delete Readme
   What to do / Must NOT do: Create `docs/` directory (if not exist). Copy `Dosc/PITS-全案蓝图-统一版.md` to `docs/PITS-全案蓝图-统一版.md`. Delete `Dosc/Readme.md` (content is "123"). Delete empty `Dosc/` directory. Must NOT lose the blueprint document.
   Parallelization: Wave 3 | Blocked by: — | Blocks: 7
   References: `Dosc/Readme.md`, `Dosc/PITS-全案蓝图-统一版.md`
@@ -106,7 +106,7 @@ Your next move: Run `$start-work` to execute.
   Evidence: `.omo/evidence/task-5-mvp-cleanup.dry-run.txt`
   Commit: N
 
-- [ ] 6. Add `dist/` to `.gitignore`
+- [x] 6. Add `dist/` to `.gitignore`
   What to do / Must NOT do: Append `/dist/` entry to root `.gitignore`. Must NOT change any existing entries.
   Parallelization: Wave 3 | Blocked by: — | Blocks: 7
   References: `.gitignore` line 97 (last line)
@@ -115,7 +115,7 @@ Your next move: Run `$start-work` to execute.
   Evidence: `.omo/evidence/task-6-mvp-cleanup.dry-run.txt`
   Commit: N
 
-- [ ] 7. Build verification — both solutions compile
+- [x] 7. Build verification — both solutions compile
   What to do / Must NOT do: Run `dotnet build` on `PITS.sln` and `mvp/PITS.MVP.sln`. Both must succeed (exit code 0). Must NOT run on any other projects. Must NOT use `--no-restore` (ensure NuGet restore works).
   Parallelization: Wave 4 | Blocked by: 1, 2, 3, 4, 5, 6 | Blocks: —
   References: `PITS.sln`, `mvp/PITS.MVP.sln`
@@ -126,10 +126,10 @@ Your next move: Run `$start-work` to execute.
 
 ## Final verification wave
 > Runs in parallel after ALL todos. ALL must APPROVE. Surface results and wait for the user's explicit okay before declaring complete.
-- [ ] F1. Plan compliance audit
-- [ ] F2. Code quality review
-- [ ] F3. Real manual QA — verify `dotnet build` still passes, check git status shows only expected deletions
-- [ ] F4. Scope fidelity — confirm no mvp/ files were touched
+- [x] F1. Plan compliance audit
+- [x] F2. Code quality review
+- [x] F3. Real manual QA — verify `dotnet build` still passes, check git status shows only expected deletions
+- [x] F4. Scope fidelity — confirm no mvp/ files were touched
 
 ## Commit strategy
 - Squash commits from todos 1-6 into a single commit with message:
